@@ -25,10 +25,22 @@
         ;; @params: 
             ;; campaign ID - uint; fee amount - uint
     (collect-campaign-fee (uint uint) (response bool uint))
+
+    ;; Authorize withdrawal 
+      ;; @params:
+        ;; campaign-id - uint ; requester - principal
+    (authorize-withdrawal (uint principal) (response bool uint))
     
+    ;; Authorize fee-collection 
+      ;; @params:
+        ;; campaign-id - uint ; requester - principal
+    (authorize-fee-collection (uint principal) (response bool uint))
+
     ;; Get campaign balance
     ;; @params: 
-        ;; campaign ID - uint
+        ;; campaign ID - uint ; requester - principal 
     (get-campaign-balance (uint) (response uint uint))
+
+
   )
 )

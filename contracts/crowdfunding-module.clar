@@ -13,11 +13,15 @@
 ;; Implementing the crowdfunding trait (interface) to follow expected rules
 (impl-trait .crowdfunding-module-traits.crowdfunding-trait) 
 
-;; Import emergency module trait for proper emergency operations
+;; Import emergency module trait for calling proper emergency operations
 (use-trait crwd-emergency-module .emergency-module-trait.emergency-module-trait)
 
-;; Import module base trait for standardized module operations
+;; Import module base trait for calling standardized module operations
 (use-trait crwd-module-base .module-base-trait.module-base-trait)
+
+;; Import escrow and film verification module traits for the contracts we will call
+(use-trait crwd-escrow-trait .escrow-module-trait.escrow-trait)
+(use-trait crwd-verification-trait .film-verification-module-trait.film-verification-trait)
 
 
 ;; ===== Core Settings for Module Contract References =====
@@ -259,10 +263,10 @@
       (authorized-core-contract (var-get core-contract))
 
       ;; === Check verification status with proper error handling
-      (verification-result (unwrap! (contract-call? .film-verification-module is-filmmaker-currently-verified tx-sender) ERR-NO-VERIFICATION))
+      (verification-result (unwrap! (contract-call? (var-get verification-contract) is-filmmaker-currently-verified tx-sender) ERR-NO-VERIFICATION))
 
       ;; Check existing filmmaker identities, and current verification level
-      (current-identities (unwrap! (contract-call? .film-verification-module get-filmmaker-identity tx-sender) ERR-NO-VERIFICATION))
+      (current-identities (unwrap! (contract-call? (var-get verification-contract) get-filmmaker-identity tx-sender) ERR-NO-VERIFICATION))
       (current-verification-level (get choice-verification-level current-identities))
       
       ;; Get is-verified, if true, return "verified", else, Default to "not verified"
@@ -342,7 +346,7 @@
         (campaign (unwrap! (map-get? campaigns campaign-id) ERR-CAMPAIGN-NOT-FOUND))
       
         ;; Get the escrow balance from the campaign-escrow-balances map of the escrow-module contract
-        (escrow-balance (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) ERR-ESCROW-BALANCE-NOT-FOUND))
+        (escrow-balance (unwrap! (contract-call? (var-get escrow-contract) get-campaign-balance campaign-id) ERR-ESCROW-BALANCE-NOT-FOUND))
       
         ;; Try to get existing contribution, or default to zero if none
         (existing-contribution (default-to 
@@ -406,7 +410,7 @@
       (asserts! (<= new-total-raised current-funding-goal) ERR-FUNDING-GOAL-EXCEEDED)
       
       ;; Move funds into escrow (secure temporary storage)
-      (unwrap! (contract-call? .escrow-module deposit-to-campaign campaign-id amount) ERR-TRANSFER-FAILED)
+      (unwrap! (contract-call? (var-get escrow-contract) deposit-to-campaign campaign-id amount) ERR-TRANSFER-FAILED)
     
       ;; Increase campaign's total raised amount
       (map-set campaigns campaign-id 
@@ -510,10 +514,10 @@
       )
     
       ;; Withdraw the earned funds minus fees since core contract already authorized these operations in escrow
-      (unwrap! (contract-call? .escrow-module withdraw-from-campaign campaign-id withdraw-amount) ERR-TRANSFER-FAILED)
+      (unwrap! (contract-call? (var-get escrow-contract) withdraw-from-campaign campaign-id withdraw-amount) ERR-TRANSFER-FAILED)
      
       ;; Transfer platform's fee   
-      (unwrap! (contract-call? .escrow-module collect-campaign-fee campaign-id fee-amount) ERR-TRANSFER-FAILED)
+      (unwrap! (contract-call? (var-get escrow-contract) collect-campaign-fee campaign-id fee-amount) ERR-TRANSFER-FAILED)
     
       ;; Track the collected fee
       (var-set total-fees-collected new-collected-fee)

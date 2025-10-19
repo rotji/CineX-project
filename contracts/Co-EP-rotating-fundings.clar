@@ -31,6 +31,12 @@
 ;; reliance on hope-based public appeals of the crowdfunding feature; this targets professional filmmakers seeking dependable funding partnerships
 
 
+;; Import traits for contracts that will be called 
+(use-trait coep-crowdfunding-trait .crowdfunding-module-traits.crowdfunding-trait)
+(use-trait coep-verification-trait .film-verification-module-trait.film-verification-trait)
+
+
+
 ;; ========================
 ;; CONSTANTS & ERROR CODES
 ;; ========================
@@ -201,7 +207,7 @@
             (new-project-count (+ current-project-count u1))
 
             ;; Get filmmaker verified status from 'is-filmmaker-currently-verified" read-only fucntion of filmmaker-verification module
-            (identity-is-verified  (unwrap! (contract-call? .film-verification-module is-filmmaker-currently-verified tx-sender) ERR-IDENTITY-NOT-VERIFIED))
+            (identity-is-verified  (unwrap! (contract-call? (var-get verification-contract) is-filmmaker-currently-verified tx-sender) ERR-IDENTITY-NOT-VERIFIED))
         ) 
 
         ;; Ensure filmmaker is verified
@@ -274,12 +280,12 @@
         (
             ;; get requester's current verified status from 'is-filmmaker-currently-verified" read-only fucntion of filmmaker-verification module
             (requester-identity-is-verified (unwrap! 
-                                                (contract-call? .film-verification-module is-filmmaker-currently-verified tx-sender) 
+                                                (contract-call? (var-get verification-contract) is-filmmaker-currently-verified tx-sender) 
                                                     ERR-IDENTITY-NOT-VERIFIED))
 
             ;; get target's current verified status
             (target-identity-is-verified (unwrap! 
-                                                (contract-call? .film-verification-module is-filmmaker-currently-verified new-target) 
+                                                (contract-call? (var-get verification-contract) is-filmmaker-currently-verified new-target) 
                                                     ERR-IDENTITY-NOT-VERIFIED))
 
             ;; filter out the presence of verified project collaborations for the requester out of the list of mutual-project-ids  
@@ -413,7 +419,7 @@
         (
             ;; Get verified status of pool creator from 'is-filmmaker-currently-verified" read-only fucntion of filmmaker-verification module
             (pool-creator-verified-id (unwrap! 
-                                            (contract-call? .film-verification-module is-filmmaker-currently-verified tx-sender) 
+                                            (contract-call? (var-get verification-contract) is-filmmaker-currently-verified tx-sender) 
                                                 ERR-IDENTITY-NOT-VERIFIED))
 
             ;; Get projects data
@@ -1135,7 +1141,7 @@
             
             ;; Get project-details from funding-rotation-schedule data
             (current-project-details (get project-details funding-rotation-schedule-data))
-
+ 
             ;; Get current-project-description from current-project-details
             (current-project-description (get description current-project-details))
 
@@ -1173,7 +1179,7 @@
         ) 
          ;; Call existing crowdfunding module to create campaign
         ;; This integrates with your existing architecture
-        (contract-call? .crowdfunding-module create-campaign 
+        (contract-call? (var-get crowdfunding-contract) create-campaign 
             current-project-description ;; project description
             u0 ;; campaign-id will auto-generate from u0
             current-funding-amount ;; funding-goal
@@ -1191,6 +1197,7 @@
 (define-public (initialize (core principal) (crowdfunding principal) (verification principal) (escrow principal))
   (begin
     (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+    (var-set core-contract core)
     (var-set crowdfunding-contract crowdfunding)
     (var-set verification-contract verification)
     (var-set escrow-contract escrow)
@@ -1222,5 +1229,23 @@
 ;; Get system-paused status
 (define-read-only (is-system-paused) 
   (var-get emergency-pause)
+)
+
+
+
+;; ========== BASE TRAIT IMPLEMENTATIONS ==========
+;; Get module version number    
+(define-read-only (get-module-version)
+    (ok (var-get module-version)) ;; return module version number
+) 
+
+;; Check if module is active/currently working properly 
+(define-read-only (is-module-active)
+    (ok (var-get module-active)) ;; return if true or false
+)
+
+;; Get module name to identify which module this is
+(define-read-only (get-module-name) 
+    (ok "Co-EP-rotating-fundings") ;; return current module name
 )
 

@@ -23,6 +23,12 @@
 ;; Implements the Rewards Trait interface
 (impl-trait .rewards-module-trait.rewards-trait)
 
+;; Import traits that will be called 
+(use-trait rewards-crowdfunding-trait .crowdfunding-module-traits.crowdfunding-trait)
+(use-trait rewards-nft-trait .rewards-nft-trait.rewards-trait)
+
+
+
 ;; Contract principal as Core contract reference pointing to the CineX main contract
 (define-data-var core-contract principal tx-sender)
 
@@ -66,7 +72,7 @@
     (
 
       ;; Fetch the campaign details from the crowdfunding module
-      (campaign (unwrap! (contract-call? .crowdfunding-module get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
+      (campaign (unwrap! (contract-call? (var-get crowdfunding-contract) get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
 
       ;; Get current-owner of campaign
       (current-owner  (get owner campaign))
@@ -120,7 +126,7 @@
   (let
     (
       ;; Fetch the campaign details
-      (campaign (unwrap! (contract-call? .crowdfunding-module get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
+      (campaign (unwrap! (contract-call? (var-get crowdfunding-contract) get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
 
       ;; get owner of campaign
       (current-owner (get owner campaign)) 

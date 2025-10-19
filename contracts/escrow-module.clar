@@ -71,6 +71,7 @@
 
 
 
+
 ;;;; ======== CONTRACT REFERENCES  ==========
 ;; Store the principal address of the core contract 
 (define-data-var core-contract principal tx-sender)
@@ -394,104 +395,194 @@
 
 
 ;; Core contract authorizes withdrawal
-;; (define-public (authorize-withdrawal (campaign-id uint) (new-requester principal))
-;;  (begin 
+(define-public (authorize-withdrawal (campaign-id uint) (requester principal))
+  (let 
+    (
+      ;; Calculate/account for current expiry period 
+      (current-expiry (+ block-height AUTHORIZATION-TIMEOUT))
+      
+    ) 
     ;; Ensure Only core contract can authorize withdrawals
- ;;   (asserts! (is-eq tx-sender (var-get core-contract)) ERR-NOT-AUTHORIZED)
-  ;;  (map-set authorized-withdrawals { campaign-id: campaign-id, requester: new-requester } 
-  ;;    authorized: bool, ;; authorization status
-  ;;    authorized-at: uint, ;; authorization timestamp for audit
-  ;;    expires-at: uint, ;; expiration to prevent stale authorizations
-  ;;    max-amount: uint ;; maximum amount limit for security 
+    (asserts! (is-eq tx-sender (var-get core-contract)) ERR-NOT-AUTHORIZED)
 
-    
-    
-  ;;  )
-  ;;  (ok true)  
+    ;; Set authorized withdrawal with expiration, beginning from the immediate block-height period of the authorization
+    ;; up to the AUTHORIZATION TIMEOUT 
+    (map-set authorized-withdrawals { campaign-id: campaign-id, requester: requester } {
+      authorized: true, ;; "true" authorization status
+      authorized-at: block-height, ;; authorization timestamp for audit
+      expires-at: current-expiry, ;; expiration to prevent stale authorizations
+      max-amount: MAX-WITHDRAWAL-AMOUNT ;; maximum amount limit for security 
+      }
+    )
   
-  ;;)
-
-;;)
+    (ok true)  
+      
+  )
+)
 
 ;; Core contract authorizes fee collection
-;;(define-public (authorize-fee-collection (campaign-id uint) (requester principal))
- ;; (begin 
+(define-public (authorize-fee-collection (campaign-id uint) (requester principal))
+  (let 
+    (
+      ;; Calculate/account for current expiry period
+      (current-expiry (+ block-height AUTHORIZATION-TIMEOUT))
+    ) 
     ;; Ensure only core contract can authorize fee collection
-   ;; (asserts! (is-eq tx-sender (var-get core-contract)) ERR-NOT-AUTHORIZED)
-    ;;(map-set authorized-fee-collections { campaign-id: campaign-id, requester: requester } true)
-    ;;(ok true)
+   (asserts! (is-eq tx-sender (var-get core-contract)) ERR-NOT-AUTHORIZED)
+   (map-set authorized-fee-collections { campaign-id: campaign-id, requester: requester } { 
+    authorized: true, ;; "true" authorization status
+    authorized-at: block-height, ;; authorization timestamp for audit
+    expires-at: current-expiry, ;; expiration to prevent stale authorizations
+    max-amount: MAX-WITHDRAWAL-AMOUNT ;; maximum amount limit for security
+    })
+   (ok true)
+    
+    
+  )
      
- ;; )
-;;)
+ 
+)
 
 
 
 ;; Public function: Allows the campaign owner to withdraw a specified amount from escrow
-;; (define-public (withdraw-from-campaign (campaign-id uint) (amount uint))
-;;  (let
- ;;   (
+(define-public (withdraw-from-campaign (campaign-id uint) (amount uint))
+  (let
+    (
       ;; Retrieve current balance
- ;;     (current-balance (default-to u0 (map-get? campaign-escrow-balances campaign-id)))
+      (current-balance (default-to u0 (map-get? campaign-escrow-balances campaign-id)))
 
       ;; Check authorization from authorize-withdrawal map, else default to false
-  ;;    (is-withdrawal-authorized (default-to true (map-get? authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })))
+      (current-withdrawal-authorization (unwrap! (map-get? authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender }) ERR-NOT-AUTHORIZED))
+
+      ;; Get authorized status (true or false), and expiry time for authorization
+      (is-authorized (get authorized current-withdrawal-authorization))
+      (auth-expiry (get expires-at current-withdrawal-authorization))
 
       ;; Calculate the new balance after withdrawal
- ;;     (new-balance (- current-balance amount))
+      (new-balance (- current-balance amount))
 
- ;;   )
+      ;; Get current campaign meta-data for validation
+      (current-campaign-meta (unwrap! (map-get? campaign-metadata { campaign-id: campaign-id }) ERR-CAMPAIGN-NOT-FOUND))
+
+      ;; Get current total withdrawn from current campaign meta, and calculate new total
+      (current-total-withdrawn (get total-withdrawn current-campaign-meta))
+      (new-total-withdrawn (+ current-total-withdrawn amount))
+
+       ;; Get global total withdrawals and calculate new total
+       (current-global-withdrawals (var-get total-withdrawal))
+       (new-global-withdrawals (+ current-global-withdrawals amount))
+
+    )
       ;; Ensure caller is authorized core for withdrawal 
- ;;     (asserts! is-withdrawal-authorized ERR-NOT-AUTHORIZED)
+      (asserts! is-authorized ERR-NOT-AUTHORIZED)
+
+      ;; Ensure current period (block-height) at which the authorization of campaign withdrawal was done 
+       ;; is not greater than the duration of the authorized expiry period
+      (asserts! (<= block-height auth-expiry) ERR-AUTHORIZATiON-EXPIRED)     
+
+      ;; Validate amount 
+      (asserts! (and (not (< amount MIN-WITHDRAWAL-AMOUNT)) 
+                     (not (>= amount MAX-WITHDRAWAL-AMOUNT))
+                ) 
+                ERR-INVALID-AMOUNT)   
+
+
 
       ;; Ensure there are enough funds to withdraw
-;;      (asserts! (>= current-balance amount) ERR-INSUFFICIENT-BALANCE)
+      (asserts! (>= current-balance amount) ERR-INSUFFICIENT-BALANCE)
     
       ;; Update the escrow balance
-;;      (map-set campaign-escrow-balances campaign-id new-balance)
+      (map-set campaign-escrow-balances campaign-id new-balance)
+
+      ;; Update campaign metadata
+      (map-set campaign-metadata { campaign-id: campaign-id } 
+        (merge current-campaign-meta {
+          last-withdrawal-at: block-height, ;; last withdrawal timestamp for activity tracking 
+          total-withdrawn: new-total-withdrawn, ;; update with new total withdrawn for reconciliation
+        })
+      )
+
+      ;; Update global withdrawal counter
+      (var-set total-withdrawal new-global-withdrawals)
     
       ;; Transfer the withdrawn amount to the authorized requester
-;;      (unwrap! (stx-transfer? amount (as-contract tx-sender) tx-sender) ERR-TRANSFER-FAILED)
+      (unwrap! (stx-transfer? amount (as-contract tx-sender) tx-sender) ERR-TRANSFER-FAILED)
     
       ;; Clear authorization after successful withdrawal
- ;;     (map-delete authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })
- ;;     (ok true)
- ;; )
-;;)
+      (map-delete authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })
+
+      ;; Print audit log
+      (print {
+        event: "withdrawal successful",
+        campaign-id: campaign-id,
+        recipient: tx-sender,
+        amount: amount,
+        new-balance: new-balance,
+        block-height: block-height
+      })
+      (ok true)
+  )
+)
 
 ;; Public function: Allows the campaign owner to pay a fee from the campaign's escrowed funds to the core contract
-;; (define-public (collect-campaign-fee (campaign-id uint) (fee-amount uint))
- ;; (let
-  ;;  (
+(define-public (collect-campaign-fee (campaign-id uint) (fee-amount uint))
+  (let
+    (
       ;; Retrieve current balance
-  ;;    (current-balance (default-to u0 (map-get? campaign-escrow-balances campaign-id)))
+      (current-balance (default-to u0 (map-get? campaign-escrow-balances campaign-id)))
 
       ;; Check authorization from authorize-fee-collection map, else default to false
-  ;;    (is-fee-collection-authorized (default-to false (map-get? authorized-fee-collections { campaign-id: campaign-id, requester: tx-sender })))
+      (fee-collection-auth (unwrap! (map-get? authorized-fee-collections { campaign-id: campaign-id, requester: tx-sender }) ERR-NOT-AUTHORIZED))
+
+      ;; Get authorized status (true or false), and expiry time for authorization
+      (is-authorized (get authorized fee-collection-auth))
+      (auth-expiry (get expires-at fee-collection-auth))
 
       ;; Calculate the new balance after fee deduction
-  ;;    (new-balance (- current-balance fee-amount))
+      (new-balance (- current-balance fee-amount))
 
-      ;;Get core-contract
-   ;;   (authorized-core-contract (var-get core-contract))
-   ;; )
+      ;; Get core-contract
+      (authorized-core-contract (var-get core-contract))
+
+      ;; Get global current total fees and calculate new total
+      (global-total-fees-collected (var-get total-fees-collected))
+      (new-total-fees-collected (+ global-total-fees-collected fee-amount))
+    )
       ;; Ensure caller is authorized core for fee-collection-authorized
-   ;;   (asserts! is-fee-collection-authorized ERR-NOT-AUTHORIZED)
+    (asserts! is-authorized ERR-NOT-AUTHORIZED)
 
-      ;; Ensure there are enough funds to cover the fee
-    ;;  (asserts! (>= current-balance fee-amount) ERR-INSUFFICIENT-BALANCE)
-    
-      ;; Update the escrow balance
-  ;;    (map-set campaign-escrow-balances campaign-id new-balance)
-    
-      ;; Transfer the fee amount to the core contract address
-  ;;    (unwrap! (stx-transfer? fee-amount (as-contract tx-sender) authorized-core-contract) ERR-TRANSFER-FAILED)
+    ;; Ensure current period (block-height) at which the authorization of campaign fee-collection was done 
+       ;; is not greater than the duration of the authorized expiry period
+    (asserts! (<= block-height auth-expiry) ERR-AUTHORIZATiON-EXPIRED)  
 
-      ;;  Clear authorization after successful fee collection
- ;;     (map-delete authorized-fee-collections { campaign-id: campaign-id, requester: tx-sender })
+    ;; Ensure there are enough funds to cover the fee
+    (asserts! (>= current-balance fee-amount) ERR-INSUFFICIENT-BALANCE)
     
-   ;;   (ok true)
-;;  )
-;;)
+    ;; Update the escrow balance
+    (map-set campaign-escrow-balances campaign-id new-balance)
+    
+    ;; Transfer the fee amount to the core contract address
+    (unwrap! (stx-transfer? fee-amount (as-contract tx-sender) authorized-core-contract) ERR-TRANSFER-FAILED)
+
+    ;; Update total fees collected
+    (var-set total-fees-collected new-total-fees-collected)
+
+    ;; Clear authorization after successful fee collection
+    (map-delete authorized-fee-collections { campaign-id: campaign-id, requester: tx-sender })
+    
+    ;; Print audit log
+      (print {
+        event: "fee collected",
+        campaign-id: campaign-id,
+        recipient: authorized-core-contract,
+        amount: fee-amount,
+        block-height: block-height
+      })
+
+    (ok true)
+  )
+)
 
 ;; Read-only function: Fetches the current escrow balance for a given campaign
 (define-read-only (get-campaign-balance (campaign-id uint))
@@ -656,5 +747,21 @@
   )  
     
       
+)
+
+;; ========== BASE TRAIT IMPLEMENTATIONS ==========
+;; Get module version number    
+(define-read-only (get-module-version)
+    (ok (var-get module-version)) ;; return module version number
+) 
+
+;; Check if module is active/currently working properly 
+(define-read-only (is-module-active)
+    (ok (var-get module-active)) ;; return if true or false
+)
+
+;; Get module name to identify which module this is
+(define-read-only (get-module-name) 
+    (ok "escrow-module") ;; return current module name
 )
 
