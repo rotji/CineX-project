@@ -15,14 +15,30 @@
 ;; Strategic purpose: Main Hub that implements the "Key Partners" component of the Business Model Canvas of CineX
 
 
-;; Import to use the emergency-module-trait interface 
+;; Import ALL traits for modules that will be called
+  ;;  emergency-module-trait interface and module-base-trait
 (use-trait core-emergency-module .emergency-module-trait.emergency-module-trait)
-
-;; Import to use the module-base-trait
 (use-trait core-module-base .module-base-trait.module-base-trait)
 
-;; ========== Constants ==========
 
+;; Import traits for ALL modules that have functions we call
+(use-trait hub-crowdfunding-trait .crowdfunding-module-traits.crowdfunding-trait)
+(use-trait hub-escrow-trait .escrow-module-trait.escrow-trait)
+(use-trait hub-rewards-trait .rewards-module-trait.rewards-trait)
+(use-trait hub-verification-trait .film-verification-module-trait.film-verification-trait)
+(use-trait hub-co-ep-trait .crowdfunding-module-traits.crowdfunding-trait) ;; Co-EP uses crowdfunding-module-trait
+
+
+;; ========== BASE TRAIT IMPORTS for verification-mgt-ext module ==========
+;; This module only needs base traits (no custom trait) because:
+;; - Our hub never calls the module's unique functions like verification-renewal or distribute-revenue
+;; - We only need emergency operations (pause/unpause) and module validation from hub
+;; - Simply, put, verification-mgt-ext module is a supporting module that operates independently alongside film-verification
+(use-trait hub-verf-mgt-ext-emergency .emergency-module-trai.emergency-trait)
+(use-trait hub-verf-ext-base .module-base-trait.module-trait)
+
+
+;; ========== Constants ==========
 ;; Define the contract owner as whoever deploys the contract (tx-sender during deployment)
 (define-constant contract-owner tx-sender)
 
@@ -268,7 +284,6 @@
 )
 
 
-
  ;; Allow current admin to cancel pending transfer 
   ;; @func: While canceling any pending transfer made for any reason, Cancel also clears the timestamp
 (define-public (cancel-admin-transfer) 
@@ -391,10 +406,6 @@
 )
 
 
-
-
-
-
 ;; ========== Emergency Control Function ==========
 ;; Public function to activate Emergency pause-or-not-pause system 
 (define-public (emergency-pause-or-not-pause-system (pause bool)) 
@@ -402,14 +413,6 @@
     (
       ;; Get current-contract-admin
       (current-contract-admin (var-get contract-admin))
-
-      ;; Get all current module addresses dynamically 
-      (crowdfunding-addr (var-get crowdfunding-module))
-      (escrow-addr (var-get escrow-module))
-      (film-ver-addr (var-get film-verification-module))
-      (rewards-addr (var-get rewards-module))
-      (ver-mgt-ext-addr (var-get verification-mgt-ext))
-      (co-ep-addr (var-get co-ep-module))
       
     ) 
     ;; Only admin can pause/unpause the system
@@ -421,12 +424,12 @@
     ;; Notify all modules of emergency new pause state
      ;; In the course of updating each module, if partcular module-name in pause-module helper fails, others still work
      ;; Use try! to handle responses properly
-     (try! (pause-module .crowdfunding-module pause "crowdfunding"))
-     (try! (pause-module .escrow-module pause "escrow"))
-     (try! (pause-module .film-verification-module pause "film verification"))
-     (try! (pause-module .rewards-module pause "rewards"))
-     (try! (pause-module .verification-mgt-extension pause "verification mgt"))
-     (try! (pause-module .Co-EP-rotating-fundings pause "Co-Executive Producers pool"))
+     (try! (pause-module (var-get crowdfunding-module) pause "crowdfunding"))
+     (try! (pause-module (var-get escrow-module) pause "escrow"))
+     (try! (pause-module (var-get film-verification-module) pause "film verification"))
+     (try! (pause-module (var-get rewards-module) pause "rewards"))
+     (try! (pause-module (var-get verification-mgt-ext) pause "verification mgt"))
+     (try! (pause-module (var-get co-ep-module) pause "Co-Executive Producers pool"))
 
     ;; Print log for efficient Audit trails
      (print
@@ -482,12 +485,12 @@
     (
       ;; get pause-state of main hub as well as the other modules
       (hub-paused (var-get emergency-pause))
-      (crowdfunding-paused (contract-call? .crowdfunding-module is-system-paused))
-      (escrow-paused (contract-call? .escrow-module is-system-paused))
-      (film-verification-paused (contract-call? .film-verification-module is-system-paused))
-      (rewards-paused (contract-call? .rewards-module is-system-paused))
-      (verf-mgt-ext-paused (contract-call? .verification-mgt-extension is-system-paused))
-      (co-ep-paused (contract-call? .Co-EP-rotating-fundings is-system-paused))
+      (crowdfunding-paused (contract-call? (var-get crowdfunding-module) is-system-paused))
+      (escrow-paused (contract-call? (var-get escrow-module) is-system-paused))
+      (film-verification-paused (contract-call? (var-get film-verification-module) is-system-paused))
+      (rewards-paused (contract-call? (var-get rewards-module) is-system-paused))
+      (verf-mgt-ext-paused (contract-call? (var-get verification-mgt-ext)  is-system-paused))
+      (co-ep-paused (contract-call? (var-get co-ep-module) is-system-paused))
 
     ) 
 
@@ -924,17 +927,17 @@
 ;; ========== VERIFICATION INTEGRATION FUNCTIONS ==========
 ;; Function to get filmmaker portfolio
 (define-public (check-is-portfolio-present (new-filmmaker principal) (new-id uint)) 
-  (contract-call? .film-verification-module is-portfolio-available new-filmmaker new-id)
+  (contract-call? (var-get film-verification-module) is-portfolio-available new-filmmaker new-id)
 )
 
 ;; Function to check if a filmmaker is verified through the verification module
 (define-public (check-is-filmmaker-verified (new-filmmaker principal)) 
-  (contract-call? .film-verification-module is-filmmaker-currently-verified new-filmmaker)
+  (contract-call? (var-get film-verification-module) is-filmmaker-currently-verified new-filmmaker)
 )
 
 ;; Function to get filmmaker verification 
 (define-public (check-endorsement-status (new-filmmaker principal) (new-id uint))
-  (contract-call? .film-verification-module is-endorsement-available new-filmmaker new-id)
+  (contract-call? (var-get film-verification-module) is-endorsement-available new-filmmaker new-id)
 )
 
 ;; ========== CROWDFUNDING INTEGRATION FUNCTIONS ==========
@@ -956,7 +959,7 @@
     ;; Ensure is not paused for normal operations
     (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
 
-    (contract-call? .crowdfunding-module create-campaign description funding-goal u0 duration reward-tiers reward-description)    
+    (contract-call? (var-get crowdfunding-module) create-campaign description funding-goal u0 duration reward-tiers reward-description)    
   
   )
 )
@@ -975,7 +978,7 @@
     ;; Ensure is not paused for normal operations
     (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
 
-    (contract-call? .crowdfunding-module contribute-to-campaign campaign-id amount)
+    (contract-call? (var-get crowdfunding-module) contribute-to-campaign campaign-id amount)
   )
 ) 
 
@@ -985,7 +988,7 @@
   (let 
     (
       ;; Get campaign details to verify ownership
-      (campaign (unwrap! (contract-call? .crowdfunding-module get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
+      (campaign (unwrap! (contract-call? (var-get crowdfunding-module) get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
 
        ;; Get campaign owner, funding goal and current-total-raised so far
        (owner (get owner campaign))
@@ -1009,13 +1012,13 @@
     (asserts! (>= current-total-raised current-funding-goal) ERR-FUNDING-GOAL-NOT-REACHED)
 
     ;;Authorize withdrawal in escrow module 
-    (try! (contract-call? .escrow-module authorize-withdrawal campaign-id tx-sender))
+    (try! (contract-call? (var-get escrow-module) authorize-withdrawal campaign-id tx-sender))
 
     ;; Authorize fee collection in escrow module
-    (try! (contract-call? .escrow-module authorize-fee-collection campaign-id tx-sender))
+    (try! (contract-call? (var-get escrow-module) authorize-fee-collection campaign-id tx-sender))
 
     ;; Call the crowdfunding module to process the claim
-    (try! (contract-call? .crowdfunding-module claim-campaign-funds campaign-id))
+    (try! (contract-call? (var-get crowdfunding-module) claim-campaign-funds campaign-id))
 
     ;; Log successful claim
     (print {
@@ -1050,7 +1053,7 @@
     ;; Ensure is not paused for normal operations
     (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
 
-    (contract-call? .escrow-module deposit-to-campaign campaign-id amount)
+    (contract-call? (var-get escrow-module) deposit-to-campaign campaign-id amount)
 
   )
   
@@ -1079,10 +1082,10 @@
     (asserts! (is-eq tx-sender owner) ERR-NOT-AUTHORIZED)
 
     ;;Authorize withdrawal in escrow module 
-    (unwrap! (contract-call? .escrow-module authorize-withdrawal campaign-id tx-sender) ERR-TRANSFER-FAILED)
+    (unwrap! (contract-call? (var-get escrow-module) authorize-withdrawal campaign-id tx-sender) ERR-TRANSFER-FAILED)
 
      ;; Call the escrow module to process the claim
-     (contract-call? .escrow-module withdraw-from-campaign campaign-id amount)
+     (contract-call? (var-get escrow-module) withdraw-from-campaign campaign-id amount)
 
   )
   
@@ -1107,7 +1110,7 @@
     ;; Ensure is not paused for normal operations
     (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
 
-    (contract-call? .rewards-module award-campaign-reward campaign-id contributor tier description)
+    (contract-call? (var-get rewards-module) award-campaign-reward campaign-id contributor tier description)
   )
 )
 

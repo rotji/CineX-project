@@ -178,10 +178,10 @@
     (let 
         (
             ;; Check filmmaker is currently verified    
-            (verified (unwrap! (contract-call? .film-verification-module is-filmmaker-currently-verified tx-sender) ERR-NOT-VERIFIED))
+            (verified (unwrap! (contract-call? (var-get verification-module) is-filmmaker-currently-verified tx-sender) ERR-NOT-VERIFIED))
             
             ;; Check full verification data
-            (current-verification-data (unwrap! (contract-call? .film-verification-module get-filmmaker-identity tx-sender) ERR-FILMMAKER-NOT-FOUND))
+            (current-verification-data (unwrap! (contract-call? (var-get verification-module) get-filmmaker-identity tx-sender) ERR-FILMMAKER-NOT-FOUND))
 
             ;; Get current-verification-level 
             (current-verification-level  (unwrap! (get choice-verification-level current-verification-data) ERR-FILMMAKER-NOT-FOUND))
@@ -240,7 +240,7 @@
          (map-set filmmaker-verification-payments-counter new-filmmaker new-filmmaker-payment-count)
 
         ;; Call main module to update expiration 
-        (unwrap! (contract-call? .film-verification-module update-filmmaker-expiration-period new-filmmaker new-expiration-period) ERR-EXPIRATION-UPDATE-FAILED)
+        (unwrap! (contract-call? (var-get verification-module) update-filmmaker-expiration-period new-filmmaker new-expiration-period) ERR-EXPIRATION-UPDATE-FAILED)
         
         ;; For now, we'll return success indicating renewal payment processed
         (ok {
@@ -319,7 +319,7 @@
     (begin 
         ;; Ensure caller is admin (check with main module)
         (asserts! (is-eq tx-sender 
-                            (unwrap! (contract-call? .film-verification-module get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND)) 
+                            (unwrap! (contract-call? (var-get verification-module) get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND)) 
                     ERR-NOT-AUTHORIZED)
 
         ;; Ensure multiplier is within acceptable range, i.e., adjustment is reasonable (between 50% and 200% of normal price)
