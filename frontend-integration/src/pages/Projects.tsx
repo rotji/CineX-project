@@ -1,32 +1,70 @@
 import React from 'react';
 import styles from '../styles/pages/Projects.module.css';
+import ProjectCard from '../components/projects/ProjectCard';
+import { placeholderProjects } from '../data/projects';
 
-const Projects: React.FC = () => {
+// Define a type for the category structure for better type safety
+interface GenreCategory {
+  name: string;
+  genres: string[];
+}
+
+const genreCategories: GenreCategory[] = [
+    { name: "Film & Video", genres: ["Animation", "Documentary", "Feature Film", "Short Film", "Music Video", "Web Series", "TV Series", "Experimental Film", "Nollywood", "Bollywood", "Hollywood", "Silent Film", "Foreign Language Film"] },
+    { name: "Audio & Music", genres: ["Album/LP", "EP (Extended Play)", "Single", "Music Production", "Soundtrack / Film Score", "Podcast", "Audiobook", "Radio Show / Audio Drama", "Live Concert Recording"] },
+    { name: "Performing Arts", genres: ["Theatre / Play", "Musical", "Dance Performance", "Stand-up Comedy Special", "Immersive Experience", "Circus Arts", "Opera"] },
+    { name: "Publishing & Written Word", genres: ["Fiction Novel", "Non-Fiction Book", "Comic Book / Graphic Novel", "Art Book", "Poetry Collection", "Magazine / Zine", "Children's Book", "Screenplay / Script"] },
+    { name: "Games", genres: ["Video Game (Indie)", "Mobile Game", "Tabletop Game / Board Game", "Card Game", "Role-Playing Game (RPG)"] },
+    { name: "Digital & New Media", genres: ["Storytelling (Interactive/Digital)", "Vlogging / YouTube Content", "VR / AR Experience", "Interactive Narrative", "Educational Content Series"] },
+    { name: "Art & Design", genres: ["Photography Exhibition/Book", "Illustration Series", "Fashion Collection/Show", "Public Art Installation"] }
+];
+
+const Campaigns: React.FC = () => {
+  // Helper to convert genre names to kebab-case values
+  const toKebabCase = (str: string) => str.toLowerCase().replace(/\s+/g, '-').replace(/[/()]/g, '');
+
+  // Simulate empty state for demonstration (replace with real logic)
+  const campaigns = placeholderProjects; // rename for clarity
+
   return (
     <div className={styles.projectsPage}>
       <header className={styles.header}>
-        <h1>Explore Film Projects</h1>
+        <h1>Explore Creative Campaigns</h1>
+        <p className={styles.helperText}>Browse, search, and support campaigns from creatives and entertainment professionals.</p>
         <div className={styles.searchAndFilter}>
-          <input type="text" placeholder="Search projects..." className={styles.searchInput} />
+          <input type="text" placeholder="Search campaigns..." className={styles.searchInput} />
           <select className={styles.filterSelect}>
             <option value="">All Genres</option>
-            <option value="documentary">Documentary</option>
-            <option value="feature-film">Feature Film</option>
-            <option value="short-film">Short Film</option>
+            {genreCategories.map((category, index) => (
+              <optgroup key={index} label={`${index + 1}. ${category.name}`} className={styles.categoryLabel}>
+                {category.genres.map((genre, genreIndex) => (
+                  <option key={genreIndex} value={toKebabCase(genre)}>
+                    {genre}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
           </select>
         </div>
       </header>
       <div className={styles.projectGrid}>
-        {/* Placeholder for project cards */}
-        <div className={styles.projectCard}>Project A</div>
-        <div className={styles.projectCard}>Project B</div>
-        <div className={styles.projectCard}>Project C</div>
-        <div className={styles.projectCard}>Project D</div>
-        <div className={styles.projectCard}>Project E</div>
-        <div className={styles.projectCard}>Project F</div>
+        {campaigns.length === 0 ? (
+          <div className={styles.emptyState}>
+            <h2>No campaigns found</h2>
+            <p>Be the first to <a href="/create-campaign" className={styles.ctaLink}>create a campaign</a> and inspire others!</p>
+          </div>
+        ) : (
+          campaigns.map(project => (
+            <ProjectCard project={project} key={project.id} />
+          ))
+        )}
+      </div>
+      <div className={styles.pagination}>
+        <button>Previous</button>
+        <button>Next</button>
       </div>
     </div>
   );
 };
 
-export default Projects;
+export default Campaigns;
