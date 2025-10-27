@@ -6,23 +6,28 @@
 ;; Strategic Purpose: Define the "Revenue Streams & Customer Relationships" component interface of the Business Model Canvas of CineX
 ;; This trait ensures campaign processes and backer interactions are well handled 
 
+
+(use-trait crwd-escrow-trait .escrow-module-trait.escrow-trait)
+(use-trait crwd-verification-trait .film-verification-module-trait.film-verification-trait)
+
+
 (define-trait crowdfunding-trait
   (
     ;; Create a new campaign
      ;; parameters: 
         ;; project-description - (string-ascii 500); campaign-id - uint 
         ;; funding goal - uint; duration - uint;  reward-tiers-count - uint; reward-description -(string-ascii 150) 
-    (create-campaign ((string-ascii 500) uint uint uint uint (string-ascii 150)) (response uint uint))
+    (create-campaign ((string-ascii 500) uint uint uint uint (string-ascii 150) <crwd-verification-trait>) (response uint uint))
     
     ;; Contribute funds to a campaign
         ;; paramters: 
             ;; campaign ID - uint; amount - uint; 
-    (contribute-to-campaign (uint uint) (response bool uint))
+    (contribute-to-campaign (uint uint <crwd-escrow-trait>) (response bool uint))
     
     ;; Claim contributed funds as campaign owner
         ;; paramters: 
             ;; campaign ID - uint;
-     (claim-campaign-funds (uint) (response bool uint))
+     (claim-campaign-funds (uint <crwd-escrow-trait>) (response bool uint))
     
     ;; Get campaign details
         ;; parameters:
