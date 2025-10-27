@@ -31,6 +31,10 @@
 ;; reliance on hope-based public appeals of the crowdfunding feature; this targets professional filmmakers seeking dependable funding partnerships
 
 
+;; Implementing the emergecny-module-trait 
+(impl-trait .emergency-module-trait.emergency-module-trait)
+(impl-trait .module-base-trait.module-base-trait)
+
 ;; Import traits for contracts that will be called 
 (use-trait coep-crowdfunding-trait .crowdfunding-module-traits.crowdfunding-trait)
 (use-trait coep-verification-trait .film-verification-module-trait.film-verification-trait)
@@ -42,6 +46,10 @@
 ;; ========================
 
 (define-constant CONTRACT-OWNER tx-sender)
+
+;; Security constants aligned with main hub 
+(define-constant BURN-ADDRESS 'SP000000000000000000002Q6VF78) ;; Burn address to prevent accidental burn
+
 (define-constant ERR-NOT-AUTHORIZED (err u400))
 (define-constant ERR-CONNECTION-ALREADY-EXISTS (err u401))
 (define-constant ERR-POOL-NOT-FOUND (err u402))
@@ -58,6 +66,12 @@
 (define-constant ERR-PROJECT-NOT-FOUND (err u413))
 (define-constant ERR-NO-MUTUAL-PROJECT (err u414))
 (define-constant ERR-CONNECTION-NOT-FOUND (err u415))
+(define-constant ERR-SYSTEM-PAUSED (err u416))
+(define-constant ERR-SYSTEM-NOT-PAUSED (err u417))
+(define-constant ERR-INVALID-AMOUNT (err u418))
+(define-constant ERR-INSUFFICIENT-FUNDS (err u419))
+(define-constant ERR-INVALID-RECIPIENT (err u420))
+(define-constant ERR-TRANSFER-FAILED (err u421))
 
 ;; Default configuration for opt-in crowdfunding reward-tiers and reward description
 (define-constant DEFAULT-REWARD-TIERS u3)
@@ -151,6 +165,15 @@
     dispute-count: uint
     })
 
+;; Emergency operations log for audit trail
+(define-map emergency-ops-log { ops-count-id: uint } { 
+  emergency-ops-type: (string-ascii 150),
+  recipient: principal,
+  admin: principal,
+  block-height: uint,
+  reason: (string-ascii 100) 
+  })
+
 
 ;; ==================================================
 ;; GLOBAL VARIABLES
@@ -165,13 +188,27 @@
 ;; Add variable to store address of Crowdfunding Module
 (define-data-var crowdfunding-contract principal tx-sender)
 
-
 ;; Add variable to store address of Verification Module
 (define-data-var verification-contract principal tx-sender)
 
-
 ;; Add variable to store address of Escrow Module
 (define-data-var escrow-contract principal tx-sender)
+
+
+;; Emergency operations counter for audit trail 
+(define-data-var emergency-ops-counter uint u0) ;; initialized to u0 at deployment - no audit of emergency operations yet
+
+;;;; ========== Emergency State ========
+;; Variable to hold state of operations 'not paused (false)' until when necessary 
+(define-data-var emergency-pause bool false)
+
+;; Variable to hold state of module-version - initialized to the first version (V1) at deployment 
+(define-data-var module-version uint u1)
+
+;; Variable to hold state of module-active - initialized to true, implying module is actively running
+(define-data-var module-active bool true)
+
+
 ;; ==================================================
 ;; PROJECT ENTRY FUNCTIONS
 ;; ================================================
@@ -185,7 +222,8 @@
     (new-collaborators (list 50 principal)) 
     (project-start-date uint) 
     (project-end-date uint) 
-    (new-project-url (string-ascii 255)))  
+    (new-project-url (string-ascii 255))
+    (verification-address <coep-verification-trait>))  
     (let 
         (
             ;; get current project count, and calculate new count
@@ -193,7 +231,7 @@
             (new-project-count (+ current-project-count u1))
 
             ;; Get filmmaker verified status from 'is-filmmaker-currently-verified" read-only fucntion of filmmaker-verification module
-            (identity-is-verified  (unwrap! (contract-call? (var-get verification-contract) is-filmmaker-currently-verified tx-sender) ERR-IDENTITY-NOT-VERIFIED))
+            (identity-is-verified  (unwrap! (contract-call? verification-address is-filmmaker-currently-verified tx-sender) ERR-IDENTITY-NOT-VERIFIED))
         ) 
 
         ;; Ensure filmmaker is verified
@@ -261,17 +299,21 @@
 ;; Create mutual connection between filmmakers
      ;; @func: This function allows filmmakers to establish verified connections with each other in the system after verifying the collaboration 
      ;; claims by the other party in the filmmaker project stage
-(define-public (create-mutual-connection (new-requester principal) (new-target principal) (new-connection-type (string-ascii 30)) (new-mutual-project-ids (list 10 uint))) 
+(define-public (create-mutual-connection (new-requester principal) 
+    (new-target principal) 
+    (new-connection-type (string-ascii 30)) 
+    (new-mutual-project-ids (list 10 uint))
+    (verification-address <coep-verification-trait>)) 
     (let 
         (
             ;; get requester's current verified status from 'is-filmmaker-currently-verified" read-only fucntion of filmmaker-verification module
             (requester-identity-is-verified (unwrap! 
-                                                (contract-call? (var-get verification-contract) is-filmmaker-currently-verified tx-sender) 
+                                                (contract-call? verification-address is-filmmaker-currently-verified tx-sender) 
                                                     ERR-IDENTITY-NOT-VERIFIED))
 
             ;; get target's current verified status
             (target-identity-is-verified (unwrap! 
-                                                (contract-call? (var-get verification-contract) is-filmmaker-currently-verified new-target) 
+                                                (contract-call? verification-address is-filmmaker-currently-verified new-target) 
                                                     ERR-IDENTITY-NOT-VERIFIED))
 
             ;; filter out the presence of verified project collaborations for the requester out of the list of mutual-project-ids  
@@ -400,12 +442,13 @@
     (pool-cycle-duration uint)
     (pool-legal-agreement-hash (buff 32))
     (pool-category (string-ascii 30))
-    (pool-geographic-focus (string-ascii 50)))
+    (pool-geographic-focus (string-ascii 50))
+    (verification-address <coep-verification-trait>))
     (let 
         (
             ;; Get verified status of pool creator from 'is-filmmaker-currently-verified" read-only fucntion of filmmaker-verification module
             (pool-creator-verified-id (unwrap! 
-                                            (contract-call? (var-get verification-contract) is-filmmaker-currently-verified tx-sender) 
+                                            (contract-call? verification-address is-filmmaker-currently-verified tx-sender) 
                                                 ERR-IDENTITY-NOT-VERIFIED))
 
             ;; Get projects data
@@ -721,7 +764,9 @@
         ;; => Enables automated rotation progression
         ;; => Creates audit trails for compliance
         ;; => Supports future features like: (i) Early completion bonuses; (ii) Late payment penalties; (iii) Grace periods
-(define-public (execute-rotation-funding (existing-pool-id uint)) 
+(define-public (execute-rotation-funding (existing-pool-id uint) 
+    (crowdfunding-address <coep-crowdfunding-trait>) 
+    (verification-contract-address <coep-verification-trait>))   
     (let 
         (
             ;; Get rotating-funding-pools data
@@ -766,7 +811,7 @@
             (current-all-contributed (get all-contributed current-all-contributions))
 
             ;; Get linked-crowdfunding-campaign
-            (linked-crowdfunding-campaign (create-linked-crowdfunding-campaign existing-pool-id current-rotation))
+            (linked-crowdfunding-campaign (create-linked-crowdfunding-campaign existing-pool-id current-rotation crowdfunding-address verification-contract-address))
 
             ;; Get next-advance-rotation
             (next-advance-rotation (advance-rotation existing-pool-id project-title project-description ))
@@ -1117,7 +1162,9 @@
 ;; Project Details Update Function
     ;; @func: Allow beneficiaries to update their project details before their rotation
 (define-private (create-linked-crowdfunding-campaign (existing-pool-id uint) 
-    (current-rotation-number uint))
+    (current-rotation-number uint)
+    (crowdfunding-address <coep-crowdfunding-trait>)
+    (verification-contract-address <coep-verification-trait>))
     (let 
         (
             ;; Get funding-rotation-schedule data
@@ -1140,9 +1187,8 @@
                                         DEFAULT-REWARD-TIERS 
                                         ;; Pool-only, no rewards
                                         u0
-                                  )
+                                  ))
 
-            )
 
             ;; Default-to REWARD-DESCRIPTION if public-funding enabled
             (current-reward-description (if public-funding-enabled 
@@ -1165,13 +1211,15 @@
         ) 
          ;; Call existing crowdfunding module to create campaign
         ;; This integrates with your existing architecture
-        (contract-call? (var-get crowdfunding-contract) create-campaign 
+        (contract-call? crowdfunding-address create-campaign 
             current-project-description ;; project description
             u0 ;; campaign-id will auto-generate from u0
             current-funding-amount ;; funding-goal
             current-project-expected-completion ;;  funding-goal
-            current-reward-tiers ;; mutlitple tiers for backers
-            current-reward-description) ;; reward-description
+            current-reward-tiers ;; multiple tiers for backers
+            current-reward-description
+            verification-contract-address
+            ) ;; reward-description
         
     )
 
@@ -1212,10 +1260,128 @@
 )
 
 
+
+;; ========== EMERGENCY PAUSE MANAGEMENT FUNCTIONS ==========
+;; Function to allow only core contract to set pause state
+(define-public (set-pause-state (pause bool))
+  (let 
+    (
+      ;; Get hub 
+      (cinex-hub (var-get core-contract))
+    ) 
+    ;; Only core contract can set pause state
+    (asserts! (is-eq contract-caller cinex-hub) ERR-NOT-AUTHORIZED)
+
+    ;; Ensure system is not paused
+    (asserts! (check-system-not-paused) ERR-SYSTEM-PAUSED)
+
+    ;; Set the system-paused to pause
+    (var-set emergency-pause pause)
+
+    ;; Print log for efficient Audit trails
+    (print 
+       {
+        event: "pause-state-changed",
+        new-state: pause,
+        caller: contract-caller,
+        block-height: block-height
+
+       }
+    
+    
+    )
+      
+    (ok true) 
+  )
+)
+
+;; Helper function to check system-not-paused
+(define-private (check-system-not-paused)
+  (let 
+    (
+      ;; Get system-paused state
+      (current-system-paused-state (var-get emergency-pause))
+    ) 
+    (not current-system-paused-state)
+  )
+)
+
 ;; Get system-paused status
 (define-read-only (is-system-paused) 
-  (var-get system-paused)
+  (ok (var-get emergency-pause))
 )
+
+
+;; Function to implement emergency withdraw
+(define-public (emergency-withdraw (amount uint) (recipient principal))
+  (let 
+    (
+      ;; Get current contract's balance 
+      (current-contract-balance (stx-get-balance (as-contract tx-sender)))
+
+      ;; Get current emergency-ops counter, and consequently its next-emergency-ops counter to track state of a new emergency operation
+      (current-emergency-ops-counter (var-get emergency-ops-counter))
+      (next-emergency-ops-count (+ current-emergency-ops-counter u1))
+
+    )
+
+    ;; Ensure only core contract can call this emergency withdraw function
+    (asserts! (is-eq contract-caller (var-get core-contract)) ERR-NOT-AUTHORIZED)
+
+    ;; Ensure system must be paused before emergency withdrawal
+    (asserts! (var-get emergency-pause) ERR-SYSTEM-NOT-PAUSED)
+
+    ;; Ensure amount to be withdrawn is > u0
+    (asserts! (> amount u0) ERR-INVALID-AMOUNT)
+
+    ;; Ensure amount to be withdrawn is <= current-balance, else trigger INSUFFICIENT FUNDS
+    (asserts! (<= amount current-contract-balance) ERR-INSUFFICIENT-FUNDS)
+
+    ;; Ensure contract is not BURN-ADDRESS, is not CONTRACT-OWNER, and, is not also of this contract principal
+    (asserts! (and 
+                (not (is-eq contract-caller BURN-ADDRESS)) 
+                (not (is-eq contract-caller CONTRACT-OWNER)) 
+                  (not (is-eq contract-caller (as-contract tx-sender))) 
+              )
+                ERR-INVALID-RECIPIENT)
+
+    ;; Update emergency-ops state map
+    (map-set emergency-ops-log { ops-count-id: next-emergency-ops-count } { 
+      emergency-ops-type: "emergency ops withdraw",
+      recipient: recipient,
+      admin: contract-caller,
+      block-height: block-height,
+      reason: "emergency funds recovery" 
+    })
+
+    ;; Update emergency ops counter with new emergency ops count
+    (var-set emergency-ops-counter next-emergency-ops-count)
+
+    ;; Perform emergency withdrawal
+    (unwrap! (stx-transfer? amount (as-contract tx-sender) recipient) ERR-TRANSFER-FAILED)
+
+    ;; Print log for efficient Audit trails
+    (print 
+        {
+        event: "emergency withdrawal",
+        operation-id: next-emergency-ops-count,
+        amount: amount,
+        recipient: recipient,
+        admin: contract-caller,
+        block-height: block-height
+
+      }
+    
+    )
+
+    (ok true)
+
+  )  
+    
+  
+    
+)
+
 
 
 

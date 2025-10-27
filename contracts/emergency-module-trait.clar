@@ -16,6 +16,9 @@
         ;; EMERGENCY ONLY: Pause/unpause this module
         (set-pause-state (bool) (response bool uint))
 
+        ;; READ-ONLY: Get System-paused state
+        (is-system-paused () (response bool uint))
+
     )
 )
 

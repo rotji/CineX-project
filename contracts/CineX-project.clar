@@ -29,13 +29,6 @@
 (use-trait hub-co-ep-trait .crowdfunding-module-traits.crowdfunding-trait) ;; Co-EP uses crowdfunding-module-trait
 
 
-;; ========== BASE TRAIT IMPORTS for verification-mgt-ext module ==========
-;; This module only needs base traits (no custom trait) because:
-;; - Our hub never calls the module's unique functions like verification-renewal or distribute-revenue
-;; - We only need emergency operations (pause/unpause) and module validation from hub
-;; - Simply, put, verification-mgt-ext module is a supporting module that operates independently alongside film-verification
-(use-trait hub-verf-mgt-ext-emergency .emergency-module-trai.emergency-trait)
-(use-trait hub-verf-ext-base .module-base-trait.module-trait)
 
 
 ;; ========== Constants ==========
@@ -128,10 +121,11 @@
 (define-constant ERR-FUNDING-GOAL-NOT-REACHED (err u216))
 (define-constant ERR-ALREADY-INITIALIZED (err u217))
 (define-constant ERR-DUPLICATE-MODULE (err u218))
+(define-constant ERR-MODULE-STATUS-CHECK-FAILED (err u219))
 
 ;; Error messages for admin transfers
-(define-constant ERR-TRANSFER-TIMEOUT (err u219))   ;; Transfer took too long - longer than standard 24 hours (u144)
-(define-constant ERR-NO-PENDING-TRANSFER (err u220)) ;; No transfer waiting
+(define-constant ERR-TRANSFER-TIMEOUT (err u220))   ;; Transfer took too long - longer than standard 24 hours (u144)
+(define-constant ERR-NO-PENDING-TRANSFER (err u221)) ;; No transfer waiting
 
 ;; ========== Admin Functions ==========
 
@@ -148,7 +142,11 @@
 
 
 ;; Current admin suggests a new admin (but doesn't transfer yet) with validation
-(define-public (safe-propose-admin-transfer (new-admin principal))
+(define-public (safe-propose-admin-transfer (new-admin principal)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>))
   (begin 
     ;; Only current admin can propose transfer
     (asserts! (is-eq tx-sender (var-get contract-admin)) ERR-NOT-AUTHORIZED)
@@ -160,7 +158,14 @@
     (asserts! (not (is-eq tx-sender (var-get contract-admin))) ERR-INVALID-RECIPIENT)
 
     ;; Check that new-admin is not one of is-our-contract-address
-    (asserts! (not (is-our-contract-address new-admin)) ERR-INVALID-RECIPIENT)
+    (asserts! (not (is-our-contract-address 
+                        new-admin
+                        verification-contract 
+                        crowdfunding-contract
+                        rewards-module-contract
+                        escrow-contract
+                    )) 
+                ERR-INVALID-RECIPIENT)
 
      ;; Set pending admin with prospective new-admin for confirmation 
      (var-set pending-admin (some new-admin))
@@ -239,16 +244,19 @@
 ;; Our-current-contract-addresses
   ;; @func: To be used in safe-admin-transfer-propose function to check that proposed admin is not any
   ;; of our contracts currently in usage 
-(define-private (is-our-contract-address (address principal)) 
+(define-private (is-our-contract-address (address principal)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>)) 
   (or 
-      (is-eq address (var-get film-verification-module))
-      (is-eq address (var-get crowdfunding-module)) 
-      (is-eq address (var-get rewards-module)) 
-      (is-eq address (var-get escrow-module)) 
-      (is-eq address (var-get co-ep-module)) 
-      (is-eq address (var-get verification-mgt-ext))
+      (is-eq address (contract-of verification-contract))
+      (is-eq address (contract-of crowdfunding-contract)) 
+      (is-eq address (contract-of rewards-module-contract)) 
+      (is-eq address (contract-of escrow-contract)) 
   )
 )
+
 
 
 ;; Read-only fuction to Get/Check status of pending admin transfer
@@ -319,7 +327,12 @@
 ;; ========== SAFE MODULE OPERATION - VALIDATE BEFORE USING ==========
 ;; Function to safely call a module after validation
   ;; @param: module - <module-base>;
-(define-public (validate-safe-module (module-base <core-module-base>) (emergency-module <core-emergency-module>)) 
+(define-public (validate-safe-module (module-base <core-module-base>) 
+  (emergency-module <core-emergency-module>)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>)) 
   (let 
     (
       ;; Get module base contract address
@@ -342,7 +355,15 @@
     (asserts! (>= current-module-version u1) ERR-INVALID-MODULE)
     
     ;; Validate that the module is the one we expect
-    (asserts! (is-contract-expected module-base) ERR-INVALID-MODULE)
+    (asserts! (is-contract-expected 
+                  module-base
+                  verification-contract
+                  crowdfunding-contract
+                  rewards-module-contract
+                  escrow-contract
+              ) 
+              ERR-INVALID-MODULE
+    )
 
     ;; Check that the module is active
     (asserts! current-module-active-status ERR-INVALID-MODULE)
@@ -351,7 +372,15 @@
     ;; If system is paused, only emergency modules should be accessible
     (if (var-get emergency-pause) 
       ;; During emergency, ensure only emergency-capable modules are allowed to run
-      (asserts! (is-emergency-module-capable emergency-module) ERR-INVALID-MODULE)
+      (asserts! (is-emergency-module-capable 
+                    emergency-module
+                    verification-contract
+                    crowdfunding-contract
+                    rewards-module-contract
+                    escrow-contract
+                )
+                ERR-INVALID-MODULE
+      )
       
       ;; Else, During normal operation, all registered modules are valid and allowed
       true
@@ -366,26 +395,34 @@
 
 
 ;; Helper to check if a contract is one we expect - general activity and versioning validation  
-(define-private (is-contract-expected (module-base <core-module-base>))
+(define-private (is-contract-expected (module-base <core-module-base>)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>))
   (let 
     (
       ;; Get contract address of module-base-trait for us to check contract ID/address of modules 
       (module-contract (contract-of module-base))
     ) 
     (or 
-      (is-eq module-contract (var-get film-verification-module))
-      (is-eq module-contract (var-get crowdfunding-module)) 
-      (is-eq module-contract (var-get rewards-module)) 
-      (is-eq module-contract (var-get escrow-module)) 
-      (is-eq module-contract (var-get co-ep-module)) 
-      (is-eq module-contract (var-get verification-mgt-ext)) 
+      (is-eq module-contract (contract-of verification-contract))
+      (is-eq module-contract (contract-of crowdfunding-contract)) 
+      (is-eq module-contract (contract-of rewards-module-contract)) 
+      (is-eq module-contract (contract-of escrow-contract)) 
+       
     )
    
   )
 )   
 
 ;; Helper to check if module supports emergency operations
-(define-private (is-emergency-module-capable (emergency-module <core-emergency-module>)) 
+(define-private (is-emergency-module-capable (emergency-module <core-emergency-module>) 
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>)) 
+
   (let 
     (
       ;;Get contract address of emergency module
@@ -395,12 +432,10 @@
       
       ;; Now we can check if the trait implementation of each module is the same as one of our registered modules
       (or 
-        (is-eq module-contract (var-get film-verification-module))
-        (is-eq module-contract (var-get crowdfunding-module)) 
-        (is-eq module-contract (var-get rewards-module)) 
-        (is-eq module-contract (var-get escrow-module)) 
-        (is-eq module-contract (var-get co-ep-module)) 
-        (is-eq module-contract (var-get verification-mgt-ext)) 
+        (is-eq module-contract (contract-of verification-contract))
+        (is-eq module-contract (contract-of crowdfunding-contract)) 
+        (is-eq module-contract (contract-of rewards-module-contract)) 
+        (is-eq module-contract (contract-of escrow-contract))
       )
   )
 )
@@ -408,7 +443,11 @@
 
 ;; ========== Emergency Control Function ==========
 ;; Public function to activate Emergency pause-or-not-pause system 
-(define-public (emergency-pause-or-not-pause-system (pause bool)) 
+(define-public (emergency-pause-or-not-pause-system (pause bool)
+  (verification-contract <core-emergency-module>)
+  (crowdfunding-contract <core-emergency-module>)
+  (rewards-module-contract <core-emergency-module>)
+  (escrow-contract <core-emergency-module>))
   (let 
     (
       ;; Get current-contract-admin
@@ -424,12 +463,10 @@
     ;; Notify all modules of emergency new pause state
      ;; In the course of updating each module, if partcular module-name in pause-module helper fails, others still work
      ;; Use try! to handle responses properly
-     (try! (pause-module (var-get crowdfunding-module) pause "crowdfunding"))
-     (try! (pause-module (var-get escrow-module) pause "escrow"))
-     (try! (pause-module (var-get film-verification-module) pause "film verification"))
-     (try! (pause-module (var-get rewards-module) pause "rewards"))
-     (try! (pause-module (var-get verification-mgt-ext) pause "verification mgt"))
-     (try! (pause-module (var-get co-ep-module) pause "Co-Executive Producers pool"))
+     (try! (pause-module verification-contract pause "film verification-module"))
+     (try! (pause-module crowdfunding-contract pause "crowdfunding-module"))
+     (try! (pause-module rewards-module-contract pause "rewards-module"))
+     (try! (pause-module escrow-contract pause "escrow-module"))
 
     ;; Print log for efficient Audit trails
      (print
@@ -480,46 +517,44 @@
 
 
 ;; Function to check pause state consistency across all modules
-(define-read-only (get-system-pause-status)
+(define-public (get-system-pause-status (verification-contract <core-emergency-module>)
+  (crowdfunding-contract <core-emergency-module>)
+  (rewards-module-contract <core-emergency-module>)
+  (escrow-contract <core-emergency-module>))
   (let 
     (
       ;; get pause-state of main hub as well as the other modules
       (hub-paused (var-get emergency-pause))
-      (crowdfunding-paused (contract-call? (var-get crowdfunding-module) is-system-paused))
-      (escrow-paused (contract-call? (var-get escrow-module) is-system-paused))
-      (film-verification-paused (contract-call? (var-get film-verification-module) is-system-paused))
-      (rewards-paused (contract-call? (var-get rewards-module) is-system-paused))
-      (verf-mgt-ext-paused (contract-call? (var-get verification-mgt-ext)  is-system-paused))
-      (co-ep-paused (contract-call? (var-get co-ep-module) is-system-paused))
-
+      (film-verification-paused (unwrap! (contract-call? verification-contract is-system-paused) ERR-MODULE-STATUS-CHECK-FAILED))
+      (crowdfunding-paused (unwrap! (contract-call? crowdfunding-contract is-system-paused) ERR-MODULE-STATUS-CHECK-FAILED))
+      (rewards-paused (unwrap! (contract-call? rewards-module-contract is-system-paused) ERR-MODULE-STATUS-CHECK-FAILED))
+      (escrow-paused (unwrap! (contract-call? escrow-contract is-system-paused) ERR-MODULE-STATUS-CHECK-FAILED))
     ) 
 
-    {
+    (ok 
+      {
       ;; Return tuple data details of system-pause state of each module including the main hub
       hub-paused: hub-paused,
       modules: {
-        crowdfunding: crowdfunding-paused,
-        escrow: escrow-paused,
         film-verification: film-verification-paused,
+        crowdfunding: crowdfunding-paused,
         rewards: rewards-paused,
-        verf-ext: verf-mgt-ext-paused,
-        co-ep: co-ep-paused
-
+        escrow: escrow-paused
        },
 
        ;; tuple data ensures that system-pause state in main-hub is consistent (is-eq)
             ;; with the same system-pause state in each module
       is-consistent: (and
-          (is-eq hub-paused crowdfunding-paused)
-          (is-eq hub-paused escrow-paused)
+      
           (is-eq hub-paused film-verification-paused)
+          (is-eq hub-paused crowdfunding-paused)
           (is-eq hub-paused rewards-paused)
-          (is-eq hub-paused verf-mgt-ext-paused)
-          (is-eq hub-paused co-ep-paused)
-
+          (is-eq hub-paused escrow-paused)
         )
        
-    }
+      }
+    
+    )
     
   )
 )
@@ -531,7 +566,14 @@
     ;; to recover funds from any module during emergencies 
     ;; Dynamic calling: Can work with any "module" that has the emergency-withdraw function
     ;; Delegation: This function doesn't actually move money - it tells the target module to do it
-(define-public (emergency-fund-recovery (module <core-emergency-module>) (module-base <core-module-base>) (amount uint) (recipient principal) (recovery-reason (string-ascii 100))) 
+(define-public (emergency-fund-recovery (module <core-emergency-module>) 
+  (module-base <core-module-base>) 
+  (amount uint) (recipient principal) 
+  (recovery-reason (string-ascii 100))
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>)) 
   (let 
     ( ;; Get the contract address of the module we're trying to recover funds from
         ;; This tells us which specific contract holds the funds
@@ -564,7 +606,14 @@
     (asserts! (var-get emergency-pause) ERR-SYSTEM-NOT-PAUSED)
 
     ;; Ensure the module is actually one of our registered modules to prevent unauthorized access
-    (asserts! (is-contract-expected module-base) ERR-INVALID-MODULE)
+    (asserts! (is-contract-expected 
+                    module-base
+                    verification-contract
+                    crowdfunding-contract
+                    rewards-module-contract
+                    escrow-contract
+                    ) 
+                ERR-INVALID-MODULE)
 
     ;; FUND VALIDATION
     ;; Validation of funds availability- if the target module actually has any funds to recover
@@ -731,7 +780,11 @@
 
 ;; ========== Module Management Functions ==========
 ;; Public function to set the verification module address
-(define-public (set-film-verification-module (new-module principal))
+(define-public (set-film-verification-module (new-module principal)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>))
   (let
     (
       (old-module (var-get film-verification-module))
@@ -740,7 +793,14 @@
     (asserts! (is-eq tx-sender (var-get contract-admin)) ERR-NOT-AUTHORIZED)
 
     ;; Prevent setting module to another existing module address 
-    (asserts! (not (is-our-contract-address new-module)) ERR-INVALID-MODULE)
+    (asserts! (not 
+                  (is-our-contract-address 
+                      new-module 
+                      verification-contract 
+                      crowdfunding-contract
+                      rewards-module-contract
+                      escrow-contract)) 
+                ERR-INVALID-MODULE)
 
     ;; Update module address
     (var-set film-verification-module new-module)   
@@ -763,7 +823,11 @@
 )
 
 ;; Public function to dynamically set the crowdfunding module address
-(define-public (set-crowdfunding-module (new-module principal))
+(define-public (set-crowdfunding-module (new-module principal)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>))
   (let 
     (
       (old-module (var-get crowdfunding-module))
@@ -772,8 +836,15 @@
     (asserts! (is-eq tx-sender (var-get contract-admin)) ERR-NOT-AUTHORIZED)
     
     ;; Prevent setting module to another existing module address 
-    (asserts! (not (is-our-contract-address new-module)) ERR-INVALID-MODULE)
-    
+    (asserts! (not 
+                  (is-our-contract-address 
+                      new-module 
+                      verification-contract 
+                      crowdfunding-contract
+                      rewards-module-contract
+                      escrow-contract)) 
+                ERR-INVALID-MODULE)
+
     ;; Update module address
     (var-set crowdfunding-module new-module) 
 
@@ -794,7 +865,11 @@
 )
 
 ;; Public function to dynamically set the rewards module address
-(define-public (set-rewards-module (new-module principal))
+(define-public (set-rewards-module (new-module principal)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>))
   (let
     (
       (old-module (var-get rewards-module))
@@ -803,8 +878,15 @@
     (asserts! (is-eq tx-sender (var-get contract-admin)) ERR-NOT-AUTHORIZED)
 
     ;; Prevent setting module to another existing module address 
-    (asserts! (not (is-our-contract-address new-module)) ERR-INVALID-MODULE)
-    
+    (asserts! (not 
+                  (is-our-contract-address 
+                      new-module 
+                      verification-contract 
+                      crowdfunding-contract
+                      rewards-module-contract
+                      escrow-contract)) 
+                ERR-INVALID-MODULE)
+
     ;; Update module address
     (var-set rewards-module new-module)
 
@@ -826,7 +908,11 @@
 ) 
 
 ;; Public function to dynamically set the escrow module address
-(define-public (set-escrow-module (new-module principal))
+(define-public (set-escrow-module (new-module principal)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>))
   (let
     (
       (old-module (var-get escrow-module))
@@ -835,7 +921,14 @@
     (asserts! (is-eq tx-sender (var-get contract-admin)) ERR-NOT-AUTHORIZED)
 
     ;; Prevent setting module to another existing module address 
-    (asserts! (not (is-our-contract-address new-module)) ERR-INVALID-MODULE)
+    (asserts! (not 
+                  (is-our-contract-address 
+                      new-module 
+                      verification-contract 
+                      crowdfunding-contract
+                      rewards-module-contract
+                      escrow-contract)) 
+                ERR-INVALID-MODULE)
     
     ;; Update module address
     (var-set escrow-module new-module)
@@ -858,7 +951,11 @@
 )
 
 ;; Public function to dynamically set the co-ep module address
-(define-public (set-co-ep-module (new-module principal))
+(define-public (set-co-ep-module (new-module principal)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>))
   (let
     (
       (old-module (var-get co-ep-module))
@@ -867,7 +964,14 @@
     (asserts! (is-eq tx-sender (var-get contract-admin)) ERR-NOT-AUTHORIZED)
 
     ;; Prevent setting module to another existing module address 
-    (asserts! (not (is-our-contract-address new-module)) ERR-INVALID-MODULE)
+    (asserts! (not 
+                  (is-our-contract-address 
+                      new-module
+                      verification-contract 
+                      crowdfunding-contract
+                      rewards-module-contract
+                      escrow-contract)) 
+                ERR-INVALID-MODULE)
     
     ;; Update module address
     (var-set co-ep-module new-module)
@@ -891,7 +995,11 @@
 
 
 ;; Public function to dynamically set the verification-mgt extension
-(define-public (set-verification-ext (new-module principal))
+(define-public (set-verification-ext (new-module principal)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract <hub-escrow-trait>))
   (let
     (
       (old-module (var-get verification-mgt-ext))
@@ -900,7 +1008,14 @@
     (asserts! (is-eq tx-sender (var-get contract-admin)) ERR-NOT-AUTHORIZED)
 
        ;; Prevent setting module to another existing module address
-    (asserts! (not (is-our-contract-address new-module)) ERR-INVALID-MODULE)
+    (asserts! (not 
+                  (is-our-contract-address 
+                      new-module 
+                      verification-contract 
+                      crowdfunding-contract
+                      rewards-module-contract
+                      escrow-contract)) 
+                ERR-INVALID-MODULE)
     
     ;; Update module address
     (var-set verification-mgt-ext new-module)
@@ -926,81 +1041,113 @@
 
 ;; ========== VERIFICATION INTEGRATION FUNCTIONS ==========
 ;; Function to get filmmaker portfolio
-(define-public (check-is-portfolio-present (new-filmmaker principal) (new-id uint)) 
-  (contract-call? (var-get film-verification-module) is-portfolio-available new-filmmaker new-id)
+(define-public (check-is-portfolio-present (new-filmmaker principal) (new-id uint) (verification-contract <hub-verification-trait>)) 
+  (contract-call? verification-contract is-portfolio-available new-filmmaker new-id)
 )
 
 ;; Function to check if a filmmaker is verified through the verification module
-(define-public (check-is-filmmaker-verified (new-filmmaker principal)) 
-  (contract-call? (var-get film-verification-module) is-filmmaker-currently-verified new-filmmaker)
+(define-public (check-is-filmmaker-verified (new-filmmaker principal) (verification-contract <hub-verification-trait>)) 
+  (contract-call? verification-contract is-filmmaker-currently-verified new-filmmaker)
 )
 
 ;; Function to get filmmaker verification 
-(define-public (check-endorsement-status (new-filmmaker principal) (new-id uint))
-  (contract-call? (var-get film-verification-module) is-endorsement-available new-filmmaker new-id)
+(define-public (check-endorsement-status (new-filmmaker principal) (new-id uint) (verification-contract <hub-verification-trait>))
+  (contract-call? verification-contract is-endorsement-available new-filmmaker new-id)
 )
+
 
 ;; ========== CROWDFUNDING INTEGRATION FUNCTIONS ==========
 ;; Direct contract calls for crowdfunding operations
 (define-public (create-campaign-via-hub (description (string-ascii 500)) 
+    (crowdfunding-contract <hub-crowdfunding-trait>)
+    (crowdfunding-base <core-module-base>)
+    (crowdfunding-emergency <core-emergency-module>)
     (funding-goal uint) 
     (duration uint) 
     (reward-tiers uint) 
-    (reward-description (string-ascii 150)))
-  (let 
-    (
-      ;; Get crowdfunding contract
-      (crowdfunding-contract (var-get crowdfunding-module))
-    ) 
+    (reward-description (string-ascii 150))
+    (verification-contract-address <hub-verification-trait>)
+    (crowdfunding-contract <hub-crowdfunding-trait>)
+    (rewards-module-contract <hub-rewards-trait>)
+    (escrow-contract-address <hub-escrow-trait>))
+    (begin 
+      ;; Ensure crowdfunding module is validated before using it
+      (try! (validate-safe-module 
+                crowdfunding-base 
+                crowdfunding-emergency
+                verification-contract-address
+                crowdfunding-contract
+                rewards-module-contract
+                escrow-contract-address
+                
+            )
+      )
 
-    ;; Ensure crowdfunding module is validated before using it
-    (try! (validate-safe-module .crowdfunding-module .crowdfunding-module))
+      ;; Ensure is not paused for normal operations
+      (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
 
-    ;; Ensure is not paused for normal operations
-    (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
+      (contract-call? crowdfunding-contract create-campaign description funding-goal u0 duration reward-tiers reward-description verification-contract-address)    
+    )
 
-    (contract-call? (var-get crowdfunding-module) create-campaign description funding-goal u0 duration reward-tiers reward-description)    
-  
-  )
 )
 
 
-(define-public (contribute-to-campaign (campaign-id uint) (amount uint))
-  (let 
-    (
-      ;; Get crowdfunding contract
-      (crowdfunding-contract (var-get crowdfunding-module))
-    ) 
-
+(define-public (contribute-to-campaign (campaign-id uint) (amount uint) 
+  (crowdfunding-base <core-module-base>)
+  (crowdfunding-emergency <core-emergency-module>)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract-address <hub-escrow-trait>))
+  (begin  
      ;; Ensure crowdfunding module is validated before using it
-    (try! (validate-safe-module .crowdfunding-module .crowdfunding-module))
+     (try! (validate-safe-module 
+              crowdfunding-base 
+              crowdfunding-emergency
+              verification-contract
+              crowdfunding-contract
+              rewards-module-contract
+              escrow-contract-address
+            )
+      )
+ 
+      ;; Ensure is not paused for normal operations
+      (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
 
-    ;; Ensure is not paused for normal operations
-    (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
-
-    (contract-call? (var-get crowdfunding-module) contribute-to-campaign campaign-id amount)
+      (contract-call? crowdfunding-contract contribute-to-campaign campaign-id amount escrow-contract-address)
   )
 ) 
 
 
 ;; Centralized fund claiming with proper authorization
-(define-public (claim-campaign-funds (campaign-id uint))
+(define-public (claim-campaign-funds (campaign-id uint) 
+  (crowdfunding-base <core-module-base>)
+  (crowdfunding-emergency <core-emergency-module>)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract-address <hub-escrow-trait>))
   (let 
     (
       ;; Get campaign details to verify ownership
-      (campaign (unwrap! (contract-call? (var-get crowdfunding-module) get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
+      (campaign (unwrap! (contract-call? crowdfunding-contract get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
 
        ;; Get campaign owner, funding goal and current-total-raised so far
        (owner (get owner campaign))
        (current-funding-goal (get funding-goal campaign))
        (current-total-raised (get total-raised campaign))
 
-      ;; Get crowdfunding contract
-      (crowdfunding-contract (var-get crowdfunding-module))
-
     ) 
     ;; Ensure crowdfunding module is validated before using it
-    (try! (validate-safe-module .crowdfunding-module .crowdfunding-module))
+    (try! (validate-safe-module 
+              crowdfunding-base 
+              crowdfunding-emergency
+              verification-contract
+              crowdfunding-contract
+              rewards-module-contract
+              escrow-contract-address
+          )
+    )
 
     ;; Ensure is not paused for normal operations
     (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
@@ -1012,13 +1159,13 @@
     (asserts! (>= current-total-raised current-funding-goal) ERR-FUNDING-GOAL-NOT-REACHED)
 
     ;;Authorize withdrawal in escrow module 
-    (try! (contract-call? (var-get escrow-module) authorize-withdrawal campaign-id tx-sender))
+    (try! (contract-call? escrow-contract-address authorize-withdrawal campaign-id tx-sender))
 
     ;; Authorize fee collection in escrow module
-    (try! (contract-call? (var-get escrow-module) authorize-fee-collection campaign-id tx-sender))
+    (try! (contract-call? escrow-contract-address authorize-fee-collection campaign-id tx-sender))
 
     ;; Call the crowdfunding module to process the claim
-    (try! (contract-call? (var-get crowdfunding-module) claim-campaign-funds campaign-id))
+    (try! (contract-call? crowdfunding-contract claim-campaign-funds campaign-id escrow-contract-address))
 
     ;; Log successful claim
     (print {
@@ -1039,41 +1186,62 @@
 
 ;; ========== ESCROW INTEGRATION FUNCTIONS ==========
 ;; Direct contract calls for escrow operations
-(define-public (deposit-to-escrow-via-hub (campaign-id uint) (amount uint))
-  (let 
-    (
-      ;; Get crowdfunding contract
-      (escrow-module-contract (var-get escrow-module))
-
-    ) 
-
+(define-public (deposit-to-escrow-via-hub (campaign-id uint) 
+  (amount uint)
+  (escrow-base <core-module-base>)
+  (escrow-emergency <core-emergency-module>)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract-address <hub-escrow-trait>))
+  (begin 
     ;; Ensure crowdfunding module is validated before using it
-    (try! (validate-safe-module .escrow-module .escrow-module))
+    (try! (validate-safe-module 
+              escrow-base 
+              escrow-emergency
+              verification-contract
+              crowdfunding-contract
+              rewards-module-contract 
+              escrow-contract-address
+          )
+    )
 
     ;; Ensure is not paused for normal operations
     (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
 
-    (contract-call? (var-get escrow-module) deposit-to-campaign campaign-id amount)
+    (contract-call? escrow-contract-address deposit-to-campaign campaign-id amount)
 
   )
   
 )
 
 ;; Centralized withdrawal with proper authorization
-(define-public (withdraw-from-escrow-via-hub (campaign-id uint) (amount uint))
+(define-public (withdraw-from-escrow-via-hub (campaign-id uint) 
+  (amount uint)
+  (escrow-base <core-module-base>)
+  (escrow-emergency <core-emergency-module>)
+  (verification-contract <hub-verification-trait>)
+  (crowdfunding-contract <hub-crowdfunding-trait>)
+  (rewards-module-contract <hub-rewards-trait>)
+  (escrow-contract-address <hub-escrow-trait>))
   (let 
     (
       ;; Get campaign details to verify ownership
-      (campaign (unwrap! (contract-call? .crowdfunding-module get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
+      (campaign (unwrap! (contract-call? crowdfunding-contract get-campaign campaign-id) ERR-CAMPAIGN-NOT-FOUND))
        ;; Get campaign owner 
        (owner (get owner campaign))
 
-       ;; Get crowdfunding contract
-      (escrow-module-contract (var-get escrow-module))
-
     ) 
     ;; Ensure crowdfunding module is validated before using it
-    (try! (validate-safe-module .escrow-module .escrow-module))
+    (try! (validate-safe-module 
+              escrow-base 
+              escrow-emergency
+              verification-contract
+              crowdfunding-contract
+              rewards-module-contract 
+              escrow-contract-address
+          )
+    )
 
     ;; Ensure is not paused for normal operations
     (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
@@ -1082,35 +1250,45 @@
     (asserts! (is-eq tx-sender owner) ERR-NOT-AUTHORIZED)
 
     ;;Authorize withdrawal in escrow module 
-    (unwrap! (contract-call? (var-get escrow-module) authorize-withdrawal campaign-id tx-sender) ERR-TRANSFER-FAILED)
+    (unwrap! (contract-call? escrow-contract-address authorize-withdrawal campaign-id tx-sender) ERR-TRANSFER-FAILED)
 
      ;; Call the escrow module to process the claim
-     (contract-call? (var-get escrow-module) withdraw-from-campaign campaign-id amount)
+     (contract-call? escrow-contract-address withdraw-from-campaign campaign-id amount)
 
   )
   
 )
+
 
 ;; ========== REWARDS INTEGRATION FUNCTIONS ==========
 ;; Direct contract calls for rewards operations
 (define-public (award-reward-via-hub (campaign-id uint) 
     (contributor principal) 
     (tier uint) 
-    (description (string-ascii 150)))
-  (let 
-    (
-      ;; Get crowdfunding contract
-      (rewards-module-contract (var-get rewards-module))
-
-    ) 
-
+    (description (string-ascii 150)) 
+    (rewards-module-contract <hub-rewards-trait>)
+    (rewards-base <core-module-base>)
+    (rewards-emergency <core-emergency-module>)
+    (verification-contract <hub-verification-trait>)
+    (crowdfunding-contract <hub-crowdfunding-trait>)
+    (rewards-module-contract <hub-rewards-trait>)
+    (escrow-contract <hub-escrow-trait>))
+  (begin 
     ;; Ensure crowdfunding module is validated before using it
-    (try! (validate-safe-module .rewards-module .rewards-module))
+    (try! (validate-safe-module 
+              rewards-base 
+              rewards-emergency
+              verification-contract
+              crowdfunding-contract
+              rewards-module-contract 
+              escrow-contract
+          )
+    )
 
     ;; Ensure is not paused for normal operations
     (asserts! (is-eq (var-get emergency-pause) false) ERR-SYSTEM-PAUSED)
 
-    (contract-call? (var-get rewards-module) award-campaign-reward campaign-id contributor tier description)
+    (contract-call? rewards-module-contract award-campaign-reward campaign-id contributor tier description crowdfunding-contract)
   )
 )
 

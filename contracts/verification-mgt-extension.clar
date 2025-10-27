@@ -15,19 +15,19 @@
 ;;  - The platform gets a sustainable revenue model both in high market and low market periods, made possible by the value 
 ;;    of a market-based pricing system for verification and its attendant dynamic fee adjustment multiplier  
 
-
-
-;; Implement the emergency-module-trait interface
-(use-trait vrf-emergency-module .emergency-module-trait.emergency-module-trait)
-
-;; Implement the emergency-module-trait interface
+;; Implementing the emergecny-module-trait 
 (impl-trait .emergency-module-trait.emergency-module-trait)
-
-;; Import to use the module-base-trait
-(use-trait vrf-module-base .module-base-trait.module-base-trait)
-
-;; Implement module-base-trait interface
 (impl-trait .module-base-trait.module-base-trait)
+
+;; Import traits that will be called
+(use-trait verf-mgt-trait .film-verification-module-trait.film-verification-trait)
+
+
+;; Import emergency module trait for calling proper emergency operations
+(use-trait verf-emergency-module .emergency-module-trait.emergency-module-trait)
+
+;; Import module base trait for calling standardized module operations
+(use-trait verf-module-base .module-base-trait.module-base-trait)
 
 
 ;; ========== ADDITIONAL ERROR CONSTANTS ==========
@@ -73,13 +73,19 @@
 ;; distribution revenue period counter - Keeping track of which distribution period we're on
 (define-data-var distribution-revenue-period-counter uint u0)
 
+;; Emergency operations counter for audit trail 
+(define-data-var emergency-ops-counter uint u0) ;; initialized to u0 at deployment - no audit of emergency operations yet
 
-;; ===== Module state variables =====
-(define-data-var module-version uint u1) ;; Current version (v1)
+;;;; ========== Emergency State ========
+;; Variable to hold state of operations 'not paused (false)' until when necessary 
+(define-data-var emergency-pause bool false)
 
-(define-data-var module-active bool true) ;; Is module active or working? (true or false)
+;; Variable to hold state of module-version - initialized to the first version (V1) at deployment 
+(define-data-var module-version uint u1)
 
-(define-data-var system-paused bool false) ;; Is verification-mgt system paused? (true or false)
+;; Variable to hold state of module-active - initialized to true, implying module is actively running
+(define-data-var module-active bool true)
+
 
 
 ;; ========== ADDITIONAL DATA MAPS ==========
@@ -120,10 +126,10 @@
 )
 
 ;; Set platform treasury address
-(define-public (set-platform (new-platform principal))
+(define-public (set-platform (new-platform principal) (verification-contract-address <verf-mgt-trait>))
     (begin 
         (asserts! (is-eq tx-sender 
-                            (unwrap! (contract-call? .film-verification-module get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND))
+                            (unwrap! (contract-call? verification-contract-address get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND))
              ERR-NOT-AUTHORIZED)  
         (var-set platform-treasury new-platform)
         (ok new-platform)
@@ -132,10 +138,10 @@
 )
 
 ;; Set verifiers treasury address
-(define-public (set-verifier (new-verifier principal)) 
+(define-public (set-verifier (new-verifier principal) (verification-contract-address <verf-mgt-trait>)) 
     (begin 
         (asserts! (is-eq tx-sender 
-                            (unwrap! (contract-call? .film-verification-module get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND))
+                            (unwrap! (contract-call? verification-contract-address get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND))
              ERR-NOT-AUTHORIZED)  
         (var-set verifiers-treasury new-verifier)
         (ok new-verifier)
@@ -174,14 +180,14 @@
 ;; Verification renewal function (complements main verification)
     ;; Strategic Purpose: Achieves added value propostion to campaign creators in the course of identity verification renewal 
         ;; this makes it easier and cheaper than getting a new one
-(define-public (verification-renewal (new-filmmaker principal)) 
+(define-public (verification-renewal (new-filmmaker principal) (verification-contract <verf-mgt-trait>)) 
     (let 
         (
             ;; Check filmmaker is currently verified    
-            (verified (unwrap! (contract-call? (var-get verification-module) is-filmmaker-currently-verified tx-sender) ERR-NOT-VERIFIED))
+            (verified (unwrap! (contract-call? verification-contract is-filmmaker-currently-verified tx-sender) ERR-NOT-VERIFIED))
             
             ;; Check full verification data
-            (current-verification-data (unwrap! (contract-call? (var-get verification-module) get-filmmaker-identity tx-sender) ERR-FILMMAKER-NOT-FOUND))
+            (current-verification-data (unwrap! (contract-call? verification-contract get-filmmaker-identity tx-sender) ERR-FILMMAKER-NOT-FOUND))
 
             ;; Get current-verification-level 
             (current-verification-level  (unwrap! (get choice-verification-level current-verification-data) ERR-FILMMAKER-NOT-FOUND))
@@ -240,7 +246,7 @@
          (map-set filmmaker-verification-payments-counter new-filmmaker new-filmmaker-payment-count)
 
         ;; Call main module to update expiration 
-        (unwrap! (contract-call? (var-get verification-module) update-filmmaker-expiration-period new-filmmaker new-expiration-period) ERR-EXPIRATION-UPDATE-FAILED)
+        (unwrap! (contract-call? verification-contract update-filmmaker-expiration-period new-filmmaker new-expiration-period) ERR-EXPIRATION-UPDATE-FAILED)
         
         ;; For now, we'll return success indicating renewal payment processed
         (ok {
@@ -252,7 +258,7 @@
 )
 
 ;; Revenue distribution for a period function (complements main module's fee collection)
-(define-public (distribute-revenue-for-period)
+(define-public (distribute-revenue-for-period (verification-contract <verf-mgt-trait>))
     (let 
         (
             ;; Check contract balance
@@ -275,7 +281,7 @@
         ) 
         ;; Ensure caller is admin (check with main module)
         (asserts! (is-eq tx-sender (unwrap! 
-                                        (contract-call? .film-verification-module get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND))
+                                        (contract-call? verification-contract get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND))
                         ERR-NOT-AUTHORIZED)
 
          ;; Ensure system is not paused
@@ -315,11 +321,11 @@
 
 
 ;; Market-based fee adjustment (complements fixed fees in main module)
-(define-public (adjust-fee-multiplier (new-multiplier uint)) 
+(define-public (adjust-fee-multiplier (new-multiplier uint) (verification-contract <verf-mgt-trait>)) 
     (begin 
         ;; Ensure caller is admin (check with main module)
         (asserts! (is-eq tx-sender 
-                            (unwrap! (contract-call? (var-get verification-module) get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND)) 
+                            (unwrap! (contract-call? verification-contract get-contract-admin) ERR-VERIFICATION-ADMIN-NOT-FOUND)) 
                     ERR-NOT-AUTHORIZED)
 
         ;; Ensure multiplier is within acceptable range, i.e., adjustment is reasonable (between 50% and 200% of normal price)
@@ -380,71 +386,83 @@
 
 
 
-;; ========== EMERGENCY PAUSE FUNCTIONS ==========
-;; Function to allow only core contract to set pause state
-(define-public (set-pause-state (pause bool))
-  (let 
-    (
-      ;; Get hub 
-      (cinex-hub (var-get core-contract))
-    ) 
-    ;; Only core contract can set pause state
-    (asserts! (is-eq contract-caller cinex-hub) ERR-NOT-AUTHORIZED)
 
-    ;; Ensure system is not paused
-    (check-system-not-paused)
-
-    ;; Set the system-paused to pause
-    (var-set system-paused pause)
-    (ok true) 
-  )
-)
-
-;; Helper function to check system-not-paused
-(define-private (check-system-not-paused)
-  (let 
-    (
-      ;; Get system-paused state
-      (current-system-paused-state (var-get system-paused))
-    ) 
-    (not current-system-paused-state)
-  )
-)
-
-
-;; Get system-paused status
+;; ========== EMERGENCY MODULE TRAIT IMPLEMENTATIONS ==========
+;; Function to check if system is paused (from emergncy module-trait) in an emergency
 (define-read-only (is-system-paused) 
-  (var-get system-paused)
+    (ok (var-get emergency-pause))
 )
 
-;; Function to implement emergency withdraw
-(define-public (emergency-withdraw (amount uint) (recipient principal)) 
+;; Function to set-pause-state (from emergency-module-trait) in an emergency
+(define-public (set-pause-state (pause bool))
     (begin 
-        ;; Ensure only core contract can call this emergency withdraw function
+        ;; Ensure only core contract can set pause state
         (asserts! (is-eq tx-sender (var-get core-contract)) ERR-NOT-AUTHORIZED)
 
-        ;; Ensure system must be paused before emergency withdrawal
-        (asserts! (var-get system-paused) ERR-SYSTEM-NOT-PAUSED)
+        ;; Set emergency-pause state
+        (var-set emergency-pause pause)
 
-        ;; Perform emergency withdrawal
-        (try! (stx-transfer? amount (as-contract tx-sender) recipient))
+        ;; Print log for audit trail
+        (print {
+            event: "pause state updated",
+            module: "verification-mgt-ext",
+            paused: pause,
+            updated-by: tx-sender,
+            block-height: block-height
+        
+
+        })
+
         (ok true)
+    
     )
+
 )
+    
+;; Function to faciliate emergency-withdraw (from emergency-module trait)
+(define-public (emergency-withdraw (amount uint) (recipient principal)) 
+    (begin 
+        ;; Ensure only core contract can call emergency-withdraw 
+        (asserts! (is-eq tx-sender (var-get core-contract)) ERR-NOT-AUTHORIZED)
+
+        ;; Ensure emergency-pause 
+        (asserts! (var-get emergency-pause) ERR-SYSTEM-NOT-PAUSED)
+
+        ;; Withdraw the intended amount to the authorized recipient, unwrapping the successful response 
+            ;; or error response
+        (unwrap! (stx-transfer? amount (as-contract tx-sender) recipient) ERR-TRANSFER)
+    
+        (ok true))
+)
+
 
 
 ;; ========== BASE TRAIT IMPLEMENTATIONS ==========
 ;; Get module version number    
-(define-read-only (get-module-version) 
+(define-read-only (get-module-version)
     (ok (var-get module-version)) ;; return module version number
-)
+) 
 
 ;; Check if module is active/currently working properly 
 (define-read-only (is-module-active)
     (ok (var-get module-active)) ;; return if true or false
 )
 
-;; Get module name to identify which module this is 
-(define-read-only (get-module-name)
-    (ok "verification-mgt-extension") ;; return current module name
+;; Get module name to identify which module this is
+(define-read-only (get-module-name) 
+    (ok "verification-mgt-ext") ;; return current module name
 )
+
+
+
+;; Helper function to check system-not-paused
+(define-private (check-system-not-paused)
+  (let 
+    (
+      ;; Get system-paused state
+      (current-system-paused-state (var-get emergency-pause))
+    ) 
+    (not current-system-paused-state)
+  )
+)
+
