@@ -18,16 +18,6 @@
 (impl-trait .emergency-module-trait.emergency-module-trait)
 (impl-trait .module-base-trait.module-base-trait)
 
-
-;; Import emergency module trait for calling proper emergency operations
-(use-trait escrow-emergency-module .emergency-module-trait.emergency-module-trait)
-
-;; Import module base trait for calling standardized module operations
-(use-trait escrow-module-base .module-base-trait.module-base-trait)
-
-
-
-
 ;; Store the principal address of the core contract 
 (define-data-var core-contract principal tx-sender)
 
@@ -47,6 +37,7 @@
 (define-constant ERR-INVALID-AMOUNT (err u4006))
 (define-constant ERR-INSUFFICIENT-FUNDS (err u4007))
 (define-constant ERR-INVALID-RECIPIENT (err u4008))
+(define-constant ERR-SELF-NOT-INIT (err u4009))           ;; Self-contract not initialized
 
 ;; Constant holding contract-owner principal
 (define-constant CONTRACT-OWNER tx-sender)
@@ -144,7 +135,7 @@
       (current-balance (default-to u0 (map-get? campaign-escrow-balances campaign-id)))
 
       ;; Check authorization from authorize-withdrawal map, else default to false
-      (is-withdrawal-authorized (default-to true (map-get? authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })))
+      (is-withdrawal-authorized (default-to false (map-get? authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })))
 
       ;; Calculate the new balance after withdrawal
       (new-balance (- current-balance amount))

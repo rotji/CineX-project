@@ -3,8 +3,6 @@
 ;; ====================================
 ;; Property-based and invariant tests for secure fund management
 
-
-
 ;; ====================================
 ;; PROPERTY-BASED TESTS
 ;; ====================================

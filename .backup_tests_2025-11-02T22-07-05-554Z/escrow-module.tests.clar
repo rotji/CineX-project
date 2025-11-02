@@ -3,6 +3,10 @@
 ;; ====================================
 ;; Property-based and invariant tests for secure fund management
 
+(deploy-contract module-base-trait)
+(deploy-contract escrow-module-trait)
+(deploy-contract escrow-module)
+
 
 
 ;; ====================================
