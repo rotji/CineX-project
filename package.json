@@ -7,14 +7,20 @@
   "scripts": {
     "test": "vitest run",
     "test:report": "vitest run -- --coverage --costs",
-    "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\""
+    "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\"",
+    "prepare-tests": "node scripts/move-and-create-tests.js --move --create-stubs",
+    "rv-all": "npm run prepare-tests && node scripts/run-rv-for-all.js",
+    "rv-contract": "npm run prepare-tests && npx rv ."
+    
   },
+  
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@hirosystems/clarinet-sdk": "^2.3.2",
     "@stacks/connect": "^8.2.0",
     "@stacks/network": "^7.2.0",
+    "@stacks/rendezvous": "^0.10.0",
     "@stacks/transactions": "^6.17.0",
     "chokidar-cli": "^3.0.0",
     "react-router-dom": "^7.8.2",
