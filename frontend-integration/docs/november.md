@@ -1,0 +1,5 @@
+cine x is been approved by stacks ascend so far and today cine x just got approved into another grants programme within the stacks ecosystem. so here is the milestones they expect us to cover below:
+
+smart contract testing and frontend integration .complete full smart contract testing with over 80% coverage using the Rendezvous suite, and progress from basic to medium level frontend and contract integration tasks. this include imlementing user authentication, wallet connection, and mock transation functionality to simulate film funding pools.
+
+deliverables: verified test coverage  reports, a functionaing prototype  demonstrating  Co-EP  pool creation and contribution, and published github documentation outlining integration methods. the goal of this milestone is to validate the technical foundation of Cine-X and ensure reliability of its rotating  funding system before moving to public testing. 
