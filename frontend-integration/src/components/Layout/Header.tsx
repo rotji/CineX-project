@@ -37,9 +37,9 @@ const Header: React.FC = () => {
       </div>
       <nav className={styles.nav}>
         <Link to="/" className={styles.navLink}>Home</Link>
-  <Link to="/campaigns" className={styles.navLink}>Campaigns</Link>
+        <Link to="/campaigns" className={styles.navLink}>Campaigns</Link>
         <Link to="/waitlist" className={styles.navLink}>Waitlist</Link>
-        <Link to="/register" className={styles.navLink}>Register</Link>
+        <Link to="/register" className={styles.navLink}>Sign Up</Link>
         <Link to="/login" className={styles.navLink}>Login</Link>
       </nav>
       <div className={styles.hamburgerMenuWrapper}>
