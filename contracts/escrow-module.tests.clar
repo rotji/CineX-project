@@ -3,8 +3,6 @@
 ;; ====================================
 ;; Property-based and invariant tests for secure fund management
 
-
-
 ;; ====================================
 ;; PROPERTY-BASED TESTS
 ;; ====================================
@@ -15,13 +13,13 @@
       (ok false)
       (let 
         (
-          (balance-before (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) (err u100)))
+          (balance-before (unwrap! (get-campaign-balance campaign-id) (err u100)))
         )
-        (match (contract-call? .escrow-module deposit-to-campaign campaign-id amount)
+        (match (deposit-to-campaign campaign-id amount)
           success 
             (let 
               (
-                (balance-after (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) (err u101)))
+                (balance-after (unwrap! (get-campaign-balance campaign-id) (err u101)))
               )
               (asserts! (is-eq balance-after (+ balance-before amount)) (err u102))
               (ok true)
@@ -40,15 +38,15 @@
       (ok false)
       (let 
         (
-          (balance-before (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) (err u200)))
+          (balance-before (unwrap! (get-campaign-balance campaign-id) (err u200)))
         )
-        (match (contract-call? .escrow-module deposit-to-campaign campaign-id amount1)
+        (match (deposit-to-campaign campaign-id amount1)
           success1
-            (match (contract-call? .escrow-module deposit-to-campaign campaign-id amount2)
+            (match (deposit-to-campaign campaign-id amount2)
               success2
                 (let 
                   (
-                    (balance-after (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) (err u201)))
+                    (balance-after (unwrap! (get-campaign-balance campaign-id) (err u201)))
                   )
                   (asserts! (is-eq balance-after (+ balance-before amount1 amount2)) (err u202))
                   (ok true)
@@ -65,7 +63,7 @@
 (define-public (test-balance-non-negative (campaign-id uint))
   (let 
     (
-      (balance (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) (err u300)))
+      (balance (unwrap! (get-campaign-balance campaign-id) (err u300)))
     )
     (asserts! (>= balance u0) (err u301))
     (ok true)
@@ -76,7 +74,7 @@
 (define-public (test-withdrawal-without-authorization (campaign-id uint) (amount uint))
   (if (<= amount u0)
       (ok false)
-      (match (contract-call? .escrow-module withdraw-from-campaign campaign-id amount)
+      (match (withdraw-from-campaign campaign-id amount)
         success (err u400)  ;; Should NOT succeed
         error (ok true)
       )
@@ -87,11 +85,11 @@
 (define-public (test-cannot-withdraw-more-than-balance (campaign-id uint) (amount uint))
   (let 
     (
-      (balance-before (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) (err u500)))
+      (balance-before (unwrap! (get-campaign-balance campaign-id) (err u500)))
     )
     (if (<= amount balance-before)
         (ok false)
-        (match (contract-call? .escrow-module withdraw-from-campaign campaign-id amount)
+        (match (withdraw-from-campaign campaign-id amount)
           success (err u501)
           error (ok true)
         )
@@ -103,7 +101,7 @@
 (define-public (test-fee-collection-requires-authorization (campaign-id uint) (fee-amount uint))
   (if (<= fee-amount u0)
       (ok false)
-      (match (contract-call? .escrow-module collect-campaign-fee campaign-id fee-amount)
+      (match (collect-campaign-fee campaign-id fee-amount)
         success (err u600)
         error (ok true)
       )
@@ -119,16 +117,16 @@
       (ok false)
       (let 
         (
-          (system-paused (unwrap! (contract-call? .escrow-module is-system-paused) (err u700)))
+          (system-paused (unwrap! (is-system-paused) (err u700)))
         )
         (if system-paused
             ;; Can attempt withdrawal (may still fail for auth reasons)
-            (match (contract-call? .escrow-module emergency-withdraw amount recipient)
+            (match (emergency-withdraw amount recipient)
               success (ok true)
               error (ok true)
             )
             ;; System not paused: must fail
-            (match (contract-call? .escrow-module emergency-withdraw amount recipient)
+            (match (emergency-withdraw amount recipient)
               success (err u701)
               error (ok true)
             )
@@ -137,44 +135,65 @@
   )
 )
 
+
 ;; ====================================
-;; INVARIANTS
+;; INVARIANTS FOR ESCROW MODULE
 ;; ====================================
 
-;; INVARIANT 1: Campaign balance non-negative
+;; INVARIANT 1: Campaign balance must always be ≥ 0
+;; This ensures that no bug or unauthorized operation can ever make a campaign’s escrow balance negative.
 (define-read-only (invariant-balance-non-negative (campaign-id uint))
-  (let 
+  (let
     (
-      (balance (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) (err u800)))
+      (balance (unwrap-panic (get-campaign-balance campaign-id)))
     )
     (>= balance u0)
   )
 )
 
-;; INVARIANT 2: Emergency ops only when paused
+;; INVARIANT 2: Emergency operations only when system is paused
+;; Security invariant - emergency functions respect pause state
 (define-read-only (invariant-emergency-ops-require-pause)
-  (unwrap! (contract-call? .escrow-module is-system-paused) (err u801))
-)
-
-;; INVARIANT 3: Module version valid
-(define-read-only (invariant-module-version-valid)
-  (let 
+  (let
     (
-      (version (unwrap! (contract-call? .escrow-module get-module-version) (err u802)))
+      (system-paused (unwrap-panic (is-system-paused)))
+      (ops-count (unwrap-panic (get-emergency-ops-count)))
     )
-    (>= version u1))
+    ;; If ops-count is > u0, 
+    (if (> ops-count u0)
+        system-paused ;; then system must be paused for invariant to hold
+        true ;; If no emergency withdraw calls, invariant passes
+    )
+  )
 )
 
-;; INVARIANT 4: Module active
-(define-read-only (invariant-module-is-active)
-  (unwrap! (contract-call? .escrow-module is-module-active) (err u803))
-)
-
-;; INVARIANT 5: Module name correct
-(define-read-only (invariant-module-name-correct)
-  (let 
+;; INVARIANT 3: Module version number must always be ≥ 1
+;; Ensures module version is properly maintained - that the module version is valid (no uninitialized or downgraded version below u1).
+(define-read-only (invariant-module-version-valid)
+  (let
     (
-      (name (unwrap! (contract-call? .escrow-module get-module-name) (err u804)))
+      (version (unwrap-panic (get-module-version)))
+    )
+    (>= version u1)
+  )
+)
+
+;; INVARIANT 4: Module must be active
+;; Verifies module active state is consistent
+(define-read-only (invariant-module-is-active)
+  (let
+    (
+      (active-module (unwrap-panic (is-module-active)))
+    )
+    active-module
+  )
+)
+
+;; INVARIANT 5: Module name must be correct
+(define-read-only (invariant-module-name-correct)
+  (let
+    (
+      (name (unwrap-panic (get-module-name)))
     )
     (is-eq name "escrow-module")
   )
@@ -183,12 +202,12 @@
 ;; ====================================
 ;; HELPER FUNCTIONS
 ;; ====================================
-
 ;; Check if campaign has sufficient balance
 (define-read-only (has-sufficient-balance (campaign-id uint) (amount uint))
-  (let 
+  (let
     (
-      (balance (unwrap! (contract-call? .escrow-module get-campaign-balance campaign-id) (err u900)))
+      ;; unwrap-panic ensures test halts immediately if get-campaign-balance errors
+      (balance (unwrap-panic (get-campaign-balance campaign-id)))
     )
     (>= balance amount)
   )

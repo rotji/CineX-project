@@ -137,9 +137,6 @@
       ;; Check authorization from authorize-withdrawal map, else default to false
       (is-withdrawal-authorized (default-to false (map-get? authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })))
 
-      ;; Calculate the new balance after withdrawal
-      (new-balance (- current-balance amount))
-
     )
       ;; Ensure caller is authorized core for withdrawal 
       (asserts! is-withdrawal-authorized ERR-NOT-AUTHORIZED)
@@ -147,15 +144,21 @@
       ;; Ensure there are enough funds to withdraw
       (asserts! (>= current-balance amount) ERR-INSUFFICIENT-BALANCE)
     
-      ;; Update the escrow balance
-      (map-set campaign-escrow-balances campaign-id new-balance)
+      (let 
+        (
+          ;; Calculate the new balance after withdrawal
+          (new-balance (- current-balance amount))
+        ) 
+        ;; Update the escrow balance
+        (map-set campaign-escrow-balances campaign-id new-balance)
     
-      ;; Transfer the withdrawn amount to the authorized requester
-      (unwrap! (stx-transfer? amount (as-contract tx-sender) tx-sender) ERR-TRANSFER-FAILED)
+        ;; Transfer the withdrawn amount to the authorized requester
+        (unwrap! (stx-transfer? amount (as-contract tx-sender) tx-sender) ERR-TRANSFER-FAILED)
     
-      ;; Clear authorization after successful withdrawal
-      (map-delete authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })
-      (ok true)
+        ;; Clear authorization after successful withdrawal
+        (map-delete authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })
+        (ok true)
+      )
   )
 )
 
@@ -287,7 +290,10 @@
   (ok (var-get emergency-pause))
 )
 
-
+;; Get emergency-ops count
+(define-read-only (get-emergency-ops-count)
+  (var-get emergency-ops-counter)
+)
 ;; Function to implement emergency withdraw
 (define-public (emergency-withdraw (amount uint) (recipient principal))
   (let 
