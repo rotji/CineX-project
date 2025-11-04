@@ -11,9 +11,10 @@
     "prepare-tests": "node scripts/move-and-create-tests.js --move --create-stubs",
     "rv-all": "npm run prepare-tests && node scripts/run-rv-for-all.js",
     "rv-contract": "npm run prepare-tests && npx rv ."
-    
   },
-  
+  "bin": {
+    "run": "./node_modules/@stacks/rendezvous/dist/cli.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -28,5 +29,8 @@
     "vite": "^5.1.4",
     "vitest": "^1.3.1",
     "vitest-environment-clarinet": "^2.0.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.6.1"
   }
 }

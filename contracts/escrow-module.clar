@@ -18,16 +18,6 @@
 (impl-trait .emergency-module-trait.emergency-module-trait)
 (impl-trait .module-base-trait.module-base-trait)
 
-
-;; Import emergency module trait for calling proper emergency operations
-(use-trait escrow-emergency-module .emergency-module-trait.emergency-module-trait)
-
-;; Import module base trait for calling standardized module operations
-(use-trait escrow-module-base .module-base-trait.module-base-trait)
-
-
-
-
 ;; Store the principal address of the core contract 
 (define-data-var core-contract principal tx-sender)
 
@@ -47,6 +37,7 @@
 (define-constant ERR-INVALID-AMOUNT (err u4006))
 (define-constant ERR-INSUFFICIENT-FUNDS (err u4007))
 (define-constant ERR-INVALID-RECIPIENT (err u4008))
+(define-constant ERR-SELF-NOT-INIT (err u4009))           ;; Self-contract not initialized
 
 ;; Constant holding contract-owner principal
 (define-constant CONTRACT-OWNER tx-sender)
@@ -144,10 +135,7 @@
       (current-balance (default-to u0 (map-get? campaign-escrow-balances campaign-id)))
 
       ;; Check authorization from authorize-withdrawal map, else default to false
-      (is-withdrawal-authorized (default-to true (map-get? authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })))
-
-      ;; Calculate the new balance after withdrawal
-      (new-balance (- current-balance amount))
+      (is-withdrawal-authorized (default-to false (map-get? authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })))
 
     )
       ;; Ensure caller is authorized core for withdrawal 
@@ -156,15 +144,21 @@
       ;; Ensure there are enough funds to withdraw
       (asserts! (>= current-balance amount) ERR-INSUFFICIENT-BALANCE)
     
-      ;; Update the escrow balance
-      (map-set campaign-escrow-balances campaign-id new-balance)
+      (let 
+        (
+          ;; Calculate the new balance after withdrawal
+          (new-balance (- current-balance amount))
+        ) 
+        ;; Update the escrow balance
+        (map-set campaign-escrow-balances campaign-id new-balance)
     
-      ;; Transfer the withdrawn amount to the authorized requester
-      (unwrap! (stx-transfer? amount (as-contract tx-sender) tx-sender) ERR-TRANSFER-FAILED)
+        ;; Transfer the withdrawn amount to the authorized requester
+        (unwrap! (stx-transfer? amount (as-contract tx-sender) tx-sender) ERR-TRANSFER-FAILED)
     
-      ;; Clear authorization after successful withdrawal
-      (map-delete authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })
-      (ok true)
+        ;; Clear authorization after successful withdrawal
+        (map-delete authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })
+        (ok true)
+      )
   )
 )
 
@@ -296,7 +290,10 @@
   (ok (var-get emergency-pause))
 )
 
-
+;; Get emergency-ops count
+(define-read-only (get-emergency-ops-count)
+  (var-get emergency-ops-counter)
+)
 ;; Function to implement emergency withdraw
 (define-public (emergency-withdraw (amount uint) (recipient principal))
   (let 
