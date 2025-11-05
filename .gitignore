@@ -4,6 +4,10 @@
 .cache/**
 history.txt
 
+# Environment files - NEVER commit these!
+.env
+.env.*
+
 logs
 *.log
 npm-debug.log*
