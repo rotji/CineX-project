@@ -35,10 +35,14 @@ interface AuthContextType {
   userData: UserData | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  connectionStatus: 'disconnected' | 'connecting' | 'connected' | 'error';
+  balance: string | null;
+  isLoadingBalance: boolean;
   error: string | null;
   signIn: () => Promise<void>;
   signOut: () => void;
   clearError: () => void;
+  refreshBalance: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -46,10 +50,14 @@ const AuthContext = createContext<AuthContextType>({
   userData: null,
   isLoading: false,
   isAuthenticated: false,
+  connectionStatus: 'disconnected',
+  balance: null,
+  isLoadingBalance: false,
   error: null,
   signIn: async () => {},
   signOut: () => {},
   clearError: () => {},
+  refreshBalance: async () => {},
 });
 
 import type { ReactNode } from 'react';
@@ -61,25 +69,85 @@ type AuthProviderProps = {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
+  const [balance, setBalance] = useState<string | null>(null);
+  const [isLoadingBalance, setIsLoadingBalance] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper function to get address from user data
+  const getAddressFromUserData = (data: any): string | null => {
+    const testnetAddr = data.profile?.stxAddress?.testnet || data.stxAddress?.testnet;
+    const mainnetAddr = data.profile?.stxAddress?.mainnet || data.stxAddress?.mainnet;
+    return testnetAddr || mainnetAddr || null;
+  };
+
+  // Balance fetching function
+  const fetchBalance = async (_address: string): Promise<string> => {
+    try {
+      // For now, return placeholder balance - will implement real API call later
+      return '100.0 STX';
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      return '0.0 STX';
+    }
+  };
+
+  // Function to refresh balance
+  const refreshBalance = async (): Promise<void> => {
+    if (!userData) return;
+    
+    try {
+      setIsLoadingBalance(true);
+      const address = getAddressFromUserData(userData);
+      if (address) {
+        const newBalance = await fetchBalance(address);
+        setBalance(newBalance);
+      }
+    } catch (error) {
+      console.error('Error refreshing balance:', error);
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  };
 
   // Check for existing session on app startup
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         setIsLoading(true);
+        setConnectionStatus('connecting');
         setError(null);
 
         if (userSession.isUserSignedIn()) {
           const loadedUserData = userSession.loadUserData();
           setUserData(loadedUserData);
+          setConnectionStatus('connected');
           // Persist user data to localStorage
           localStorage.setItem('cinex_user_data', JSON.stringify(loadedUserData));
+          
+          // Fetch balance after successful connection
+          const address = getAddressFromUserData(loadedUserData);
+          if (address) {
+            setIsLoadingBalance(true);
+            const userBalance = await fetchBalance(address);
+            setBalance(userBalance);
+            setIsLoadingBalance(false);
+          }
         } else if (userSession.isSignInPending()) {
           const pendingUserData = await userSession.handlePendingSignIn();
           setUserData(pendingUserData);
+          setConnectionStatus('connected');
           // Persist user data to localStorage
           localStorage.setItem('cinex_user_data', JSON.stringify(pendingUserData));
+          
+          // Fetch balance after successful connection
+          const address = getAddressFromUserData(pendingUserData);
+          if (address) {
+            setIsLoadingBalance(true);
+            const userBalance = await fetchBalance(address);
+            setBalance(userBalance);
+            setIsLoadingBalance(false);
+          }
         } else {
           // Try to restore from localStorage
           const storedUserData = localStorage.getItem('cinex_user_data');
@@ -87,15 +155,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             try {
               const parsedUserData = JSON.parse(storedUserData);
               setUserData(parsedUserData);
+              setConnectionStatus('connected');
+              
+              // Fetch balance for restored session
+              const address = getAddressFromUserData(parsedUserData);
+              if (address) {
+                setIsLoadingBalance(true);
+                const userBalance = await fetchBalance(address);
+                setBalance(userBalance);
+                setIsLoadingBalance(false);
+              }
             } catch (parseError) {
               console.warn('Failed to parse stored user data:', parseError);
               localStorage.removeItem('cinex_user_data');
+              setConnectionStatus('disconnected');
             }
+          } else {
+            setConnectionStatus('disconnected');
           }
         }
       } catch (authError) {
         console.error('Authentication initialization error:', authError);
         setError('Failed to initialize authentication. Please try again.');
+        setConnectionStatus('error');
       } finally {
         setIsLoading(false);
       }
@@ -107,6 +189,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signIn = async (): Promise<void> => {
     try {
       setIsLoading(true);
+      setConnectionStatus('connecting');
       setError(null);
 
       return new Promise<void>((resolve, reject) => {
@@ -116,23 +199,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             icon: window.location.origin + '/vite.svg',
           },
           userSession,
-          onFinish: () => {
+          onFinish: async () => {
             try {
               const loadedUserData = userSession.loadUserData();
               setUserData(loadedUserData);
+              setConnectionStatus('connected');
               // Persist user data to localStorage
               localStorage.setItem('cinex_user_data', JSON.stringify(loadedUserData));
+              
+              // Fetch balance after successful sign in
+              const address = getAddressFromUserData(loadedUserData);
+              if (address) {
+                setIsLoadingBalance(true);
+                const userBalance = await fetchBalance(address);
+                setBalance(userBalance);
+                setIsLoadingBalance(false);
+              }
+              
               setIsLoading(false);
               resolve();
             } catch (finishError) {
               console.error('Sign in finish error:', finishError);
               setError('Failed to complete sign in. Please try again.');
+              setConnectionStatus('error');
               setIsLoading(false);
               reject(finishError);
             }
           },
           onCancel: () => {
             setError('Sign in was cancelled.');
+            setConnectionStatus('disconnected');
             setIsLoading(false);
             reject(new Error('Sign in cancelled'));
           },
@@ -141,6 +237,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (signInError) {
       console.error('Sign in error:', signInError);
       setError('Failed to sign in. Please check your wallet connection.');
+      setConnectionStatus('error');
       setIsLoading(false);
       throw signInError;
     }
@@ -150,6 +247,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       userSession.signUserOut(window.location.origin);
       setUserData(null);
+      setConnectionStatus('disconnected');
+      setBalance(null);
+      setIsLoadingBalance(false);
       // Clear persisted data
       localStorage.removeItem('cinex_user_data');
       localStorage.removeItem('blockstack-session');
@@ -157,6 +257,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (signOutError) {
       console.error('Sign out error:', signOutError);
       setError('Failed to sign out properly. Please refresh the page.');
+      setConnectionStatus('error');
     }
   };
 
@@ -172,9 +273,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isLoading,
     isAuthenticated,
     error,
+    connectionStatus,
+    balance,
+    isLoadingBalance,
     signIn,
     signOut,
     clearError,
+    refreshBalance,
   };
 
   return (

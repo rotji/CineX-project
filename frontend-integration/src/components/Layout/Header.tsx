@@ -10,7 +10,16 @@ const Header: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   // Stacks authentication
-  const { userData, isAuthenticated, isLoading, signIn, signOut } = useAuth();
+  const { 
+    userData, 
+    isAuthenticated, 
+    isLoading, 
+    balance, 
+    isLoadingBalance, 
+    signIn, 
+    signOut, 
+    refreshBalance 
+  } = useAuth();
 
   // Helper to get address from userData
   const getStacksAddress = () => {
@@ -21,6 +30,8 @@ const Header: React.FC = () => {
     // If it's an object, prefer mainnet, fallback to testnet
     return addr?.mainnet || addr?.testnet || '';
   };
+
+
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -58,6 +69,17 @@ const Header: React.FC = () => {
             <span className={styles.walletAddress} title={getStacksAddress()}>
               {getStacksAddress().slice(0, 6)}...{getStacksAddress().slice(-4)}
             </span>
+            {isLoadingBalance ? (
+              <span className={styles.balance}>Loading...</span>
+            ) : balance !== null ? (
+              <span className={styles.balance} title="STX Balance">
+                {balance}
+              </span>
+            ) : (
+              <button className={styles.refreshButton} onClick={refreshBalance} title="Refresh">
+                ↻
+              </button>
+            )}
             <button className={styles.walletButton} onClick={signOut}>Disconnect</button>
           </>
         ) : (
