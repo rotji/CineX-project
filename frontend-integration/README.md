@@ -2,6 +2,25 @@
 
 > A React + TypeScript + Vite frontend for the CineX decentralized film crowdfunding platform built on the Stacks blockchain.
 
+## 📋 Table of Contents
+
+- [About CineX](#-about-cinex)
+- [Quick Start](#-quick-start) 
+- [Project Structure](#-project-structure)
+- [Tech Stack](#-tech-stack)
+- [Authentication System](#-authentication-system)
+- [Current Implementation Status](#-current-implementation-status)
+- [UI/UX Features](#-uiux-features)
+- [Environment Configuration](#-environment-configuration)
+- [Testing Strategy](#-testing-strategy)
+- [Development Workflow](#-development-workflow)
+- [Deployment](#-deployment)
+- [Contributing](#-contributing)
+- [Documentation](#-documentation)
+- [Milestones & Achievements](#-milestones--achievements)
+- [Future Roadmap](#-future-roadmap)
+- [Support & Contact](#-support--contact)
+
 ## 🎬 About CineX
 
 CineX is a revolutionary decentralized crowdfunding platform for filmmakers that introduces the **Co-EP (Collaborative Executive Producer) Pool** system. Our platform enables filmmakers to participate in rotating funding pools where members take turns being the beneficiary, creating a sustainable and collaborative funding ecosystem.
