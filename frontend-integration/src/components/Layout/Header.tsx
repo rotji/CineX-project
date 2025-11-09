@@ -10,7 +10,7 @@ const Header: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   // Stacks authentication
-  const { userData, signIn, signOut } = useAuth();
+  const { userData, isAuthenticated, isLoading, signIn, signOut } = useAuth();
 
   // Helper to get address from userData
   const getStacksAddress = () => {
@@ -51,7 +51,9 @@ const Header: React.FC = () => {
         <HamburgerMenu open={menuOpen} onClose={toggleMenu} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
       </div>
       <div className={styles.walletSection}>
-        {userData ? (
+        {isLoading ? (
+          <button className={styles.walletButton} disabled>Loading...</button>
+        ) : userData && isAuthenticated ? (
           <>
             <span className={styles.walletAddress} title={getStacksAddress()}>
               {getStacksAddress().slice(0, 6)}...{getStacksAddress().slice(-4)}

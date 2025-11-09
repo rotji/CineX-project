@@ -176,6 +176,39 @@
   background-color: #f0b400;
 }
 
+/* Wallet section styles */
+.walletSection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.walletAddress {
+  color: #FFBF00;
+  font-size: 0.85rem;
+  font-family: monospace;
+  background: rgba(255, 191, 0, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 191, 0, 0.3);
+}
+
+.walletButton {
+  background-color: #FFBF00;
+  color: #121212;
+  border: none;
+  padding: 0.3rem 0.7rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+  transition: background-color 0.3s;
+}
+
+.walletButton:hover {
+  background-color: #f0b400;
+}
+
 .hamburger {
   display: flex;
   flex-direction: column;
