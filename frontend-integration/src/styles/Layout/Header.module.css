@@ -181,6 +181,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .walletAddress {
@@ -191,6 +192,74 @@
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   border: 1px solid rgba(255, 191, 0, 0.3);
+}
+
+.connectionStatus {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.connectionStatus.connected {
+  background-color: #4CAF50;
+  box-shadow: 0 0 3px rgba(76, 175, 80, 0.5);
+}
+
+.connectionStatus.connecting {
+  background-color: #FF9800;
+  animation: pulse 1.5s infinite;
+}
+
+.connectionStatus.disconnected {
+  background-color: #757575;
+}
+
+.connectionStatus.error {
+  background-color: #F44336;
+  animation: blink 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+.balanceSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.balance {
+  color: #FFBF00;
+  font-size: 0.75rem;
+  font-family: monospace;
+  background: rgba(255, 191, 0, 0.05);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 191, 0, 0.2);
+}
+
+.refreshButton {
+  background: none;
+  border: 1px solid rgba(255, 191, 0, 0.3);
+  color: #FFBF00;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.3s;
+}
+
+.refreshButton:hover {
+  background: rgba(255, 191, 0, 0.1);
+  border-color: rgba(255, 191, 0, 0.5);
 }
 
 .walletButton {
@@ -278,5 +347,29 @@
     display: flex;
     width: 1.2rem;
     height: 1.2rem;
+  }
+  
+  /* Mobile wallet styles */
+  .walletSection {
+    gap: 0.3rem;
+  }
+  
+  .walletInfo {
+    gap: 0.1rem;
+  }
+  
+  .walletAddress {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.3rem;
+  }
+  
+  .balance {
+    font-size: 0.7rem;
+    padding: 0.05rem 0.2rem;
+  }
+  
+  .walletButton {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
   }
 }
