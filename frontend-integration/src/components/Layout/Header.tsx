@@ -50,6 +50,7 @@ const Header: React.FC = () => {
         <Link to="/" className={styles.navLink}>Home</Link>
         <Link to="/campaigns" className={styles.navLink}>Campaigns</Link>
         <Link to="/waitlist" className={styles.navLink}>Waitlist</Link>
+        <Link to="/transaction-demo" className={styles.navLink} style={{ color: '#10b981' }}>Demo</Link>
         <Link to="/register" className={styles.navLink}>Sign Up</Link>
         <Link to="/login" className={styles.navLink}>Login</Link>
       </nav>

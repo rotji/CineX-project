@@ -17,6 +17,7 @@ import PoolCreate from './pages/PoolCreate';
 import AdminDashboard from './pages/AdminDashboard';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import { TransactionDemo } from './lib/TransactionDemo';
 import './App.css';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/escrow-management" element={<EscrowManagement />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/transaction-demo" element={<TransactionDemo />} />
         </Routes>
       </main>
       <Footer />
