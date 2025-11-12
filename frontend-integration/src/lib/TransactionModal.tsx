@@ -4,8 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import type { 
   Transaction, 
-  TransactionType, 
-  TransactionError 
+  TransactionType
 } from './transactionTracker';
 import { TransactionStatusBadge } from './TransactionStatusUI';
 
@@ -40,7 +39,6 @@ export interface TransactionModalProps {
   currentTransaction?: Transaction;
   onConfirm: () => Promise<void> | void;
   onCancel: () => void;
-  onClose: () => void;
   isProcessing?: boolean;
   showAdvancedDetails?: boolean;
   className?: string;
@@ -146,6 +144,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         bgColor: 'bg-green-50',
         description: 'Contribute funds to a campaign'
       },
+      'campaign-update': { 
+        icon: '📝', 
+        color: 'text-amber-600',
+        bgColor: 'bg-amber-50',
+        description: 'Update campaign details'
+      },
       'pool-create': { 
         icon: '🏊‍♂️', 
         color: 'text-purple-600',
@@ -157,6 +161,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         color: 'text-indigo-600',
         bgColor: 'bg-indigo-50',
         description: 'Join an existing funding pool'
+      },
+      'pool-contribute': { 
+        icon: '💸', 
+        color: 'text-cyan-600',
+        bgColor: 'bg-cyan-50',
+        description: 'Contribute to a funding pool'
       },
       'escrow-deposit': { 
         icon: '🔒', 
@@ -175,6 +185,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         color: 'text-emerald-600',
         bgColor: 'bg-emerald-50',
         description: 'Submit content for verification'
+      },
+      'verification-update': { 
+        icon: '🔄', 
+        color: 'text-lime-600',
+        bgColor: 'bg-lime-50',
+        description: 'Update verification status'
       },
       'nft-mint': { 
         icon: '🎨', 
@@ -461,7 +477,7 @@ export function useTransactionModal(
 
     setIsProcessing(true);
     try {
-      const transactionId = await onConfirm(transactionData);
+      await onConfirm(transactionData);
       
       // You would typically track the transaction here
       // For now, we'll just simulate success
