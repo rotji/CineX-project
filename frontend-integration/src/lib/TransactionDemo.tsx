@@ -378,25 +378,26 @@ export const TransactionDemo: React.FC = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          CineX Transaction Demo
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Interactive demonstration of the transaction status tracking system
-        </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto p-6 space-y-8">
+        {/* Header */}
+        <div className="text-center bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            CineX Transaction Demo
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Interactive demonstration of the transaction status tracking system
+          </p>
         
-        {toasts.length > 0 && (
-          <button
-            onClick={clearAllToasts}
-            className="text-sm text-blue-600 hover:text-blue-800 underline mb-4"
-          >
-            Clear All Notifications ({toasts.length})
-          </button>
-        )}
-      </div>
+          {toasts.length > 0 && (
+            <button
+              onClick={clearAllToasts}
+              className="text-sm text-blue-600 hover:text-blue-800 underline mb-4"
+            >
+              Clear All Notifications ({toasts.length})
+            </button>
+          )}
+        </div>
 
       {/* Navigation */}
       <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
@@ -452,14 +453,15 @@ export const TransactionDemo: React.FC = () => {
         </div>
       </div>
 
-      {/* Toast Notifications */}
-      {toasts.map(transaction => (
-        <TransactionToast
-          key={transaction.id}
-          transaction={transaction}
-          onDismiss={() => hideToast(transaction.id)}
-        />
-      ))}
+        {/* Toast Notifications */}
+        {toasts.map(transaction => (
+          <TransactionToast
+            key={transaction.id}
+            transaction={transaction}
+            onDismiss={() => hideToast(transaction.id)}
+          />
+        ))}
+      </div>
     </div>
   );
 };

@@ -201,12 +201,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     <div className={`fixed inset-0 z-50 flex items-center justify-center ${className}`}>
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black bg-opacity-75 backdrop-blur-sm"
         onClick={isProcessing ? undefined : onCancel}
       />
       
       {/* Modal */}
-      <div className="relative bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-hidden">
+      <div className="relative bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-hidden border-2 border-gray-300">
         {/* Header */}
         <div className={`px-6 py-4 ${typeInfo.bgColor} border-b`}>
           <div className="flex items-center justify-between">
@@ -236,37 +236,38 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4 max-h-96 overflow-y-auto" onScroll={handleScrollCheck}>
+        <div className="px-6 py-4 max-h-96 overflow-y-auto bg-gray-50" onScroll={handleScrollCheck}>
           {/* Transaction Description */}
-          <div className="mb-4">
-            <p className="text-gray-700">{transactionData.description}</p>
+          <div className="mb-4 bg-white p-3 rounded-lg border border-gray-200">
+            <p className="text-gray-900 font-medium">{transactionData.description}</p>
           </div>
 
           {/* Current Transaction Status */}
           {currentTransaction && (
-            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-blue-900">Transaction Status</span>
+            <div className="mb-4 p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-base font-bold text-blue-900">🔄 Transaction Status</span>
                 <TransactionStatusBadge status={currentTransaction.status} compact />
               </div>
               {currentTransaction.userMessage && (
-                <p className="text-sm text-blue-700">{currentTransaction.userMessage}</p>
+                <p className="text-sm text-blue-900 font-medium bg-white p-2 rounded border border-blue-200">{currentTransaction.userMessage}</p>
               )}
               {currentTransaction.txId && (
-                <p className="text-xs font-mono text-blue-600 mt-1">
-                  ID: {currentTransaction.txId.substring(0, 20)}...
+                <p className="text-xs font-mono text-blue-800 mt-2 bg-blue-50 p-2 rounded border">
+                  <span className="font-bold">TX ID:</span> {currentTransaction.txId.substring(0, 20)}...
                 </p>
               )}
             </div>
           )}
 
           {/* Transaction Details */}
-          <div className="space-y-3">
+          <div className="space-y-3 bg-white p-4 rounded-lg border border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-3">Transaction Details</h3>
             {/* Amount */}
             {transactionData.amount && (
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">Amount</span>
-                <span className="font-semibold text-gray-900">
+              <div className="flex justify-between items-center py-3 border-b border-gray-200 bg-gray-50 px-3 rounded">
+                <span className="text-sm font-medium text-gray-900">Amount</span>
+                <span className="font-bold text-blue-600 text-lg">
                   {formatAmount(transactionData.amount)}
                 </span>
               </div>
@@ -274,13 +275,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
             {/* Recipient */}
             {transactionData.recipient && (
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">Recipient</span>
+              <div className="flex justify-between items-center py-3 border-b border-gray-200 bg-gray-50 px-3 rounded">
+                <span className="text-sm font-medium text-gray-900">Recipient</span>
                 <div className="text-right">
                   {transactionData.recipientName && (
-                    <p className="font-medium text-gray-900">{transactionData.recipientName}</p>
+                    <p className="font-semibold text-gray-900">{transactionData.recipientName}</p>
                   )}
-                  <p className="font-mono text-xs text-gray-600">
+                  <p className="font-mono text-xs text-gray-700 bg-gray-200 px-2 py-1 rounded">
                     {transactionData.recipient.substring(0, 20)}...
                   </p>
                 </div>
@@ -289,9 +290,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
             {/* Estimated Fees */}
             {transactionData.estimatedFees && (
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">Estimated Fees</span>
-                <span className="font-medium text-gray-900">
+              <div className="flex justify-between items-center py-3 border-b border-gray-200 bg-gray-50 px-3 rounded">
+                <span className="text-sm font-medium text-gray-900">Estimated Fees</span>
+                <span className="font-semibold text-orange-600">
                   {formatAmount(transactionData.estimatedFees)}
                 </span>
               </div>
@@ -299,9 +300,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
             {/* Risk Level */}
             {transactionData.riskLevel && (
-              <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-sm text-gray-600">Risk Level</span>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getRiskLevelStyle(transactionData.riskLevel)}`}>
+              <div className="flex justify-between items-center py-3 border-b border-gray-200 bg-gray-50 px-3 rounded">
+                <span className="text-sm font-medium text-gray-900">Risk Level</span>
+                <span className={`px-3 py-1 text-sm font-bold rounded-full border-2 ${getRiskLevelStyle(transactionData.riskLevel)}`}>
                   {transactionData.riskLevel.toUpperCase()}
                 </span>
               </div>
@@ -309,13 +310,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
             {/* Metadata */}
             {transactionData.metadata && Object.keys(transactionData.metadata).length > 0 && (
-              <div className="py-2">
-                <div className="text-sm text-gray-600 mb-2">Additional Details</div>
-                <div className="space-y-1">
+              <div className="py-3 bg-blue-50 px-3 rounded border border-blue-200">
+                <div className="text-sm font-semibold text-blue-900 mb-2">Additional Details</div>
+                <div className="space-y-2">
                   {Object.entries(transactionData.metadata).map(([key, value]) => (
-                    <div key={key} className="flex justify-between text-sm">
-                      <span className="text-gray-500 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                      <span className="text-gray-900">{value}</span>
+                    <div key={key} className="flex justify-between text-sm bg-white p-2 rounded border">
+                      <span className="text-gray-700 font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                      <span className="text-gray-900 font-semibold">{value}</span>
                     </div>
                   ))}
                 </div>
@@ -325,18 +326,18 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           {/* Warnings */}
           {transactionData.warnings && transactionData.warnings.length > 0 && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex items-center mb-2">
-                <svg className="w-4 h-4 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mt-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+              <div className="flex items-center mb-3">
+                <svg className="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <span className="text-sm font-medium text-yellow-800">Warnings</span>
+                <span className="text-base font-bold text-red-900">⚠️ Important Warnings</span>
               </div>
-              <ul className="text-sm text-yellow-700 space-y-1">
+              <ul className="text-sm text-red-800 space-y-2">
                 {transactionData.warnings.map((warning, index) => (
-                  <li key={index} className="flex items-start">
-                    <span className="mr-1">•</span>
-                    <span>{warning}</span>
+                  <li key={index} className="flex items-start bg-white p-2 rounded border border-red-200">
+                    <span className="text-red-600 font-bold mr-2">•</span>
+                    <span className="font-medium">{warning}</span>
                   </li>
                 ))}
               </ul>
@@ -362,28 +363,28 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               </button>
               
               {isAdvancedOpen && (
-                <div className="mt-2 p-3 bg-gray-50 rounded-lg text-sm">
-                  <div className="space-y-2">
-                    <div>
-                      <span className="text-gray-600">Contract:</span>
-                      <span className="ml-2 font-mono text-gray-900">
+                <div className="mt-3 p-4 bg-gray-900 rounded-lg text-sm border-2 border-gray-700">
+                  <div className="space-y-3">
+                    <div className="bg-gray-800 p-2 rounded">
+                      <span className="text-gray-300 font-medium">Contract:</span>
+                      <span className="ml-2 font-mono text-green-400 font-bold">
                         {transactionData.contractCall.contractAddress}.{transactionData.contractCall.contractName}
                       </span>
                     </div>
-                    <div>
-                      <span className="text-gray-600">Function:</span>
-                      <span className="ml-2 font-mono text-gray-900">
+                    <div className="bg-gray-800 p-2 rounded">
+                      <span className="text-gray-300 font-medium">Function:</span>
+                      <span className="ml-2 font-mono text-blue-400 font-bold">
                         {transactionData.contractCall.functionName}
                       </span>
                     </div>
                     {transactionData.contractCall.functionArgs.length > 0 && (
-                      <div>
-                        <span className="text-gray-600">Arguments:</span>
-                        <div className="mt-1 space-y-1">
+                      <div className="bg-gray-800 p-2 rounded">
+                        <span className="text-gray-300 font-medium">Arguments:</span>
+                        <div className="mt-2 space-y-2">
                           {transactionData.contractCall.functionArgs.map((arg, index) => (
-                            <div key={index} className="ml-2 text-xs">
-                              <span className="text-gray-500">{arg.name} ({arg.type}):</span>
-                              <span className="ml-1 font-mono">{arg.value}</span>
+                            <div key={index} className="bg-gray-700 p-2 rounded text-xs">
+                              <span className="text-yellow-400 font-medium">{arg.name} ({arg.type}):</span>
+                              <span className="ml-2 font-mono text-white">{arg.value}</span>
                             </div>
                           ))}
                         </div>
@@ -397,23 +398,23 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-gray-50 border-t flex items-center justify-between">
-          <div className="text-xs text-gray-500">
-            {isProcessing ? 'Processing transaction...' : 'Review details carefully before confirming'}
+        <div className="px-6 py-4 bg-gray-100 border-t-2 border-gray-300 flex items-center justify-between">
+          <div className="text-sm text-gray-800 font-medium">
+            {isProcessing ? '⏳ Processing transaction...' : '⚠️ Review details carefully before confirming'}
           </div>
           
           <div className="flex space-x-3">
             <button
               onClick={onCancel}
               disabled={isProcessing}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-3 text-sm font-bold text-gray-800 bg-white border-2 border-gray-400 rounded-lg hover:bg-gray-100 hover:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
               disabled={isProcessing}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+              className="px-6 py-3 text-sm font-bold text-white bg-blue-600 border-2 border-blue-700 rounded-lg hover:bg-blue-700 hover:border-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md flex items-center space-x-2"
             >
               {isProcessing && (
                 <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
