@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import { TransactionDemo } from './lib/TransactionDemo';
+import { EnhancedTransactionDemo } from './lib/EnhancedTransactionDemo';
 import './App.css';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/transaction-demo" element={<TransactionDemo />} />
+          <Route path="/enhanced-demo" element={<EnhancedTransactionDemo />} />
         </Routes>
       </main>
       <Footer />
