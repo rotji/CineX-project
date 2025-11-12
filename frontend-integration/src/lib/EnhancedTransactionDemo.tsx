@@ -2,6 +2,7 @@
 // Demonstrates the transaction confirmation modal with the existing transaction tracking system
 
 import React, { useState } from 'react';
+import styles from '../styles/components/EnhancedTransactionDemo.module.css';
 import { 
   TransactionStatusBadge,
   useTransactionNotifications,
@@ -149,40 +150,40 @@ export const EnhancedTransactionDemo: React.FC = () => {
   };
 
   const renderWalletDemo = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Wallet Connection Status</h3>
-        <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Status:</p>
+    <div className={styles.spaceY6}>
+      <div className={styles.demoSection}>
+        <h3 className={styles.demoTitle}>Wallet Connection Status</h3>
+        <div className={styles.demoContainer}>
+          <div className={styles.walletStatus}>
+            <div className={styles.statusBox}>
+              <p className={styles.statusLabel}>Status:</p>
               <TransactionStatusBadge 
                 status={wallet.isConnected ? 'success' : 'idle'} 
               />
             </div>
             {wallet.address && (
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Address:</p>
-                <p className="font-mono text-xs text-gray-900">
+              <div className={styles.addressBox}>
+                <p className={styles.statusLabel}>Address:</p>
+                <p className={styles.addressValue}>
                   {wallet.address.substring(0, 20)}...
                 </p>
               </div>
             )}
           </div>
           
-          <div className="flex space-x-3">
+          <div className={styles.buttonContainer}>
             {!wallet.isConnected ? (
               <button
                 onClick={wallet.connect}
                 disabled={wallet.isConnecting}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                className={styles.primaryButton}
               >
                 {wallet.isConnecting ? 'Connecting...' : 'Connect Demo Wallet'}
               </button>
             ) : (
               <button
                 onClick={wallet.disconnect}
-                className="bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700"
+                className={styles.secondaryButton}
               >
                 Disconnect
               </button>
@@ -194,53 +195,53 @@ export const EnhancedTransactionDemo: React.FC = () => {
   );
 
   const renderContributeDemo = () => (
-    <div className="space-y-8">
-      <div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b-2 border-gray-300 pb-2">💰 Campaign Contribution</h3>
-        <div className="bg-gray-100 rounded-lg p-8 space-y-6 border-2 border-gray-300">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-base font-bold text-gray-900 mb-2">
+    <div className={styles.spaceY6}>
+      <div className={styles.demoSection}>
+        <h3 className={styles.demoTitle}>💰 Campaign Contribution</h3>
+        <div className={styles.demoContainer}>
+          <div className={styles.formGrid}>
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
                 🎬 Campaign Title
               </label>
               <input
                 type="text"
                 value={contributeForm.campaignTitle}
                 onChange={(e) => setContributeForm(prev => ({ ...prev, campaignTitle: e.target.value }))}
-                className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-base font-medium bg-white"
+                className={styles.formInput}
               />
             </div>
             
-            <div>
-              <label className="block text-base font-bold text-gray-900 mb-2">
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>
                 🔢 Campaign ID
               </label>
               <input
                 type="number"
                 value={contributeForm.campaignId}
                 onChange={(e) => setContributeForm(prev => ({ ...prev, campaignId: parseInt(e.target.value) || 1 }))}
-                className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-base font-medium bg-white"
+                className={styles.formInput}
               />
             </div>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className={styles.formField}>
+            <label className={styles.formLabel}>
               Amount (μSTX)
             </label>
             <input
               type="number"
               value={contributeForm.amount}
               onChange={(e) => setContributeForm(prev => ({ ...prev, amount: parseInt(e.target.value) || 0 }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              className={styles.formInput}
             />
           </div>
           
-          <div className="flex space-x-3">
+          <div className={styles.buttonContainer}>
             <button
               onClick={handleContributeModal}
               disabled={!wallet.isConnected}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={styles.primaryButton}
             >
               Contribute (With Modal)
             </button>
@@ -248,14 +249,14 @@ export const EnhancedTransactionDemo: React.FC = () => {
             <button
               onClick={handleDirectContribute}
               disabled={!wallet.isConnected}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={styles.secondaryButton}
             >
               Direct Contribute
             </button>
           </div>
           
           {!wallet.isConnected && (
-            <p className="text-sm text-gray-500">Connect wallet to contribute</p>
+            <p className={styles.statusLabel}>Connect wallet to contribute</p>
           )}
         </div>
       </div>
@@ -263,146 +264,146 @@ export const EnhancedTransactionDemo: React.FC = () => {
   );
 
   const renderPoolDemo = () => (
-    <div className="space-y-6">
+    <div className={styles.demoSection}>
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Co-EP Pool Operations</h3>
+        <h3 className={styles.sectionTitle}>Co-EP Pool Operations</h3>
         
         {/* Pool Join */}
-        <div className="bg-gray-50 rounded-lg p-6 space-y-4 mb-6">
-          <h4 className="font-medium text-gray-900">Join Existing Pool</h4>
+        <div className={styles.formContainer}>
+          <h4 className={styles.formTitle}>Join Existing Pool</h4>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={styles.formGrid}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={styles.formLabel}>
                 Pool Name
               </label>
               <input
                 type="text"
                 value={poolJoinForm.poolName}
                 onChange={(e) => setPoolJoinForm(prev => ({ ...prev, poolName: e.target.value }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className={styles.formField}
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={styles.formLabel}>
                 Pool ID
               </label>
               <input
                 type="number"
                 value={poolJoinForm.poolId}
                 onChange={(e) => setPoolJoinForm(prev => ({ ...prev, poolId: parseInt(e.target.value) || 1 }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className={styles.formField}
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={styles.formLabel}>
               Bond Amount (μSTX)
             </label>
             <input
               type="number"
               value={poolJoinForm.bondAmount}
               onChange={(e) => setPoolJoinForm(prev => ({ ...prev, bondAmount: parseInt(e.target.value) || 0 }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              className={styles.formField}
             />
           </div>
           
           <button
             onClick={handlePoolJoinModal}
             disabled={!wallet.isConnected}
-            className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={styles.primaryButton}
           >
             Join Pool (With Modal)
           </button>
         </div>
 
         {/* Pool Create */}
-        <div className="bg-blue-50 rounded-lg p-6 space-y-4">
-          <h4 className="font-medium text-gray-900">Create New Pool</h4>
+        <div className={styles.formContainer}>
+          <h4 className={styles.formTitle}>Create New Pool</h4>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={styles.formGrid}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={styles.formLabel}>
                 Pool Name
               </label>
               <input
                 type="text"
                 value={poolCreateForm.name}
                 onChange={(e) => setPoolCreateForm(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className={styles.formField}
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={styles.formLabel}>
                 Bond Amount (μSTX)
               </label>
               <input
                 type="number"
                 value={poolCreateForm.bondAmount}
                 onChange={(e) => setPoolCreateForm(prev => ({ ...prev, bondAmount: parseInt(e.target.value) || 0 }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className={styles.formField}
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={styles.formLabel}>
               Max Members
             </label>
             <input
               type="number"
               value={poolCreateForm.maxMembers}
               onChange={(e) => setPoolCreateForm(prev => ({ ...prev, maxMembers: parseInt(e.target.value) || 0 }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              className={styles.formField}
             />
           </div>
           
           <button
             onClick={handlePoolCreateModal}
             disabled={!wallet.isConnected}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={styles.primaryButton}
           >
             Create Pool (With Modal)
           </button>
         </div>
         
         {!wallet.isConnected && (
-          <p className="text-sm text-gray-500">Connect wallet to perform pool operations</p>
+          <p className={styles.statusLabel}>Connect wallet to perform pool operations</p>
         )}
       </div>
     </div>
   );
 
   const renderCampaignDemo = () => (
-    <div className="space-y-6">
+    <div className={styles.demoSection}>
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Campaign Creation</h3>
-        <div className="bg-green-50 rounded-lg p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h3 className={styles.sectionTitle}>Campaign Creation</h3>
+        <div className={styles.formContainer}>
+          <div className={styles.formGrid}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={styles.formLabel}>
                 Campaign Title
               </label>
               <input
                 type="text"
                 value={campaignCreateForm.title}
                 onChange={(e) => setCampaignCreateForm(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className={styles.formField}
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={styles.formLabel}>
                 Target Amount (μSTX)
               </label>
               <input
                 type="number"
                 value={campaignCreateForm.targetAmount}
                 onChange={(e) => setCampaignCreateForm(prev => ({ ...prev, targetAmount: parseInt(e.target.value) || 0 }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className={styles.formField}
               />
             </div>
           </div>
@@ -410,13 +411,13 @@ export const EnhancedTransactionDemo: React.FC = () => {
           <button
             onClick={handleCampaignCreateModal}
             disabled={!wallet.isConnected}
-            className="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={styles.primaryButton}
           >
             Create Campaign (With Modal)
           </button>
           
           {!wallet.isConnected && (
-            <p className="text-sm text-gray-500">Connect wallet to create campaign</p>
+            <p className={styles.statusLabel}>Connect wallet to create campaign</p>
           )}
         </div>
       </div>
@@ -424,21 +425,21 @@ export const EnhancedTransactionDemo: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className={styles.container}>
+      <div className={styles.wrapper}>
         {/* Header */}
-        <div className="text-center bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            CineX Transaction Modal Demo
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            🎬 CineX Transaction Modal Demo
           </h1>
-          <p className="text-gray-600 mb-6">
-            Experience the enhanced transaction confirmation system with detailed modals
+          <p className={styles.subtitle}>
+            📊 Experience the enhanced transaction confirmation system with detailed modals
           </p>
         
           {toasts.length > 0 && (
             <button
               onClick={clearAllToasts}
-              className="text-sm text-blue-600 hover:text-blue-800 underline mb-4"
+              className={styles.clearButton}
             >
               Clear All Notifications ({toasts.length})
             </button>
@@ -446,7 +447,7 @@ export const EnhancedTransactionDemo: React.FC = () => {
         </div>
 
       {/* Navigation */}
-      <div className="flex space-x-2 bg-gray-200 p-2 rounded-lg border-2 border-gray-300">
+      <div className={styles.navigation}>
         {[
           { id: 'wallet', label: 'Wallet', icon: '🔗' },
           { id: 'contribute', label: 'Contribute', icon: '💰' },
@@ -456,20 +457,16 @@ export const EnhancedTransactionDemo: React.FC = () => {
           <button
             key={tab.id}
             onClick={() => setActiveDemo(tab.id)}
-            className={`flex-1 px-4 py-3 text-base font-bold rounded-lg transition-colors flex items-center justify-center space-x-2 border-2 ${
-              activeDemo === tab.id
-                ? 'bg-white text-gray-900 shadow-lg border-blue-400'
-                : 'text-gray-700 hover:text-gray-900 bg-gray-100 border-transparent hover:bg-gray-50'
-            }`}
+            className={`${styles.tabButton} ${activeDemo === tab.id ? styles.active : ''}`}
           >
-            <span className="text-lg">{tab.icon}</span>
+            <span className={styles.tabIcon}>{tab.icon}</span>
             <span>{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* Demo Content */}
-      <div className="bg-white border-4 border-gray-300 rounded-lg p-8 shadow-lg">
+      <div className={styles.content}>
         {activeDemo === 'wallet' && renderWalletDemo()}
         {activeDemo === 'contribute' && renderContributeDemo()}
         {activeDemo === 'pools' && renderPoolDemo()}
@@ -477,24 +474,24 @@ export const EnhancedTransactionDemo: React.FC = () => {
       </div>
 
       {/* Instructions */}
-      <div className="bg-blue-100 border-4 border-blue-300 rounded-lg p-8 shadow-lg">
-        <h3 className="text-xl font-bold text-blue-900 mb-5 border-b-2 border-blue-400 pb-2">
+      <div className={styles.instructions}>
+        <h3 className={styles.instructionsTitle}>
           🚀 Transaction Modal Features
         </h3>
-        <div className="text-base text-blue-900 space-y-4">
-          <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
-            <strong className="text-lg">📋 Detailed Information:</strong> Each modal shows transaction type, amount, recipient, fees, and risk level
+        <div className={styles.spaceY4}>
+          <div className={styles.instructionItem}>
+            📋 Detailed Information: Each modal shows transaction type, amount, recipient, fees, and risk level
           </div>
-          <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
-            <strong className="text-lg">⚠️ Safety Features:</strong> Warnings for high-risk transactions and detailed confirmations
+          <div className={styles.instructionItem}>
+            ⚠️ Safety Features: Warnings for high-risk transactions and detailed confirmations
           </div>
-          <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
-            <strong className="text-lg">🔍 Advanced Details:</strong> Expandable contract call information for developers
+          <div className={styles.instructionItem}>
+            🔍 Advanced Details: Expandable contract call information for developers
           </div>
-          <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
-            <strong className="text-lg">🎮 Interactive Demo:</strong> Compare modal vs direct transaction flows
+          <div className={styles.instructionItem}>
+            🎮 Interactive Demo: Compare modal vs direct transaction flows
           </div>
-          <div className="mt-6 font-bold text-lg bg-yellow-100 p-4 rounded-lg border-2 border-yellow-400">
+          <div className={styles.notification}>
             💡 Try both "With Modal" and "Direct" buttons to see the difference!
           </div>
         </div>

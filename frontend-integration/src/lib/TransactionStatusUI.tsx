@@ -7,6 +7,7 @@ import type {
   TransactionStatus as TxStatus, 
   TransactionStep
 } from './transactionTracker';
+import styles from '../styles/components/TransactionStatusUI.module.css';
 
 /**
  * Props for transaction status components
@@ -40,29 +41,28 @@ export const TransactionStatusBadge: React.FC<{ status: TxStatus; compact?: bool
   status, 
   compact = false 
 }) => {
-  const getStatusStyle = (status: TxStatus) => {
-    const baseClasses = compact ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm';
-    const roundedClasses = 'rounded-full font-medium';
+  const getStatusClasses = (status: TxStatus) => {
+    const baseClasses = `${styles.statusBadge} ${compact ? styles.statusBadgeCompact : styles.statusBadgeRegular}`;
     
     switch (status) {
       case 'idle':
-        return `${baseClasses} ${roundedClasses} bg-gray-100 text-gray-700`;
+        return `${baseClasses} ${styles.statusIdle}`;
       case 'pending':
       case 'broadcasting':
       case 'submitted':
-        return `${baseClasses} ${roundedClasses} bg-blue-100 text-blue-700 animate-pulse`;
+        return `${baseClasses} ${styles.statusPending}`;
       case 'confirming':
-        return `${baseClasses} ${roundedClasses} bg-yellow-100 text-yellow-700`;
+        return `${baseClasses} ${styles.statusConfirming}`;
       case 'confirmed':
       case 'success':
-        return `${baseClasses} ${roundedClasses} bg-green-100 text-green-700`;
+        return `${baseClasses} ${styles.statusSuccess}`;
       case 'failed':
       case 'timeout':
-        return `${baseClasses} ${roundedClasses} bg-red-100 text-red-700`;
+        return `${baseClasses} ${styles.statusFailed}`;
       case 'cancelled':
-        return `${baseClasses} ${roundedClasses} bg-gray-100 text-gray-600`;
+        return `${baseClasses} ${styles.statusCancelled}`;
       default:
-        return `${baseClasses} ${roundedClasses} bg-blue-100 text-blue-700`;
+        return `${baseClasses} ${styles.statusPending}`;
     }
   };
 
@@ -83,7 +83,7 @@ export const TransactionStatusBadge: React.FC<{ status: TxStatus; compact?: bool
   };
 
   return (
-    <span className={getStatusStyle(status)}>
+    <span className={getStatusClasses(status)}>
       {getStatusText(status)}
     </span>
   );
@@ -101,8 +101,8 @@ export const TransactionStepIndicator: React.FC<TransactionStepProps> = ({
   const getStepIcon = () => {
     if (step.status === 'success' || isCompleted) {
       return (
-        <div className="flex-shrink-0 w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className={`${styles.stepIcon} ${styles.stepIconSuccess}`}>
+          <svg className={styles.stepIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -111,8 +111,8 @@ export const TransactionStepIndicator: React.FC<TransactionStepProps> = ({
     
     if (step.status === 'failed') {
       return (
-        <div className="flex-shrink-0 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className={`${styles.stepIcon} ${styles.stepIconFailed}`}>
+          <svg className={styles.stepIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </div>
@@ -121,32 +121,32 @@ export const TransactionStepIndicator: React.FC<TransactionStepProps> = ({
     
     if (isActive || ['pending', 'broadcasting', 'submitted', 'confirming'].includes(step.status)) {
       return (
-        <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center">
-          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+        <div className={`${styles.stepIcon} ${styles.stepIconActive}`}>
+          <div className={styles.stepIconPulse}></div>
         </div>
       );
     }
     
     return (
-      <div className="flex-shrink-0 w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center">
-        <span className="text-sm font-medium">{index + 1}</span>
+      <div className={`${styles.stepIcon} ${styles.stepIconDefault}`}>
+        <span className={styles.stepTitle}>{index + 1}</span>
       </div>
     );
   };
 
   return (
-    <div className="flex items-center space-x-3">
+    <div className={styles.stepContainer}>
       {getStepIcon()}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between">
-          <p className={`text-sm font-medium ${isActive ? 'text-blue-900' : 'text-gray-900'}`}>
+      <div className={styles.stepContent}>
+        <div className={styles.stepHeader}>
+          <p className={`${styles.stepTitle} ${isActive ? styles.stepTitleActive : ''}`}>
             {step.title}
           </p>
           <TransactionStatusBadge status={step.status} compact />
         </div>
-        <p className="text-sm text-gray-500">{step.description}</p>
+        <p className={styles.stepDescription}>{step.description}</p>
         {step.error && (
-          <p className="text-sm text-red-600 mt-1">{step.error}</p>
+          <p className={styles.stepError}>{step.error}</p>
         )}
       </div>
     </div>
@@ -166,14 +166,14 @@ export const TransactionProgress: React.FC<TransactionProgressProps> = ({
 
   if (compact) {
     return (
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">Progress</span>
-          <span className="font-medium">{completedSteps}/{steps.length}</span>
+      <div className={styles.progressCompactContainer}>
+        <div className={styles.progressHeader}>
+          <span className={styles.progressStats}>Progress</span>
+          <span className={styles.progressStatsCompact}>{completedSteps}/{steps.length}</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className={styles.progressBar}>
           <div 
-            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+            className={styles.progressFill}
             style={{ width: `${progressPercentage}%` }}
           ></div>
         </div>
@@ -182,20 +182,20 @@ export const TransactionProgress: React.FC<TransactionProgressProps> = ({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-gray-900">Transaction Progress</h3>
-        <span className="text-sm text-gray-500">{completedSteps}/{steps.length} completed</span>
+    <div className={styles.progressContainer}>
+      <div className={styles.progressHeader}>
+        <h3 className={styles.progressTitle}>Transaction Progress</h3>
+        <span className={styles.progressStats}>{completedSteps}/{steps.length} completed</span>
       </div>
       
-      <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className={styles.progressBar}>
         <div 
-          className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+          className={styles.progressFill}
           style={{ width: `${progressPercentage}%` }}
         ></div>
       </div>
       
-      <div className="space-y-4">
+      <div className={styles.progressSteps}>
         {steps.map((step, index) => (
           <TransactionStepIndicator
             key={step.id}
@@ -234,21 +234,21 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
 
   if (compact) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+      <div className={styles.statusDisplayCompact}>
+        <div className={styles.compactHeader}>
+          <div className={styles.compactInfo}>
             <TransactionStatusBadge status={transaction.status} compact />
             <div>
-              <p className="text-sm font-medium text-gray-900">{transaction.title}</p>
-              <p className="text-xs text-gray-500">{transaction.userMessage}</p>
+              <p className={styles.compactTitle}>{transaction.title}</p>
+              <p className={styles.compactMessage}>{transaction.userMessage}</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className={styles.compactActions}>
             {transaction.txId && showExplorerLink && (
               <button
                 onClick={handleExplorerClick}
-                className="text-xs text-blue-600 hover:text-blue-800 underline"
+                className={`${styles.compactButton} ${styles.compactButtonSecondary}`}
               >
                 View
               </button>
@@ -257,7 +257,7 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
             {canRetry && (
               <button
                 onClick={onRetry}
-                className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                className={`${styles.compactButton} ${styles.compactButtonPrimary}`}
               >
                 Retry
               </button>
@@ -266,7 +266,7 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
             {onDismiss && (
               <button
                 onClick={onDismiss}
-                className="text-xs text-gray-400 hover:text-gray-600"
+                className={styles.compactDismiss}
               >
                 ×
               </button>
@@ -275,7 +275,7 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
         </div>
         
         {transaction.steps && isExpanded && (
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className={styles.compactProgress}>
             <TransactionProgress
               steps={transaction.steps}
               currentStep={transaction.currentStep || 0}
@@ -288,35 +288,35 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-lg max-w-md mx-auto">
+    <div className={styles.fullDisplay}>
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
+      <div className={styles.fullDisplayHeader}>
+        <div className={styles.fullDisplayHeaderContent}>
           <div>
-            <h3 className="text-lg font-medium text-gray-900">{transaction.title}</h3>
-            <p className="text-sm text-gray-600 mt-1">{transaction.description}</p>
+            <h3 className={styles.fullDisplayTitle}>{transaction.title}</h3>
+            <p className={styles.fullDisplayDescription}>{transaction.description}</p>
           </div>
           <TransactionStatusBadge status={transaction.status} />
         </div>
       </div>
 
       {/* Content */}
-      <div className="px-6 py-4 space-y-4">
+      <div className={styles.fullDisplayContent}>
         {/* User Message */}
-        <div className="text-sm text-gray-700">
+        <div className={styles.userMessage}>
           {transaction.userMessage}
         </div>
 
         {/* Error Display */}
         {transaction.error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-3">
-            <div className="flex">
-              <svg className="flex-shrink-0 h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className={styles.errorDisplay}>
+            <div className={styles.errorContent}>
+              <svg className={styles.errorIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <div className="ml-3">
-                <h4 className="text-sm font-medium text-red-800">Error</h4>
-                <p className="mt-1 text-sm text-red-700">{transaction.error.userMessage}</p>
+              <div>
+                <h4 className={styles.errorTitle}>Error</h4>
+                <p className={styles.errorMessage}>{transaction.error.userMessage}</p>
               </div>
             </div>
           </div>
@@ -332,23 +332,23 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
 
         {/* Transaction Details */}
         {transaction.txId && (
-          <div className="bg-gray-50 rounded-md p-3 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Transaction ID:</span>
-              <span className="font-mono text-xs text-gray-900 break-all">
+          <div className={styles.transactionDetailsBox}>
+            <div className={styles.detailRowFull}>
+              <span className={styles.detailLabelFull}>Transaction ID:</span>
+              <span className={styles.txIdFull}>
                 {transaction.txId.substring(0, 20)}...
               </span>
             </div>
             
             {transaction.amount && (
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Amount:</span>
-                <span className="font-medium">{transaction.amount} μSTX</span>
+              <div className={styles.detailRowFull}>
+                <span className={styles.detailLabelFull}>Amount:</span>
+                <span className={styles.detailValueFull}>{transaction.amount} μSTX</span>
               </div>
             )}
             
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Created:</span>
+            <div className={styles.detailRowFull}>
+              <span className={styles.detailLabelFull}>Created:</span>
               <span>{new Date(transaction.createdAt).toLocaleTimeString()}</span>
             </div>
           </div>
@@ -356,12 +356,12 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-        <div className="flex space-x-2">
+      <div className={styles.fullDisplayActions}>
+        <div className={styles.actionsLeft}>
           {canRetry && (
             <button
               onClick={onRetry}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.retryButton}
             >
               Retry Transaction
             </button>
@@ -370,21 +370,21 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
           {canCancel && (
             <button
               onClick={onCancel}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className={styles.cancelButton}
             >
               Cancel
             </button>
           )}
         </div>
         
-        <div className="flex space-x-2">
+        <div className={styles.actionsRight}>
           {transaction.txId && showExplorerLink && (
             <button
               onClick={handleExplorerClick}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center space-x-1"
+              className={styles.explorerButton}
             >
               <span>View in Explorer</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={styles.explorerIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
             </button>
@@ -393,7 +393,7 @@ export const TransactionStatusDisplay: React.FC<TransactionStatusProps> = ({
           {onDismiss && transaction.status === 'success' && (
             <button
               onClick={onDismiss}
-              className="text-gray-500 hover:text-gray-700 text-sm font-medium"
+              className={styles.dismissButton}
             >
               Dismiss
             </button>
@@ -446,8 +446,8 @@ export const TransactionToast: React.FC<{
     switch (transaction.status) {
       case 'success':
         return (
-          <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className={`${styles.toastIcon} ${styles.toastIconSuccess}`}>
+            <svg className={`${styles.toastIconSvg} ${styles.toastIconSvgSuccess}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
@@ -455,16 +455,16 @@ export const TransactionToast: React.FC<{
       case 'failed':
       case 'timeout':
         return (
-          <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className={`${styles.toastIcon} ${styles.toastIconError}`}>
+            <svg className={`${styles.toastIconSvg} ${styles.toastIconSvgError}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
         );
       default:
         return (
-          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+          <div className={`${styles.toastIcon} ${styles.toastIconPending}`}>
+            <div className={styles.toastPulse}></div>
           </div>
         );
     }
@@ -476,21 +476,21 @@ export const TransactionToast: React.FC<{
 
   return (
     <div className={`${getToastStyle()} ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
-      <div className="p-4">
-        <div className="flex items-start space-x-3">
+      <div className={styles.toastContent}>
+        <div className={styles.toastBody}>
           {getIcon()}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900">{transaction.title}</p>
-            <p className="text-sm text-gray-600 mt-1">{transaction.userMessage}</p>
+          <div className={styles.toastText}>
+            <p className={styles.toastTitle}>{transaction.title}</p>
+            <p className={styles.toastMessage}>{transaction.userMessage}</p>
           </div>
           <button
             onClick={() => {
               setIsVisible(false);
               setTimeout(onDismiss, 300);
             }}
-            className="flex-shrink-0 text-gray-400 hover:text-gray-600"
+            className={styles.toastCloseButton}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={styles.toastCloseIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>

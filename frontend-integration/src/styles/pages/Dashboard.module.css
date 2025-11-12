@@ -114,6 +114,8 @@
 
 .recentActivity {
   grid-column: 1 / -1;
+}
+
 @media (max-width: 600px) {
   .dashboard {
     padding: 0.5rem 0.1rem;
@@ -148,4 +150,27 @@
     border-radius: 5px;
   }
 }
+
+/* Role Switcher Styles */
+.roleSwitcher {
+  margin-top: 0.5rem;
+}
+
+.roleSwitcherLabel {
+  font-weight: 600;
+}
+
+.roleButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+  font-weight: 400;
+  color: #666;
+  text-decoration: underline;
+}
+
+.roleButtonActive {
+  font-weight: 700;
+  color: #333;
 }

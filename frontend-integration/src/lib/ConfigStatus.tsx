@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { networkManager, validateConfiguration, getConfigurationSummary } from './networkUtils';
 import { cineXConfig } from './contracts';
+import styles from '../styles/components/ConfigStatus.module.css';
 
 interface ConfigStatusProps {
   showDetails?: boolean;
@@ -69,51 +70,27 @@ export function ConfigStatus({ showDetails = false, allowNetworkSwitch = false }
   };
   
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '20px',
-      right: '20px',
-      background: '#1f2937',
-      color: 'white',
-      borderRadius: '8px',
-      padding: '12px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-      fontSize: '12px',
-      fontFamily: 'monospace',
-      zIndex: 9999,
-      minWidth: '200px',
-      maxWidth: isExpanded ? '400px' : '200px',
-      transition: 'all 0.2s ease'
-    }}>
+    <div className={`${styles.container} ${isExpanded ? styles.expanded : styles.collapsed}`}>
       {/* Header */}
       <div 
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          cursor: 'pointer',
-          marginBottom: isExpanded ? '12px' : '0'
-        }}
+        className={`${styles.header} ${isExpanded ? styles.headerExpanded : ''}`}
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: getStatusColor(),
-            marginRight: '8px'
-          }} />
-          <span style={{ fontWeight: 'bold' }}>CineX Config</span>
+        <div className={styles.statusSection}>
+          <div 
+            className={styles.statusIndicator}
+            style={{ backgroundColor: getStatusColor() }}
+          />
+          <span className={styles.title}>CineX Config</span>
         </div>
-        <span style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+        <span className={`${styles.expandArrow} ${isExpanded ? styles.expandArrowRotated : ''}`}>
           ▼
         </span>
       </div>
       
       {/* Basic Info (Always Visible) */}
       {!isExpanded && (
-        <div style={{ fontSize: '11px', opacity: 0.8 }}>
+        <div className={styles.basicInfo}>
           {currentNetwork.toUpperCase()} • {getStatusText()}
         </div>
       )}
@@ -122,24 +99,19 @@ export function ConfigStatus({ showDetails = false, allowNetworkSwitch = false }
       {isExpanded && (
         <div>
           {/* Network Section */}
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Network</div>
-            <div style={{ display: 'flex', gap: '4px' }}>
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>Network</div>
+            <div className={styles.networkButtons}>
               {(['testnet', 'mainnet'] as const).map((network) => (
                 <button
                   key={network}
                   onClick={() => handleNetworkSwitch(network)}
                   disabled={!allowNetworkSwitch || isLoading || currentNetwork === network}
-                  style={{
-                    background: currentNetwork === network ? '#3b82f6' : '#374151',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    padding: '4px 8px',
-                    fontSize: '11px',
-                    cursor: allowNetworkSwitch && currentNetwork !== network ? 'pointer' : 'default',
-                    opacity: isLoading || (!allowNetworkSwitch && currentNetwork !== network) ? 0.5 : 1
-                  }}
+                  className={`${styles.networkButton} ${
+                    currentNetwork === network ? styles.networkButtonActive : styles.networkButtonInactive
+                  } ${
+                    isLoading || (!allowNetworkSwitch && currentNetwork !== network) ? styles.networkButtonDisabled : ''
+                  }`}
                 >
                   {network.toUpperCase()}
                 </button>
@@ -148,17 +120,17 @@ export function ConfigStatus({ showDetails = false, allowNetworkSwitch = false }
           </div>
           
           {/* Status Section */}
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Status</div>
-            <div style={{ color: getStatusColor(), fontSize: '11px' }}>
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>Status</div>
+            <div className={styles.statusText} style={{ color: getStatusColor() }}>
               {getStatusText()}
             </div>
           </div>
           
           {/* Configuration Summary */}
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Configuration</div>
-            <div style={{ fontSize: '11px', lineHeight: '1.4' }}>
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>Configuration</div>
+            <div className={styles.configList}>
               <div>Contracts: {configSummary.contractsConfigured ? '✅' : '❌'}</div>
               <div>Features: {configSummary.featuresEnabled.length} enabled</div>
               <div>Debug Mode: {configSummary.developmentMode ? '✅' : '❌'}</div>
@@ -168,15 +140,15 @@ export function ConfigStatus({ showDetails = false, allowNetworkSwitch = false }
           {/* Errors and Warnings */}
           {(validation.errors.length > 0 || validation.warnings.length > 0) && (
             <div>
-              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Issues</div>
-              <div style={{ fontSize: '11px', lineHeight: '1.3', maxHeight: '100px', overflow: 'auto' }}>
+              <div className={styles.sectionTitle}>Issues</div>
+              <div className={styles.issuesList}>
                 {validation.errors.map((error, index) => (
-                  <div key={`error-${index}`} style={{ color: '#ef4444', marginBottom: '2px' }}>
+                  <div key={`error-${index}`} className={styles.errorItem}>
                     ❌ {error}
                   </div>
                 ))}
                 {validation.warnings.map((warning, index) => (
-                  <div key={`warning-${index}`} style={{ color: '#f59e0b', marginBottom: '2px' }}>
+                  <div key={`warning-${index}`} className={styles.warningItem}>
                     ⚠️ {warning}
                   </div>
                 ))}
@@ -186,9 +158,9 @@ export function ConfigStatus({ showDetails = false, allowNetworkSwitch = false }
           
           {/* Contract Addresses (if configured) */}
           {configSummary.contractsConfigured && (
-            <div style={{ marginTop: '12px' }}>
-              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Contracts</div>
-              <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            <div className={styles.contractsSection}>
+              <div className={styles.sectionTitle}>Contracts</div>
+              <div className={styles.contractsHint}>
                 Click to view in explorer
               </div>
             </div>

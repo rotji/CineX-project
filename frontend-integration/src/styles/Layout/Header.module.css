@@ -372,3 +372,12 @@
     padding: 0.25rem 0.5rem;
   }
 }
+
+/* Demo Link Specific Colors */
+.demoLink {
+  color: #10b981 !important;
+}
+
+.modalLink {
+  color: #8b5cf6 !important;
+}

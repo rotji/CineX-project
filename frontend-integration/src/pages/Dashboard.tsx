@@ -39,11 +39,26 @@ const Dashboard: React.FC = () => {
   <header className={styles.header}>
         <h1>Welcome, {user.name}</h1>
         <p className={styles.helperText}>This is your personal space to manage creative campaigns and investments. Here you can launch, track, and support campaigns in the creative and entertainment industry.</p>
-        <div style={{ marginTop: '0.5rem' }}>
-          <span style={{ fontWeight: 600 }}>Switch Role: </span>
-          <button onClick={() => setRole('admin')} style={{ marginRight: 8, fontWeight: role==='admin'?700:400 }}>Admin</button>
-          <button onClick={() => setRole('filmmaker')} style={{ marginRight: 8, fontWeight: role==='filmmaker'?700:400 }}>Filmmaker</button>
-          <button onClick={() => setRole('investor')} style={{ fontWeight: role==='investor'?700:400 }}>Investor</button>
+        <div className={styles.roleSwitcher}>
+          <span className={styles.roleSwitcherLabel}>Switch Role: </span>
+          <button 
+            onClick={() => setRole('admin')} 
+            className={`${styles.roleButton} ${role === 'admin' ? styles.roleButtonActive : ''}`}
+          >
+            Admin
+          </button>
+          <button 
+            onClick={() => setRole('filmmaker')} 
+            className={`${styles.roleButton} ${role === 'filmmaker' ? styles.roleButtonActive : ''}`}
+          >
+            Filmmaker
+          </button>
+          <button 
+            onClick={() => setRole('investor')} 
+            className={`${styles.roleButton} ${role === 'investor' ? styles.roleButtonActive : ''}`}
+          >
+            Investor
+          </button>
         </div>
       </header>
 
