@@ -59,6 +59,8 @@ npm run dev
 
 The application will be available at `http://localhost:5173`
 
+> Note: This frontend follows a strict CSS Modules-only styling convention. Tailwind utility classes and non-essential inline styles have been removed across the codebase — styling is implemented with component-scoped CSS modules in `src/styles/`.
+
 ## 🏗️ Project Structure
 
 ```
@@ -229,17 +231,20 @@ src/services/
 
 ### Styling System
 
-```css
-/* CSS Module Architecture */
-src/styles/
-├── Layout/
-│   ├── Header.module.css   # Header component styles
-│   └── Navigation.module.css
-├── Components/
-│   ├── Wallet.module.css   # Wallet-specific styles
-│   └── Forms.module.css
-└── globals.css            # Global styles and variables
+This project uses CSS Modules exclusively for component styling. The codebase was recently refactored to remove Tailwind utility classes and most inline styles in favor of component-scoped CSS modules to improve maintainability and consistency.
+
+Example component CSS modules (live in `src/styles/components/`):
+
 ```
+src/styles/components/
+├── TransactionStatusUI.module.css     # Transaction UI (toasts, full display)
+├── TransactionStatusModal.module.css  # Modal overlay & content
+├── ConfigStatus.module.css            # Dev config widget (network/status)
+├── Header.module.css
+└── ...
+```
+
+Developer note: keep inline styles only for dynamic values that cannot be expressed with CSS alone (e.g. progress bar widths, animationDelay, runtime status colors). Document such uses in the component comments.
 
 ## 🔧 Environment Configuration
 
@@ -474,5 +479,5 @@ This project is part of the CineX decentralized film crowdfunding platform, supp
 
 ---
 
-*Last Updated: November 9, 2025*  
+*Last Updated: November 11, 2025*  
 *Version: Phase 1 Complete - Authentication & Wallet Integration*
