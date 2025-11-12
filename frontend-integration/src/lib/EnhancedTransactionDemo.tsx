@@ -507,7 +507,6 @@ export const EnhancedTransactionDemo: React.FC = () => {
         currentTransaction={modal.currentTransaction || undefined}
         onConfirm={modal.confirmTransaction}
         onCancel={modal.closeModal}
-        onClose={modal.closeModal}
         isProcessing={modal.isProcessing}
       />
 

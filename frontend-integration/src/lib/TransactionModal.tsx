@@ -66,7 +66,6 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   currentTransaction,
   onConfirm,
   onCancel,
-  onClose,
   isProcessing = false,
   showAdvancedDetails = false,
   className = ""
