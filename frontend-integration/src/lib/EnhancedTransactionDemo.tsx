@@ -194,32 +194,32 @@ export const EnhancedTransactionDemo: React.FC = () => {
   );
 
   const renderContributeDemo = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Campaign Contribution</h3>
-        <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+        <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b-2 border-gray-300 pb-2">💰 Campaign Contribution</h3>
+        <div className="bg-gray-100 rounded-lg p-8 space-y-6 border-2 border-gray-300">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Campaign Title
+              <label className="block text-base font-bold text-gray-900 mb-2">
+                🎬 Campaign Title
               </label>
               <input
                 type="text"
                 value={contributeForm.campaignTitle}
                 onChange={(e) => setContributeForm(prev => ({ ...prev, campaignTitle: e.target.value }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-base font-medium bg-white"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Campaign ID
+              <label className="block text-base font-bold text-gray-900 mb-2">
+                🔢 Campaign ID
               </label>
               <input
                 type="number"
                 value={contributeForm.campaignId}
                 onChange={(e) => setContributeForm(prev => ({ ...prev, campaignId: parseInt(e.target.value) || 1 }))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-base font-medium bg-white"
               />
             </div>
           </div>
@@ -446,7 +446,7 @@ export const EnhancedTransactionDemo: React.FC = () => {
         </div>
 
       {/* Navigation */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex space-x-2 bg-gray-200 p-2 rounded-lg border-2 border-gray-300">
         {[
           { id: 'wallet', label: 'Wallet', icon: '🔗' },
           { id: 'contribute', label: 'Contribute', icon: '💰' },
@@ -456,20 +456,20 @@ export const EnhancedTransactionDemo: React.FC = () => {
           <button
             key={tab.id}
             onClick={() => setActiveDemo(tab.id)}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center space-x-1 ${
+            className={`flex-1 px-4 py-3 text-base font-bold rounded-lg transition-colors flex items-center justify-center space-x-2 border-2 ${
               activeDemo === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-gray-900 shadow-lg border-blue-400'
+                : 'text-gray-700 hover:text-gray-900 bg-gray-100 border-transparent hover:bg-gray-50'
             }`}
           >
-            <span>{tab.icon}</span>
+            <span className="text-lg">{tab.icon}</span>
             <span>{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* Demo Content */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="bg-white border-4 border-gray-300 rounded-lg p-8 shadow-lg">
         {activeDemo === 'wallet' && renderWalletDemo()}
         {activeDemo === 'contribute' && renderContributeDemo()}
         {activeDemo === 'pools' && renderPoolDemo()}
@@ -477,26 +477,26 @@ export const EnhancedTransactionDemo: React.FC = () => {
       </div>
 
       {/* Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-blue-900 mb-2">
-          Transaction Modal Features
+      <div className="bg-blue-100 border-4 border-blue-300 rounded-lg p-8 shadow-lg">
+        <h3 className="text-xl font-bold text-blue-900 mb-5 border-b-2 border-blue-400 pb-2">
+          🚀 Transaction Modal Features
         </h3>
-        <div className="text-sm text-blue-800 space-y-2">
-          <p>
-            <strong>📋 Detailed Information:</strong> Each modal shows transaction type, amount, recipient, fees, and risk level
-          </p>
-          <p>
-            <strong>⚠️ Safety Features:</strong> Warnings for high-risk transactions and detailed confirmations
-          </p>
-          <p>
-            <strong>🔍 Advanced Details:</strong> Expandable contract call information for developers
-          </p>
-          <p>
-            <strong>🎮 Interactive Demo:</strong> Compare modal vs direct transaction flows
-          </p>
-          <p className="mt-4 font-medium">
-            Try both "With Modal" and "Direct" buttons to see the difference!
-          </p>
+        <div className="text-base text-blue-900 space-y-4">
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+            <strong className="text-lg">📋 Detailed Information:</strong> Each modal shows transaction type, amount, recipient, fees, and risk level
+          </div>
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+            <strong className="text-lg">⚠️ Safety Features:</strong> Warnings for high-risk transactions and detailed confirmations
+          </div>
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+            <strong className="text-lg">🔍 Advanced Details:</strong> Expandable contract call information for developers
+          </div>
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-200">
+            <strong className="text-lg">🎮 Interactive Demo:</strong> Compare modal vs direct transaction flows
+          </div>
+          <div className="mt-6 font-bold text-lg bg-yellow-100 p-4 rounded-lg border-2 border-yellow-400">
+            💡 Try both "With Modal" and "Direct" buttons to see the difference!
+          </div>
         </div>
       </div>
 
