@@ -115,21 +115,21 @@ export const TransactionDemo: React.FC = () => {
   };
 
   const renderWalletDemo = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Wallet Connection</h3>
-        <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+        <h3 className="text-2xl font-bold text-gray-900 mb-6 border-b-2 border-gray-300 pb-2">🔗 Wallet Connection</h3>
+        <div className="bg-gray-100 rounded-lg p-8 space-y-6 border-2 border-gray-300">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Connection Status:</p>
+            <div className="bg-white p-4 rounded-lg border-2 border-gray-300 shadow-sm">
+              <p className="text-base font-bold text-gray-900 mb-2">🔌 Connection Status:</p>
               <TransactionStatusBadge 
                 status={wallet.isConnected ? 'success' : 'idle'} 
               />
             </div>
             {wallet.address && (
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Address:</p>
-                <p className="font-mono text-xs text-gray-900">
+              <div className="text-right bg-white p-4 rounded-lg border-2 border-gray-300 shadow-sm">
+                <p className="text-base font-bold text-gray-900 mb-2">📍 Address:</p>
+                <p className="font-mono text-sm font-bold text-gray-900 bg-gray-100 px-3 py-2 rounded border">
                   {wallet.address.substring(0, 20)}...
                 </p>
               </div>
@@ -381,12 +381,12 @@ export const TransactionDemo: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto p-6 space-y-8">
         {/* Header */}
-        <div className="text-center bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            CineX Transaction Demo
+        <div className="text-center bg-white rounded-lg p-8 shadow-lg border-4 border-gray-300">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 border-b-2 border-gray-300 pb-2">
+            🎬 CineX Transaction Demo
           </h1>
-          <p className="text-gray-600 mb-6">
-            Interactive demonstration of the transaction status tracking system
+          <p className="text-xl font-bold text-gray-900 mb-8 bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+            📊 Interactive demonstration of the transaction status tracking system
           </p>
         
           {toasts.length > 0 && (
@@ -400,29 +400,30 @@ export const TransactionDemo: React.FC = () => {
         </div>
 
       {/* Navigation */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex space-x-2 bg-gray-200 p-2 rounded-lg border-2 border-gray-300">
         {[
-          { id: 'wallet', label: 'Wallet' },
-          { id: 'campaign', label: 'Campaign' },
-          { id: 'contribute', label: 'Contribute' },
-          { id: 'pool', label: 'Co-EP Pool' }
+          { id: 'wallet', label: 'Wallet', icon: '🔗' },
+          { id: 'campaign', label: 'Campaign', icon: '🎬' },
+          { id: 'contribute', label: 'Contribute', icon: '💰' },
+          { id: 'pool', label: 'Co-EP Pool', icon: '🏊‍♂️' }
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveDemo(tab.id)}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`flex-1 px-4 py-3 text-base font-bold rounded-lg transition-colors flex items-center justify-center space-x-2 border-2 ${
               activeDemo === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-gray-900 shadow-lg border-blue-400'
+                : 'text-gray-700 hover:text-gray-900 bg-gray-100 border-transparent hover:bg-gray-50'
             }`}
           >
-            {tab.label}
+            <span className="text-lg">{tab.icon}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* Demo Content */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
+      <div className="bg-white border-4 border-gray-300 rounded-lg p-8 shadow-lg">
         {activeDemo === 'wallet' && renderWalletDemo()}
         {activeDemo === 'campaign' && renderCampaignDemo()}
         {activeDemo === 'contribute' && renderContributeDemo()}
@@ -430,26 +431,28 @@ export const TransactionDemo: React.FC = () => {
       </div>
 
       {/* Instructions */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-blue-900 mb-2">
-          How to Use This Demo
+      <div className="bg-blue-100 border-4 border-blue-300 rounded-lg p-8 shadow-lg">
+        <h3 className="text-2xl font-bold text-blue-900 mb-6 border-b-2 border-blue-400 pb-2">
+          📋 How to Use This Demo
         </h3>
-        <div className="text-sm text-blue-800 space-y-2">
-          <p>
-            <strong>1. Wallet:</strong> Connect the demo wallet to enable transactions
-          </p>
-          <p>
-            <strong>2. Campaign:</strong> Create a funding campaign and watch the multi-step progress
-          </p>
-          <p>
-            <strong>3. Contribute:</strong> Contribute to a campaign with simple progress tracking
-          </p>
-          <p>
-            <strong>4. Co-EP Pool:</strong> Create a collaborative funding pool with step-by-step progress
-          </p>
-          <p className="mt-4 font-medium">
-            Watch for toast notifications in the top-right corner showing transaction status updates!
-          </p>
+        <div className="text-base text-blue-900 space-y-4">
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm">
+            <strong className="text-lg">🔗 1. Wallet:</strong> Connect the demo wallet to enable transactions
+          </div>
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm">
+            <strong className="text-lg">🎬 2. Campaign:</strong> Create a funding campaign and watch the multi-step progress
+          </div>
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm">
+            <strong className="text-lg">💰 3. Contribute:</strong> Contribute to a campaign with simple progress tracking
+          </div>
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-200 shadow-sm">
+            <strong className="text-lg">🏊‍♂️ 4. Co-EP Pool:</strong> Create a collaborative funding pool with step-by-step progress
+          </div>
+          <div className="mt-6 bg-yellow-100 p-4 rounded-lg border-2 border-yellow-400 shadow-sm">
+            <p className="font-bold text-lg text-yellow-900">
+              🔔 Watch for toast notifications in the top-right corner showing transaction status updates!
+            </p>
+          </div>
         </div>
       </div>
 
