@@ -197,20 +197,35 @@
   bottom: 2.5rem;
   left: 50%;
   transform: translateX(-50%);
-  background: #28a745;
+  background: #10b981;
   color: #fff;
-  padding: 1rem 2rem;
+  padding: 1.5rem 2rem;
   border-radius: 12px;
-  font-size: 1.1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  font-size: 1rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
   z-index: 1000;
-  animation: fadeInOut 3s linear;
+  animation: fadeInOut 5s linear;
+  max-width: 500px;
+  text-align: center;
 }
+
+.toast strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.toast p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
 @keyframes fadeInOut {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { opacity: 0; }
+  0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 }
 .section {
   display: flex;
@@ -259,6 +274,86 @@ input, textarea {
   font-weight: bold;
   cursor: pointer;
 }
+/* Enhanced form styles */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.formRow label small,
+.section label small {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+  font-weight: normal;
+}
+
+.section textarea {
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.section select {
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+}
+
+.section select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Review section styles */
+.reviewContainer {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.reviewCard {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.reviewCard h3 {
+  margin: 0 0 1rem 0;
+  color: #1e293b;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.warningBox {
+  background: #fef3cd;
+  border: 1px solid #facc15;
+  color: #92400e;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.createBtn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.createBtn:disabled:hover {
+  background: #9ca3af;
+  transform: none;
+}
+
 @media (max-width: 600px) {
   .poolCreate {
     padding: 0.5rem 0.2rem;
@@ -273,13 +368,22 @@ input, textarea {
   .steps {
     font-size: 0.8rem;
   }
-  input, textarea {
+  input, textarea, select {
     font-size: 0.9rem;
-    padding: 0.4rem;
+    padding: 0.6rem;
   }
   .createBtn, .navBtn {
     padding: 0.5rem 1rem;
     font-size: 0.95rem;
+  }
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+  .reviewContainer {
+    gap: 1rem;
+  }
+  .reviewCard {
+    padding: 1rem;
   }
 }
 
