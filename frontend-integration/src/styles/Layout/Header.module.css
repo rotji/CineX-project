@@ -381,3 +381,142 @@
 .modalLink {
   color: #8b5cf6 !important;
 }
+
+/* Enhanced Mobile Responsiveness for Demo Links */
+@media (max-width: 640px) {
+  .header {
+    padding: 0.15rem 0.3rem;
+    min-height: 20px;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .logoIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .logoTitle {
+    font-size: 0.8125rem !important;
+    font-weight: 600;
+  }
+  
+  .tagline {
+    display: none;
+  }
+  
+  .nav {
+    gap: 0.25rem;
+  }
+  
+  .nav a {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.25rem;
+    margin: 0.25rem 0;
+    white-space: nowrap;
+  }
+  
+  .hamburger {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .bar {
+    width: 1rem;
+    height: 0.15rem;
+  }
+  
+  .walletSection {
+    gap: 0.2rem;
+  }
+  
+  .walletAddress {
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.25rem;
+  }
+  
+  .balance {
+    font-size: 0.625rem;
+    padding: 0.03125rem 0.125rem;
+  }
+  
+  .walletButton {
+    font-size: 0.6875rem;
+    padding: 0.1875rem 0.375rem;
+  }
+  
+  /* Hamburger Menu Mobile Improvements */
+  .hamburgerMenu {
+    width: 100vw;
+    padding: 1rem;
+    right: 0;
+  }
+  
+  .menuLinks {
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .menuLink,
+  .menuButton {
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    text-align: left;
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+  
+  /* Demo and Modal links in mobile menu */
+  .menuLink.demoLink,
+  .menuLink.modalLink {
+    font-weight: 600;
+    position: relative;
+  }
+  
+  .menuLink.demoLink::before {
+    content: "🎮 ";
+    margin-right: 0.5rem;
+  }
+  
+  .menuLink.modalLink::before {
+    content: "🎬 ";
+    margin-right: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.125rem 0.25rem;
+    min-height: 18px;
+  }
+  
+  .logoTitle {
+    font-size: 0.75rem !important;
+  }
+  
+  .nav a {
+    font-size: 0.6875rem;
+    padding: 0.09375rem 0.1875rem;
+  }
+  
+  .walletAddress {
+    font-size: 0.625rem;
+    padding: 0.09375rem 0.1875rem;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .balance {
+    font-size: 0.5625rem;
+  }
+  
+  .walletButton {
+    font-size: 0.625rem;
+    padding: 0.15625rem 0.3125rem;
+  }
+}
