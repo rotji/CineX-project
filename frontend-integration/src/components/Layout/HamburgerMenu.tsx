@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from '../../styles/Layout/HamburgerMenu.module.css';
 import { Link } from 'react-router-dom';
-import { FaHome, FaTachometerAlt, FaUsers, FaFilm, FaSignInAlt, FaUser, FaCog, FaMoon, FaBell, FaEnvelope, FaUserPlus } from 'react-icons/fa';
+import { FaHome, FaTachometerAlt, FaUsers, FaFilm, FaSignInAlt, FaUser, FaCog, FaMoon, FaBell, FaEnvelope, FaUserPlus, FaGamepad, FaWindowRestore } from 'react-icons/fa';
 
 const HamburgerMenu: React.FC<{ open: boolean; onClose: () => void; darkMode: boolean; toggleDarkMode: () => void }> = ({ open, onClose, darkMode, toggleDarkMode }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -14,6 +14,10 @@ const HamburgerMenu: React.FC<{ open: boolean; onClose: () => void; darkMode: bo
         <button className={styles.closeBtn} onClick={onClose}>&times;</button>
         <ul className={styles.menuList}>
           <li><Link to="/" onClick={onClose}><FaHome /> Home</Link></li>
+          <li><Link to="/campaigns" onClick={onClose}><FaFilm /> Campaigns</Link></li>
+          <li><Link to="/waitlist" onClick={onClose}><FaUsers /> Waitlist</Link></li>
+          <li><Link to="/transaction-demo" onClick={onClose} className={styles.demoLink}><FaGamepad /> Demo</Link></li>
+          <li><Link to="/enhanced-demo" onClick={onClose} className={styles.modalLink}><FaWindowRestore /> Modals</Link></li>
           <li><Link to="/dashboard" onClick={onClose}><FaTachometerAlt /> Dashboard</Link></li>
           <li><Link to="/pool-dashboard" onClick={onClose}><FaUsers /> Funding Pool</Link></li>
           <li><Link to="/verify-films" onClick={onClose}><FaFilm /> Verify Films</Link></li>

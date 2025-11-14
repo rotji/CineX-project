@@ -96,3 +96,39 @@
   right: 2.5rem;
   z-index: 10;
 }
+
+/* Demo and Modal link specific styles */
+.demoLink {
+  color: #10b981 !important;
+  font-weight: 700 !important;
+  position: relative;
+}
+
+.modalLink {
+  color: #8b5cf6 !important;
+  font-weight: 700 !important;
+  position: relative;
+}
+
+.demoLink:hover {
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: #059669 !important;
+}
+
+.modalLink:hover {
+  background: rgba(139, 92, 246, 0.1) !important; 
+  color: #7c3aed !important;
+}
+
+/* Add subtle badges for demo links */
+.demoLink::after {
+  content: "🎮";
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
+
+.modalLink::after {
+  content: "🎬";
+  margin-left: 0.5rem;
+  font-size: 1rem;
+}
