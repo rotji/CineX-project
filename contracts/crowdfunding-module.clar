@@ -190,11 +190,11 @@
     ;; Validate description len is greater than u0
     (asserts! (> (len description) u0) ERR-INVALID-DESCRIPTION)
 
-    ;; Validate that funding goal is >= MIN-FUNDING or is <= MAX-FUNDING
-    (asserts! (or (>= funding-goal MIN-FUNDING) (<= funding-goal MAX-FUNDING)) ERR-INVALID-AMOUNT)
+    ;; Validate that funding goal is >= MIN-FUNDING and is <= MAX-FUNDING
+    (asserts! (and (>= funding-goal MIN-FUNDING) (<= funding-goal MAX-FUNDING)) ERR-INVALID-AMOUNT)
 
-    ;; Validate that duration is >= MIN-CAMPAIGN-DURATION or is <= DEFAULT-CAMPAIGN-DURATION, else trigger ERR-INVALID-DURATION 
-    (asserts! (or (>= duration MIN-CAMPAIGN-DURATION) (<= duration DEFAULT-CAMPAIGN-DURATION)) ERR-INVALID-DURATION)
+    ;; Validate that duration is >= MIN-CAMPAIGN-DURATION and is <= DEFAULT-CAMPAIGN-DURATION, else trigger ERR-INVALID-DURATION 
+    (asserts! (and (>= duration MIN-CAMPAIGN-DURATION) (<= duration DEFAULT-CAMPAIGN-DURATION)) ERR-INVALID-DURATION)
 
     ;; Ensure reward-tiers is > u0, and that it is also <= MAX-REWARD-TIERS, else trigger ERR-INVALID-REWARD-TIERS
     (asserts! (and (> reward-tiers u0) (<= reward-tiers MAX-REWARD-TIERS)) ERR-INVALID-REWARD-TIERS)
@@ -305,7 +305,7 @@
     (var-set total-fees-collected new-total-fees-collected)
     
     ;; Save the new campaign in the map
-    (map-set campaigns campaign-id {
+    (map-set campaigns next-unique-campaign-id {
       description: description,
       funding-goal: funding-goal,
       duration: effective-duration,
@@ -543,6 +543,13 @@
 )
 
 ;; ========== VIEW A CAMPAIGN'S DETAILS ==========
+
+;;Get total campaign count
+(define-read-only (get-total-campaigns)
+  (ok (var-get unique-campaign-id))
+) 
+
+
 
 (define-read-only (get-campaign (campaign-id uint))
   (match (map-get? campaigns campaign-id)

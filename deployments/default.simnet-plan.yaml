@@ -45,20 +45,16 @@ genesis:
       balance: "100000000000000"
       sbtc-balance: "1000000000"
   contracts:
-    - genesis
-    - lockup
-    - bns
-    - cost-voting
     - costs
     - pox
-    - costs-2
     - pox-2
-    - costs-3
     - pox-3
     - pox-4
-    - signers
-    - signers-voting
-    - costs-4
+    - lockup
+    - costs-2
+    - costs-3
+    - cost-voting
+    - bns
 plan:
   batches:
     - id: 0
@@ -107,6 +103,11 @@ plan:
             path: contracts/CineX-project.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: rewards-nft-trait
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/rewards-nft-trait.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: CineX-rewards-sip09
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/CineX-rewards-sip09.clar
@@ -122,9 +123,19 @@ plan:
             path: contracts/crowdfunding-module.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: emergency-module
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/emergency-module.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: escrow-module
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/escrow-module.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: film-verification-dummy
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/film-verification-dummy.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: film-verification-module
@@ -132,14 +143,14 @@ plan:
             path: contracts/film-verification-module.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: module-base
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/module-base.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: rewards-module
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/rewards-module.clar
-            clarity-version: 2
-        - emulated-contract-publish:
-            contract-name: rewards-nft-trait
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/rewards-nft-trait.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: verification-mgt-extension

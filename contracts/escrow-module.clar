@@ -107,8 +107,7 @@
   (begin
     ;; Ensure Only core contract can authorize withdrawals
     (asserts! (is-eq tx-sender (var-get core-contract)) ERR-NOT-AUTHORIZED)
-    (map-set authorized-withdrawals { campaign-id: campaign-id, requester: new-requester } true)
-    (ok true)
+    (ok (map-set authorized-withdrawals { campaign-id: campaign-id, requester: new-requester } true))
   
   )
 
@@ -137,6 +136,7 @@
       ;; Check authorization from authorize-withdrawal map, else default to false
       (is-withdrawal-authorized (default-to false (map-get? authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })))
 
+      (requester tx-sender)
     )
       ;; Ensure caller is authorized core for withdrawal 
       (asserts! is-withdrawal-authorized ERR-NOT-AUTHORIZED)
@@ -153,7 +153,7 @@
         (map-set campaign-escrow-balances campaign-id new-balance)
     
         ;; Transfer the withdrawn amount to the authorized requester
-        (unwrap! (stx-transfer? amount (as-contract tx-sender) tx-sender) ERR-TRANSFER-FAILED)
+        (unwrap! (as-contract (stx-transfer? amount tx-sender requester)) ERR-TRANSFER-FAILED)
     
         ;; Clear authorization after successful withdrawal
         (map-delete authorized-withdrawals { campaign-id: campaign-id, requester: tx-sender })
@@ -239,7 +239,6 @@
 )
 
 
-
 ;; ========== EMERGENCY MODULE TRAIT IMPLEMENTATIONS ==========
 ;; Function to allow only core contract to set pause state
 (define-public (set-pause-state (pause bool))
@@ -285,6 +284,8 @@
   )
 )
 
+
+
 ;; Get system-paused status
 (define-read-only (is-system-paused) 
   (ok (var-get emergency-pause))
@@ -292,7 +293,7 @@
 
 ;; Get emergency-ops count
 (define-read-only (get-emergency-ops-count)
-  (var-get emergency-ops-counter)
+  (ok (var-get emergency-ops-counter))
 )
 ;; Function to implement emergency withdraw
 (define-public (emergency-withdraw (amount uint) (recipient principal))

@@ -1,4 +1,4 @@
-;; title: CineX 
+;; title: CineX-project 
 ;; version: 1.0.0 
 ;; Author: Victor Omenai 
 ;; Created: 2025

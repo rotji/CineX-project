@@ -134,6 +134,13 @@
     added-at-time: uint ;; uint record of blockheight time when endorsement details were added
     })
 
+;; Track verification payment status per filmmaker
+(define-map verification-payments { filmmaker: principal } { 
+    level: uint,
+    paid: bool,
+    payment-time: uint
+    })
+
 ;; Track portfolio counter per filmmaker
 (define-map filmmaker-portfolio-counts principal uint)
 
@@ -182,30 +189,19 @@
 
                 ;; get current verificaton expiry period
                 (current-verification-expiration (get choice-verification-expiration existing-filmmaker-data))
-
-                ;; check if new-filmmaker is registered (as input) in the read-only func
-                (is-filmmaker-registered (is-registered new-added-filmmaker))
                                             
             )          
-            (match (map-get? filmmaker-identities new-added-filmmaker)
-                ;; bind result to verification-current
-                verification-current (begin
-                                        ;; check that verified is true
-                                        (asserts! (is-eq  verified-status true) ERR-NOT-VERIFIED)
-
-                                        ;; check that verification expiration is <= basic-verified-id-valid-period or <= standard-verified-id-valid-period 
-                                        (asserts! (or (<= current-verification-expiration basic-verified-id-valid-period)
-                                                    (<= current-verification-expiration standard-verified-id-valid-period)) ERR-NOT-VERIFIED) 
-                                
-                                        (ok true)       
-                                     )
-                                        
-                ;; else, return false
-                ERR-VERIFICATION-EXPIRED
-            )                                            
             
-     ) 
-)                             
+            ;; check that verified status (vrification) is true
+            (asserts! (is-eq  verified-status true) ERR-NOT-VERIFIED)
+
+            ;; And that verification expiration is in the future - hence greater than block-height            
+            (asserts! (> current-verification-expiration block-height) ERR-VERIFICATION-EXPIRED)
+            (ok true)       
+                                     
+    )                                            
+) 
+                          
     
 ;; ========== PUBLIC FUNCTIONS ==========
 ;; Function to register a filmmaker's identity
@@ -298,66 +294,101 @@
     )
 )
 
-;; Function to verify a filmmaker (admin only)
-    ;; Strategic Purpose: Provide platform-level verification of identity
-(define-public (verify-filmmaker-identity (new-added-filmmaker principal) (new-verificaion-level uint) (new-expiration-block uint)) 
+;; Function for filmmaker to pay verification fee BEFORE admin verification
+(define-public (pay-verification-fee (verification-level uint))
     (let 
         (
-            ;; Get filmmaker data
-            (existing-filmmaker-data (unwrap! (map-get? filmmaker-identities new-added-filmmaker) ERR-FILMMAKER-NOT-FOUND))
-
-            ;; Get verification-level-data and verification expiration data
-            (existing-choice-verification-level-data (get choice-verification-level existing-filmmaker-data))
-            (exisitng-choice-ver-level-expiration (get choice-verification-expiration existing-filmmaker-data))
-
-            ;; Get core contract
+            
+            ;;  Get core contract 
             (current-core-contract (var-get core-contract))
 
-            ;; Get current total fees; then calculate both new-total-basic-verification-fee-collected and new-total-standard-verification-fee-collected respectively 
-            (current-total-verification-fee (var-get total-verification-fee-collected))
-            (new-total-basic-verification-fee-collected (+ basic-verification-fee current-total-verification-fee))
-            (new-total-standard-verification-fee-collected (+ standard-verification-fee current-total-verification-fee))
+        ) 
+        ;; Check that tx-sender is registered filmmaker, as precondition for them to go on to pay for their verification
+        (asserts! (is-registered tx-sender) ERR-FILMMAKER-NOT-FOUND)
+
+        ;; Proceed for either basic-verification-level or standard-verification-level, depending on the option 
+            ;; that the filmmaker chose in the fimmaker-identities
+        (if (is-eq verification-level basic-verification-level) 
+            (begin 
+            ;; Pay for basic verification level
+            (unwrap! (stx-transfer? basic-verification-fee tx-sender current-core-contract) ERR-TRANSFER)
+
+            ;; Mark as paid
+            (map-set verification-payments { filmmaker: tx-sender } { 
+                level: verification-level,
+                paid: true,
+                payment-time: block-height
+            })
+    
+            ;; Update state of total-verification-fee-collected 
+            (var-set total-verification-fee-collected basic-verification-fee)
+        
+            )
+        
+            (begin 
+                ;; Pay for standard verification level 
+                (unwrap! (stx-transfer? standard-verification-fee tx-sender current-core-contract) ERR-TRANSFER)
+
+                ;; Mark as paid
+                (map-set verification-payments { filmmaker: tx-sender } { 
+                    level: verification-level,
+                    paid: true,
+                    payment-time: block-height
+                })
+    
+                ;; Update state of total-verification-fee-collected 
+                (var-set total-verification-fee-collected standard-verification-fee)
+                
+            )
+            
+        )
+        (ok true)
+    )
+
+)
+
+;; Function to verify a filmmaker (admin only)
+    ;; Strategic Purpose: Provide platform-level verification of identity
+(define-public (verify-filmmaker-identity (filmmaker principal) (new-expiration-block uint)) 
+    (let 
+        (
+            ;; Verification-payment data
+            (verification-payment-data (unwrap! (map-get? verification-payments { filmmaker: filmmaker }) ERR-NOT-AUTHORIZED))
+
+            ;; Get filmmaker data
+            (existing-filmmaker-data (unwrap! (map-get? filmmaker-identities filmmaker) ERR-FILMMAKER-NOT-FOUND))
+
+            ;; Payment and verification level status
+            (paid-status (get paid verification-payment-data))
+            (verification-level-status (get level verification-payment-data))
+
+            ;; Get core contract
+            (current-core-contract (var-get core-contract))            
         
         ) 
         ;; Ensure caller is admin
         (asserts! (is-admin) ERR-NOT-AUTHORIZED)
 
-        ;; Ensure existing verification level data 
-        (if (is-eq existing-choice-verification-level-data basic-verification-level) 
-                (begin 
-                    ;; Collect basic verification fee from filmmaker
-                    (unwrap! (stx-transfer? basic-verification-fee new-added-filmmaker current-core-contract) ERR-TRANSFER) 
-                    ;; Update total fees collected
-                    (var-set total-verification-fee-collected new-total-basic-verification-fee-collected)
-                    ;; Update filmmaker verification status
-                    (map-set filmmaker-identities new-added-filmmaker
-                        (merge existing-filmmaker-data
-                            { 
-                                verified: true,
-                                registration-time: block-height 
-                            }
-                        )
-                    )
-                    (ok true)
-                )
-                (begin 
-                    ;; Collect standard verification fee from filmmaker
-                    (unwrap! (stx-transfer? standard-verification-fee new-added-filmmaker current-core-contract) ERR-TRANSFER) 
-                    ;; Update total fees collected
-                    (var-set total-verification-fee-collected new-total-standard-verification-fee-collected)
-                    ;; Update filmmaker verification status
-                    (map-set filmmaker-identities  new-added-filmmaker 
-                        (merge existing-filmmaker-data 
-                            { 
-                                verified: true,
-                                registration-time: block-height
-                            }
-                        )
-                    )   
-                    (ok true)     
-                )              
-        )      
-    )
+        ;; Ensure filmmaker has paid for verification
+        (asserts! (is-eq paid-status true) ERR-NOT-AUTHORIZED)
+
+        
+        ;; Update filmmaker verification status
+        (map-set filmmaker-identities filmmaker
+            (merge existing-filmmaker-data
+                { 
+                    verified: true,
+                    choice-verification-level: verification-level-status,
+                    choice-verification-expiration: new-expiration-block,
+                    registration-time: block-height 
+                }
+            )
+        )
+
+        (ok true)   
+    )              
+             
+    
 )
 
 ;; Function to update filmmaker verification expiration (called by verification renewal function in the feeextension)

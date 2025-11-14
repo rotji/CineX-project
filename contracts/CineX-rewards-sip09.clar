@@ -13,6 +13,7 @@
 ;; of CineX
 
 (impl-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
+(impl-trait .rewards-nft-trait.rewards-nft-trait)
 
 ;; Define the NFT
 (define-non-fungible-token CineX-rewards uint)
@@ -92,7 +93,7 @@
         ) 
             
             ;; Authorization check
-            (asserts! (or (is-eq tx-sender CONTRACT-OWNER) (is-eq recipient current-authorized-minter)) ERR-NOT-AUTHORIZED)
+            (asserts! (or (is-eq tx-sender CONTRACT-OWNER) (is-eq tx-sender current-authorized-minter)) ERR-NOT-AUTHORIZED)
             
             ;; Supply check
             (asserts! (< next-token-id COLLECTION-MAX-SUPPLY) ERR-SUPPLY-EXCEEDED)
