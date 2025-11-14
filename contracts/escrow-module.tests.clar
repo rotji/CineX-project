@@ -3,6 +3,8 @@
 ;; ====================================
 ;; Property-based and invariant tests for secure fund management
 
+(define-constant err-unknown (err u103))
+
 ;; ====================================
 ;; PROPERTY-BASED TESTS
 ;; ====================================
@@ -108,6 +110,7 @@
   )
 )
 
+
 ;; TEST 7: Emergency withdrawal requires system pause
 (define-public (test-emergency-withdrawal-requires-system-pause (amount uint) (recipient principal))
   (if 
@@ -145,7 +148,7 @@
 (define-read-only (invariant-balance-non-negative (campaign-id uint))
   (let
     (
-      (balance (unwrap-panic (get-campaign-balance campaign-id)))
+      (balance (unwrap! (get-campaign-balance campaign-id) (err u800)))
     )
     (>= balance u0)
   )
@@ -156,8 +159,9 @@
 (define-read-only (invariant-emergency-ops-require-pause)
   (let
     (
-      (system-paused (unwrap-panic (is-system-paused)))
-      (ops-count (unwrap-panic (get-emergency-ops-count)))
+      
+      (system-paused (unwrap! (is-system-paused) (err u900)))
+      (ops-count (unwrap! (get-emergency-ops-count) (err u901)))
     )
     ;; If ops-count is > u0, 
     (if (> ops-count u0)
@@ -172,7 +176,7 @@
 (define-read-only (invariant-module-version-valid)
   (let
     (
-      (version (unwrap-panic (get-module-version)))
+      (version (unwrap! (get-module-version) (err u1000)))
     )
     (>= version u1)
   )
@@ -183,7 +187,7 @@
 (define-read-only (invariant-module-is-active)
   (let
     (
-      (active-module (unwrap-panic (is-module-active)))
+      (active-module (unwrap! (is-module-active) (err u2000)))
     )
     active-module
   )
@@ -193,7 +197,7 @@
 (define-read-only (invariant-module-name-correct)
   (let
     (
-      (name (unwrap-panic (get-module-name)))
+      (name (unwrap! (get-module-name) (err u3000)))
     )
     (is-eq name "escrow-module")
   )
@@ -207,7 +211,7 @@
   (let
     (
       ;; unwrap-panic ensures test halts immediately if get-campaign-balance errors
-      (balance (unwrap-panic (get-campaign-balance campaign-id)))
+      (balance (unwrap! (get-campaign-balance campaign-id) (err u4000)))
     )
     (>= balance amount)
   )

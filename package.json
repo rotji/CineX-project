@@ -6,8 +6,9 @@
   "private": true,
   "scripts": {
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:report": "vitest run -- --coverage --costs",
-    "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\"",
+    "test:watch": "vitest",
     "prepare-tests": "node scripts/move-and-create-tests.js --move --create-stubs",
     "rv-all": "npm run prepare-tests && node scripts/run-rv-for-all.js",
     "rv-contract": "npm run prepare-tests && npx rv ."

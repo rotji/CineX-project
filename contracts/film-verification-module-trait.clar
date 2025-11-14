@@ -40,7 +40,7 @@
                 ;;   filmmaker-principal - principal of the filmmaker
                 ;;   verification-level - uint level of verification (1-basic, 2-standard, 3-premium)
                 ;;   expiration-block - uint block height when verification expires
-        (verify-filmmaker-identity (principal uint uint) (response bool uint))
+        (verify-filmmaker-identity (principal uint) (response bool uint))
 
     ;; Function to update filmmaker verification expiration (called by verification renewal function in the feeextension)
         ;; Strategic Purpose: Transforms verification from a one-time transaction into a recurring revenue stream while maintaining 
