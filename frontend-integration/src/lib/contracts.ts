@@ -92,9 +92,9 @@ function loadEnvironmentConfig(): EnvironmentConfig {
   };
   
   return {
-    // Network Configuration
-    network: getEnvWithDefault('VITE_NETWORK', 'testnet') as 'testnet' | 'mainnet',
-    stacksApiUrl: getEnvWithDefault('VITE_STACKS_API_URL', 'https://api.testnet.hiro.so'),
+    // Network Configuration - CONFIGURED FOR DEVNET DEPLOYMENT
+    network: getEnvWithDefault('VITE_NETWORK', 'mainnet') as 'testnet' | 'mainnet',
+    stacksApiUrl: getEnvWithDefault('VITE_STACKS_API_URL', 'http://localhost:3999'),
     explorerUrl: getEnvWithDefault('VITE_EXPLORER_URL', 'https://explorer.stacks.co'),
     
     // Contract Addresses

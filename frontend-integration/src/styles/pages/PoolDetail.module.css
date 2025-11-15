@@ -1,114 +1,907 @@
-.detailContainer {
-  max-width: 900px;
-  margin: 2rem auto;
+/* Main Container */
+.poolDetail {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 2rem;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  min-height: 100vh;
+  background: #f8f9fa;
 }
-.detailTitle {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: #222a35;
-}
-.detailInfo {
-  display: flex;
-  gap: 2rem;
+
+/* Navigation */
+.navigation {
   margin-bottom: 2rem;
 }
-.detailImage {
-  width: 320px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 10px;
-  background: #222a35;
-}
-.detailText {
-  flex: 1;
-  font-size: 1.1rem;
-  color: #333;
-}
-.fundingSection {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #f9fafb;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-}
-.fundingTitle {
-  font-size: 1.2rem;
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  color: #6c757d;
+  cursor: pointer;
   font-weight: 600;
-  margin-bottom: 1rem;
-  color: #222a35;
+  transition: all 0.3s ease;
 }
-.fundingInfo {
+
+.backBtn:hover {
+  background: #f8f9fa;
+  border-color: #3498db;
+  color: #3498db;
+}
+
+/* Pool Header */
+.poolHeader {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.headerMain {
   display: flex;
   justify-content: space-between;
-  font-size: 1rem;
-  color: #333;
-}
-@media (max-width: 600px) {
-  .detailContainer {
-    max-width: 99vw;
-    margin: 0.5rem auto;
-    padding: 0.5rem 0.1rem;
-    border-radius: 8px;
-  }
-  .detailTitle {
-    font-size: 1.1rem;
-    margin-bottom: 0.7rem;
-  }
-  .detailInfo {
-    flex-direction: column;
-    gap: 0.7rem;
-    margin-bottom: 1rem;
-  }
-  .detailImage {
-    width: 100%;
-    height: 120px;
-    border-radius: 6px;
-  }
-  .detailText {
-    font-size: 0.9rem;
-  }
-  .fundingSection {
-    margin-top: 1rem;
-    padding: 0.7rem;
-    border-radius: 6px;
-  }
-  .fundingTitle {
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-  }
-  .fundingInfo {
-    font-size: 0.8rem;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-}
-.poolDetail {
-  padding: 2rem;
-  background: #fff;
-  color: #222;
-}
-.header {
+  align-items: flex-start;
   margin-bottom: 2rem;
 }
-.rotationSchedule, .members, .beneficiary, .activityFeed {
-  background: #fff;
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  color: #222;
+
+.titleSection {
+  flex: 1;
 }
-.contributeBtn {
-  margin-top: 1rem;
-  background: #FFBF00;
-  color: #121212;
+
+.categoryBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.poolTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusForming {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.statusActive {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.statusCompleted {
+  background: #d4edda;
+  color: #155724;
+}
+
+.statusPaused {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.poolStats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  min-width: 140px;
+}
+
+.statIcon {
+  font-size: 1.5rem;
+  color: #3498db;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.headerActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.joinButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: #27ae60;
+  color: white;
   border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.joinButton:hover {
+  background: #219a52;
+  transform: translateY(-2px);
+}
+
+.memberBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #d4edda;
+  color: #155724;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.shareButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: #3498db;
+  border: 2px solid #3498db;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.shareButton:hover {
+  background: #3498db;
+  color: white;
+}
+
+/* Description */
+.description {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.description p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* Progress Section */
+.progressSection {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.progressLabel span:first-child {
+  color: #2c3e50;
+}
+
+.progressLabel span:last-child {
+  color: #3498db;
+}
+
+.progressBar {
+  height: 12px;
+  background: #e9ecef;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, #2ecc71);
+  transition: width 0.5s ease;
+}
+
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  background: white;
+  border-radius: 12px;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #7f8c8d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab:hover {
+  background: #f8f9fa;
+  color: #2c3e50;
+}
+
+.tab.active {
+  background: #3498db;
+  color: white;
+}
+
+/* Tab Content */
+.tabContent {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  min-height: 400px;
+}
+
+/* Overview Tab */
+
+.overviewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.infoCard {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.infoCard h3 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.infoLabel {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.infoValue {
+  color: #2c3e50;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.contributionDetails {
+  text-align: center;
+}
+
+.contributionAmount {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+.currency {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+.contributionNote {
+  color: #7f8c8d;
+  line-height: 1.5;
+}
+
+.rulesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rulesList li {
+  padding: 0.5rem 0;
+  color: #2c3e50;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.rulesList li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #27ae60;
   font-weight: bold;
+}
+
+
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.statusDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.statusDescription {
+  color: #7f8c8d;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Members Tab */
+
+.membersHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.membersHeader h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.memberStats {
+  display: flex;
+  gap: 2rem;
+}
+
+.memberStats .statItem {
+  text-align: center;
+}
+
+.memberStats .statValue {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #3498db;
+}
+
+.memberStats .statLabel {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.membersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.memberCard {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.memberCard:hover {
+  border-color: #3498db;
+  background: white;
+}
+
+.memberHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+
+
+.memberAddress {
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.memberVerification {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verificationLevel {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+}
+
+.verificationGold { color: #f39c12; }
+.verificationSilver { color: #95a5a6; }
+.verificationBronze { color: #d68910; }
+.verificationPending { color: #7f8c8d; }
+
+.rotationOrder {
+  background: #3498db;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.memberStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.memberStat {
+  text-align: center;
+}
+
+.memberStat .statLabel {
+  display: block;
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin-bottom: 0.25rem;
+}
+
+.memberStat .statValue {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.memberStat .statValue.active {
+  color: #27ae60;
+}
+
+.memberStat .statValue.inactive {
+  color: #e74c3c;
+}
+
+.benefitBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: #fff3cd;
+  color: #856404;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.emptySlot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+  color: #6c757d;
+  background: #f8f9fa;
+}
+
+.emptyIcon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+}
+
+/* Timeline Tab */
+
+.timelineTab h3 {
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #dee2e6;
+}
+
+.timelineItem {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.timelineMarker {
+  position: absolute;
+  left: -2rem;
+  top: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  z-index: 1;
+}
+
+.timelineMarker.completed {
+  background: #27ae60;
+  color: white;
+}
+
+.timelineMarker.active {
+  background: #3498db;
+  color: white;
+}
+
+.timelineMarker.upcoming {
+  background: #e9ecef;
+  color: #6c757d;
+}
+
+.timelineContent {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-left: 1rem;
+}
+
+.timelineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.timelineHeader h4 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.rotationStatus {
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.rotationStatus.completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.rotationStatus.active {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.rotationStatus.upcoming {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.timelineDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.beneficiaryInfo,
+.amountInfo,
+.dateInfo,
+.projectInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.value {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.activeRotation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #3498db;
+  font-weight: 600;
+  grid-column: 1 / -1;
+}
+
+.upcomingNote {
+  color: #7f8c8d;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Statistics Tab */
+
+.statisticsTab h3 {
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.statisticsTab .statCard {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.statisticsTab .statIcon {
+  font-size: 2.5rem;
+  color: #3498db;
+}
+
+
+
+.statisticsTab .statValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.statisticsTab .statLabel {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.detailedStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.statSection {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.statSection h4 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.memberBreakdown,
+.performanceMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.breakdownItem,
+.metricItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.breakdownLabel,
+.metricLabel {
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.breakdownValue,
+.metricValue {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Loading and Error States */
+.loading,
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 1rem;
+  border: 4px solid #e9ecef;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorIcon {
+  font-size: 3rem;
+  color: #e74c3c;
+  margin-bottom: 1rem;
+}
+
+.error h3 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.error p {
+  color: #7f8c8d;
+  margin-bottom: 2rem;
+}
+
+.errorActions {
+  display: flex;
+  gap: 1rem;
+}
+
+.retryButton,
+.backButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retryButton {
+  background: #3498db;
+  color: white;
+}
+
+.backButton {
+  background: #e9ecef;
+  color: #2c3e50;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .poolDetail {
+    padding: 1rem;
+  }
+  
+  .headerMain {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .poolStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .poolTitle {
+    font-size: 2rem;
+  }
+  
+  .headerActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .tabNavigation {
+    flex-direction: column;
+  }
+  
+  .overviewGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .membersGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detailedStats {
+    grid-template-columns: 1fr;
+  }
 }

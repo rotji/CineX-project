@@ -34,7 +34,7 @@ function App() {
           <Route path="/campaigns/:id" element={<CampaignDetail />} />
           <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/pool-dashboard" element={<PoolDashboard />} />
-            <Route path="/pool-detail" element={<PoolDetail />} />
+            <Route path="/pool-detail/:poolId" element={<PoolDetail />} />
           <Route path="/pool-create" element={<PoolCreate />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin-controls" element={<AdminControls />} />
