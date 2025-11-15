@@ -108,3 +108,6 @@ callee_filter = false
 [repl.remote_data]
 enabled = false
 api_url = 'https://api.hiro.so'
+
+[devnet]
+backend = "embedded"
