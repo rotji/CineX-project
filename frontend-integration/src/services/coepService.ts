@@ -1,6 +1,16 @@
 // Co-EP (Collaborative Executive Producer) Pool service for CineX platform
 // Handles pool creation, joining, contributions, and rotation management
 
+import { 
+  uintCV,
+} from '@stacks/transactions';
+import { openContractCall } from '@stacks/connect';
+import { 
+  getNetwork, 
+  getContractAddress, 
+  getContractName,
+} from '../utils/network';
+
 import type { 
   ServiceResponse, 
   CoEPPool, 
@@ -137,29 +147,54 @@ export class CoEPService {
         };
       }
 
-      // TODO: Replace with actual smart contract call
-      // For now, simulate joining
-      const mockMember: PoolMember = {
-        poolId: params.poolId,
-        address: this.userSession.loadUserData().profile.stxAddress.mainnet,
-        joinedAt: Date.now(),
-        rotationOrder: params.rotationOrder,
-        hasBenefited: false,
-        contributionsMade: 0,
-        isActive: true,
-        verificationStatus: '1-tier', // TODO: Get actual verification status
-      };
+      // Call smart contract to join pool
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('coep');
+      const userAddress = this.userSession.loadUserData().profile.stxAddress.mainnet;
 
-      console.log('Joining Co-EP pool:', params);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      try {
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'contribute-to-existing-pool',
+          functionArgs: [uintCV(parseInt(params.poolId))],
+          network,
+          onFinish: (data: any) => {
+            console.log('Transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Transaction cancelled');
+          },
+        };
 
-      return {
-        success: true,
-        data: mockMember,
-        transactionId: `mock-tx-${Date.now()}`,
-      };
+        await openContractCall(txOptions);
+
+        // Return success with pending transaction
+        const mockMember: PoolMember = {
+          poolId: params.poolId,
+          address: userAddress,
+          joinedAt: Date.now(),
+          rotationOrder: params.rotationOrder,
+          hasBenefited: false,
+          contributionsMade: 0,
+          isActive: true,
+          verificationStatus: '1-tier',
+        };
+
+        return {
+          success: true,
+          data: mockMember,
+          transactionId: 'pending', // Transaction ID will be available in onFinish callback
+        };
+      } catch (txError) {
+        console.error('Transaction error:', txError);
+        return {
+          success: false,
+          error: 'Transaction failed or was cancelled',
+        };
+      }
 
     } catch (error) {
       console.error('Error joining Co-EP pool:', error);
@@ -213,22 +248,44 @@ export class CoEPService {
         };
       }
 
-      // TODO: Replace with actual smart contract call
-      const mockContribution = {
-        txId: `mock-tx-${Date.now()}`,
-        amount: params.amount,
-      };
+      // Call smart contract to contribute to pool
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('coep');
 
-      console.log('Contributing to Co-EP pool:', params);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1800));
+      try {
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'contribute-to-existing-pool',
+          functionArgs: [uintCV(parseInt(params.poolId))],
+          network,
+          onFinish: (data: any) => {
+            console.log('Contribution transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Contribution cancelled');
+          },
+        };
 
-      return {
-        success: true,
-        data: mockContribution,
-        transactionId: mockContribution.txId,
-      };
+        await openContractCall(txOptions);
+
+        return {
+          success: true,
+          data: {
+            txId: 'pending',
+            amount: params.amount,
+          },
+          transactionId: 'pending',
+        };
+      } catch (txError) {
+        console.error('Contribution transaction error:', txError);
+        return {
+          success: false,
+          error: 'Contribution transaction failed or was cancelled',
+        };
+      }
 
     } catch (error) {
       console.error('Error contributing to Co-EP pool:', error);
