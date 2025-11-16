@@ -3,6 +3,10 @@
 
 import { 
   uintCV,
+  stringUtf8CV,
+  stringAsciiCV,
+  bufferCV,
+  principalCV,
 } from '@stacks/transactions';
 import { openContractCall } from '@stacks/connect';
 import { 
@@ -68,36 +72,77 @@ export class CoEPService {
         };
       }
 
-      // TODO: Replace with actual smart contract call
-      // For now, simulate pool creation
-      const mockPool: CoEPPool = {
-        id: `pool-${Date.now()}`,
-        name: params.name,
-        description: params.description,
-        creator: this.userSession.loadUserData().profile.stxAddress.mainnet,
-        maxMembers: params.maxMembers,
-        currentMembers: 1, // Creator is first member
-        contributionAmount: params.contributionAmount,
-        cycleDuration: params.cycleDuration,
-        category: params.category,
-        geographicFocus: params.geographicFocus,
-        status: 'forming',
-        createdAt: Date.now(),
-        currentRotation: 0,
-        totalRotations: params.maxMembers,
-        legalAgreementHash: params.legalAgreementHash,
-      };
+      // Call smart contract to create pool
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('coep');
+      const verificationAddress = getContractAddress(); // Same address for all contracts
+      const verificationName = getContractName('verification');
 
-      console.log('Creating Co-EP pool with params:', params);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2500));
+      try {
+        // Convert legal agreement hash to buffer (32 bytes)
+        const legalHashBuffer = params.legalAgreementHash 
+          ? bufferCV(Buffer.from(params.legalAgreementHash.slice(0, 64), 'hex').slice(0, 32))
+          : bufferCV(Buffer.alloc(32)); // Empty buffer if no hash provided
 
-      return {
-        success: true,
-        data: mockPool,
-        transactionId: `mock-tx-${Date.now()}`,
-      };
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'create-new-rotating-funding-pool',
+          functionArgs: [
+            uintCV(1), // new-project-id (hardcoded for now - should track filmmaker projects)
+            stringUtf8CV(params.name),
+            uintCV(params.maxMembers),
+            uintCV(parseInt(params.contributionAmount)), // STX in microSTX
+            uintCV(params.cycleDuration), // In blocks
+            legalHashBuffer,
+            stringAsciiCV(params.category),
+            stringAsciiCV(params.geographicFocus),
+            principalCV(`${verificationAddress}.${verificationName}`), // Verification contract principal
+          ],
+          network,
+          onFinish: (data: any) => {
+            console.log('Pool creation transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Pool creation cancelled');
+          },
+        };
+
+        await openContractCall(txOptions);
+
+        // Return success with pending transaction
+        const mockPool: CoEPPool = {
+          id: 'pending',
+          name: params.name,
+          description: params.description,
+          creator: this.userSession.loadUserData().profile.stxAddress.mainnet,
+          maxMembers: params.maxMembers,
+          currentMembers: 1,
+          contributionAmount: params.contributionAmount,
+          cycleDuration: params.cycleDuration,
+          category: params.category,
+          geographicFocus: params.geographicFocus,
+          status: 'forming',
+          createdAt: Date.now(),
+          currentRotation: 0,
+          totalRotations: params.maxMembers,
+          legalAgreementHash: params.legalAgreementHash,
+        };
+
+        return {
+          success: true,
+          data: mockPool,
+          transactionId: 'pending',
+        };
+      } catch (txError) {
+        console.error('Pool creation transaction error:', txError);
+        return {
+          success: false,
+          error: 'Pool creation transaction failed or was cancelled',
+        };
+      }
 
     } catch (error) {
       console.error('Error creating Co-EP pool:', error);
