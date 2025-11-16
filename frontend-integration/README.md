@@ -468,6 +468,7 @@ export function getContractAddress(): string;
 export function getContractName(): string;
 ```
 
+<<<<<<< HEAD
 ---
 
 ### Integrated Smart Contracts
