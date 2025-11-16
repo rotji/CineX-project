@@ -577,6 +577,157 @@ export class CoEPService {
   }
 
   /**
+   * Execute rotation funding - transfers funds to beneficiary and creates campaign
+   * @param poolId Pool ID to execute rotation for
+   * @returns Promise with rotation execution result
+   */
+  async executeRotation(poolId: string): Promise<ServiceResponse<{ txId: string; beneficiary: string }>> {
+    try {
+      // Validate user is authenticated
+      if (!this.userSession.isUserSignedIn()) {
+        return {
+          success: false,
+          error: 'User must be signed in to execute rotations',
+        };
+      }
+
+      // Call smart contract to execute rotation
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('coep');
+      const crowdfundingAddress = getContractAddress();
+      const crowdfundingName = getContractName('crowdfunding');
+      const verificationAddress = getContractAddress();
+      const verificationName = getContractName('verification');
+
+      try {
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'execute-rotation-funding',
+          functionArgs: [
+            uintCV(parseInt(poolId)),
+            principalCV(`${crowdfundingAddress}.${crowdfundingName}`),
+            principalCV(`${verificationAddress}.${verificationName}`),
+          ],
+          network,
+          onFinish: (data: any) => {
+            console.log('Rotation execution transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Rotation execution cancelled');
+          },
+        };
+
+        await openContractCall(txOptions);
+
+        return {
+          success: true,
+          data: {
+            txId: 'pending',
+            beneficiary: 'pending',
+          },
+          transactionId: 'pending',
+        };
+      } catch (txError) {
+        console.error('Rotation execution transaction error:', txError);
+        return {
+          success: false,
+          error: 'Rotation execution transaction failed or was cancelled',
+        };
+      }
+
+    } catch (error) {
+      console.error('Error executing rotation:', error);
+      return {
+        success: false,
+        error: 'Failed to execute rotation. Please try again.',
+      };
+    }
+  }
+
+  /**
+   * Update project details for upcoming rotation (beneficiary only)
+   * @param poolId Pool ID
+   * @param rotationNumber Rotation number
+   * @param projectDetails Project details to update
+   * @returns Promise with update result
+   */
+  async updateRotationProjectDetails(
+    poolId: string,
+    rotationNumber: number,
+    projectDetails: {
+      title: string;
+      description: string;
+      completionPercentage: number;
+      rewardTiers: number;
+      rewardDescription: string;
+    }
+  ): Promise<ServiceResponse<{ txId: string }>> {
+    try {
+      // Validate user is authenticated
+      if (!this.userSession.isUserSignedIn()) {
+        return {
+          success: false,
+          error: 'User must be signed in to update project details',
+        };
+      }
+
+      // Call smart contract to update project details
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('coep');
+
+      try {
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'update-rotation-project-details',
+          functionArgs: [
+            uintCV(parseInt(poolId)),
+            uintCV(rotationNumber),
+            stringUtf8CV(projectDetails.title),
+            stringAsciiCV(projectDetails.description.slice(0, 500)),
+            uintCV(projectDetails.completionPercentage),
+            uintCV(projectDetails.rewardTiers),
+            stringAsciiCV(projectDetails.rewardDescription.slice(0, 150)),
+          ],
+          network,
+          onFinish: (data: any) => {
+            console.log('Project details update transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Project details update cancelled');
+          },
+        };
+
+        await openContractCall(txOptions);
+
+        return {
+          success: true,
+          data: { txId: 'pending' },
+          transactionId: 'pending',
+        };
+      } catch (txError) {
+        console.error('Project details update transaction error:', txError);
+        return {
+          success: false,
+          error: 'Project details update transaction failed or was cancelled',
+        };
+      }
+
+    } catch (error) {
+      console.error('Error updating project details:', error);
+      return {
+        success: false,
+        error: 'Failed to update project details. Please try again.',
+      };
+    }
+  }
+
+  /**
    * Get rotation schedule for a specific Co-EP pool
    * @param poolId Pool ID to get rotations for
    * @returns Promise with rotation schedule

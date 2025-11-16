@@ -1,6 +1,18 @@
 // Escrow service for CineX platform
 // Handles secure fund management for campaigns and pool contributions
 
+import { 
+  uintCV,
+  principalCV,
+  fetchCallReadOnlyFunction,
+} from '@stacks/transactions';
+import { openContractCall } from '@stacks/connect';
+import { 
+  getNetwork, 
+  getContractAddress, 
+  getContractName,
+} from '../utils/network';
+
 import type { 
   ServiceResponse, 
   EscrowDeposit,
@@ -69,29 +81,57 @@ export class EscrowService {
         };
       }
 
-      // TODO: Replace with actual smart contract call
-      // For now, simulate escrow deposit
-      const mockDeposit: EscrowDeposit = {
-        id: `escrow-${Date.now()}`,
-        depositor: this.userSession.loadUserData().profile.stxAddress.mainnet,
-        amount: params.amount,
-        purpose: params.purpose,
-        relatedId: params.relatedId,
-        status: 'locked',
-        createdAt: Date.now(),
-        releaseConditions: params.releaseConditions || [],
-      };
+      // Call smart contract to deposit to escrow
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('escrow');
+      const userAddress = this.userSession.loadUserData().profile.stxAddress.mainnet;
 
-      console.log('Depositing to escrow with params:', params);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2200));
+      try {
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'deposit-to-campaign',
+          functionArgs: [
+            uintCV(parseInt(params.relatedId)), // Campaign ID
+            uintCV(parseInt(params.amount)), // Amount in microSTX
+          ],
+          network,
+          onFinish: (data: any) => {
+            console.log('Escrow deposit transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Escrow deposit cancelled');
+          },
+        };
 
-      return {
-        success: true,
-        data: mockDeposit,
-        transactionId: `mock-tx-${Date.now()}`,
-      };
+        await openContractCall(txOptions);
+
+        // Return success with pending transaction
+        const deposit: EscrowDeposit = {
+          id: `escrow-${Date.now()}`,
+          depositor: userAddress,
+          amount: params.amount,
+          purpose: params.purpose,
+          relatedId: params.relatedId,
+          status: 'locked',
+          createdAt: Date.now(),
+          releaseConditions: params.releaseConditions || [],
+        };
+
+        return {
+          success: true,
+          data: deposit,
+          transactionId: 'pending',
+        };
+      } catch (txError) {
+        console.error('Escrow deposit transaction error:', txError);
+        return {
+          success: false,
+          error: 'Escrow deposit transaction failed or was cancelled',
+        };
+      }
 
     } catch (error) {
       console.error('Error depositing to escrow:', error);

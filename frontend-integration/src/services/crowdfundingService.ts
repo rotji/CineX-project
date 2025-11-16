@@ -1,6 +1,20 @@
 // Crowdfunding service for CineX platform
 // Handles campaign creation, contributions, and campaign management
 
+import { 
+  uintCV,
+  stringAsciiCV,
+  principalCV,
+  fetchCallReadOnlyFunction,
+  cvToValue,
+} from '@stacks/transactions';
+import { openContractCall } from '@stacks/connect';
+import { 
+  getNetwork, 
+  getContractAddress, 
+  getContractName,
+} from '../utils/network';
+
 import type { 
   ServiceResponse, 
   Campaign, 
@@ -56,34 +70,75 @@ export class CrowdfundingService {
         };
       }
 
-      // TODO: Replace with actual smart contract call
-      // For now, simulate campaign creation
-      const mockCampaign: Campaign = {
-        id: `campaign-${Date.now()}`,
-        title: params.title,
-        description: params.description,
-        creator: this.userSession.loadUserData().profile.stxAddress.mainnet,
-        targetAmount: params.targetAmount,
-        currentAmount: '0',
-        deadline: params.deadline,
-        category: params.category,
-        status: 'active',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        mediaUrls: params.mediaUrls || [],
-        tags: params.tags || [],
-      };
+      // Call smart contract to create campaign
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('crowdfunding');
+      const verificationAddress = getContractAddress();
+      const verificationName = getContractName('verification');
 
-      console.log('Creating campaign with params:', params);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      try {
+        // Calculate duration in blocks (assuming 10 min per block)
+        const durationMs = params.deadline - Date.now();
+        const durationBlocks = Math.floor(durationMs / (10 * 60 * 1000));
+        
+        // Generate campaign ID (will be incremented on-chain)
+        const nextCampaignId = Date.now();
 
-      return {
-        success: true,
-        data: mockCampaign,
-        transactionId: `mock-tx-${Date.now()}`,
-      };
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'create-campaign',
+          functionArgs: [
+            stringAsciiCV(params.description.slice(0, 500)), // Max 500 chars
+            uintCV(nextCampaignId),
+            uintCV(parseInt(params.targetAmount)), // Funding goal in microSTX
+            uintCV(durationBlocks), // Duration in blocks
+            uintCV(3), // Default 3 reward tiers
+            stringAsciiCV('Standard rewards for backers'.slice(0, 150)), // Max 150 chars
+            principalCV(`${verificationAddress}.${verificationName}`), // Verification contract trait
+          ],
+          network,
+          onFinish: (data: any) => {
+            console.log('Campaign creation transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Campaign creation cancelled');
+          },
+        };
+
+        await openContractCall(txOptions);
+
+        // Return success with pending transaction
+        const newCampaign: Campaign = {
+          id: nextCampaignId.toString(),
+          title: params.title,
+          description: params.description,
+          creator: this.userSession.loadUserData().profile.stxAddress.mainnet,
+          targetAmount: params.targetAmount,
+          currentAmount: '0',
+          deadline: params.deadline,
+          category: params.category,
+          status: 'active',
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          mediaUrls: params.mediaUrls || [],
+          tags: params.tags || [],
+        };
+
+        return {
+          success: true,
+          data: newCampaign,
+          transactionId: 'pending',
+        };
+      } catch (txError) {
+        console.error('Campaign creation transaction error:', txError);
+        return {
+          success: false,
+          error: 'Campaign creation transaction failed or was cancelled',
+        };
+      }
 
     } catch (error) {
       console.error('Error creating campaign:', error);
@@ -118,27 +173,58 @@ export class CrowdfundingService {
         };
       }
 
-      // TODO: Replace with actual smart contract call
-      // For now, simulate contribution
-      const mockContribution: CampaignContribution = {
-        campaignId: params.campaignId,
-        contributor: this.userSession.loadUserData().profile.stxAddress.mainnet,
-        amount: params.amount,
-        timestamp: Date.now(),
-        txId: `mock-tx-${Date.now()}`,
-        message: params.message,
-      };
+      // Call smart contract to contribute to campaign
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('crowdfunding');
+      const escrowAddress = getContractAddress();
+      const escrowName = getContractName('escrow');
+      const userAddress = this.userSession.loadUserData().profile.stxAddress.mainnet;
 
-      console.log('Contributing to campaign:', params);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      try {
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'contribute-to-campaign',
+          functionArgs: [
+            uintCV(parseInt(params.campaignId)),
+            uintCV(amount), // Amount in microSTX
+            principalCV(`${escrowAddress}.${escrowName}`), // Escrow contract trait
+          ],
+          network,
+          onFinish: (data: any) => {
+            console.log('Contribution transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Contribution cancelled');
+          },
+        };
 
-      return {
-        success: true,
-        data: mockContribution,
-        transactionId: mockContribution.txId,
-      };
+        await openContractCall(txOptions);
+
+        // Return success with pending transaction
+        const contribution: CampaignContribution = {
+          campaignId: params.campaignId,
+          contributor: userAddress,
+          amount: params.amount,
+          timestamp: Date.now(),
+          txId: 'pending',
+          message: params.message,
+        };
+
+        return {
+          success: true,
+          data: contribution,
+          transactionId: 'pending',
+        };
+      } catch (txError) {
+        console.error('Contribution transaction error:', txError);
+        return {
+          success: false,
+          error: 'Contribution transaction failed or was cancelled',
+        };
+      }
 
     } catch (error) {
       console.error('Error contributing to campaign:', error);
