@@ -5,12 +5,14 @@ import { CrowdfundingService, createCrowdfundingService } from './crowdfundingSe
 import { CoEPService, createCoEPService } from './coepService';
 import { EscrowService, createEscrowService } from './escrowService';
 import { VerificationService, createVerificationService } from './verificationService';
+import { EmergencyService, createEmergencyService } from './emergencyService';
 import type { Campaign } from '../types';
 
 export { CrowdfundingService, createCrowdfundingService };
 export { CoEPService, createCoEPService };
 export { EscrowService, createEscrowService };
 export { VerificationService, createVerificationService };
+export { EmergencyService, createEmergencyService };
 
 export {
   CineXServiceError,
@@ -63,6 +65,7 @@ export function createCineXServices(userSession: any) {
     coep: createCoEPService(userSession),
     escrow: createEscrowService(userSession),
     verification: createVerificationService(userSession),
+    emergency: createEmergencyService(userSession),
   };
 }
 

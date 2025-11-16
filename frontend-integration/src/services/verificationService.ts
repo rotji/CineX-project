@@ -1,6 +1,22 @@
 // Verification service for CineX platform
 // Handles filmmaker verification, credibility scoring, and verification management
 
+import { 
+  uintCV,
+  stringUtf8CV,
+  stringAsciiCV,
+  bufferCV,
+  fetchCallReadOnlyFunction,
+  cvToValue,
+  principalCV,
+} from '@stacks/transactions';
+import { openContractCall } from '@stacks/connect';
+import { 
+  getNetwork, 
+  getContractAddress, 
+  getContractName,
+} from '../utils/network';
+
 import type { 
   ServiceResponse, 
   VerificationApplication,
@@ -99,36 +115,68 @@ export class VerificationService {
         }
       }
 
-      // TODO: Replace with actual smart contract call
-      // For now, simulate verification submission
-      const mockApplication: VerificationApplication = {
-        id: `verification-${Date.now()}`,
-        applicant: userAddress,
-        name: params.name,
-        bio: params.bio,
-        portfolioUrl: params.portfolioUrl,
-        previousWorks: params.previousWorks,
-        socialMedia: params.socialMedia,
-        bondAmount: params.bondAmount,
-        documents: params.documents,
-        status: 'pending',
-        submittedAt: Date.now(),
-      };
+      // Call smart contract to submit verification
+      const network = getNetwork();
+      const contractAddress = getContractAddress();
+      const contractName = getContractName('verification');
 
-      console.log('Submitting verification application with params:', {
-        name: params.name,
-        bondAmount: params.bondAmount,
-        documentsCount: Object.keys(params.documents).length,
-      });
-      
-      // Simulate network delay and bond deposit
-      await new Promise(resolve => setTimeout(resolve, 2500));
+      try {
+        // Convert documents to hashes (in real implementation, would be IPFS hashes)
+        const identityHash = Buffer.from(params.documents.identityProof.slice(0, 64), 'utf-8');
+        const portfolioHash = params.documents.portfolioProof 
+          ? Buffer.from(params.documents.portfolioProof.slice(0, 64), 'utf-8')
+          : Buffer.alloc(32);
 
-      return {
-        success: true,
-        data: mockApplication,
-        transactionId: `mock-verification-tx-${Date.now()}`,
-      };
+        // Open Stacks wallet to sign transaction
+        const txOptions = {
+          contractAddress,
+          contractName,
+          functionName: 'submit-filmmaker-for-verification',
+          functionArgs: [
+            stringUtf8CV(params.name),
+            stringAsciiCV(params.bio.slice(0, 500)),
+            bufferCV(identityHash),
+            uintCV(1), // Verification tier 1 (basic)
+            uintCV(parseInt(params.bondAmount)), // Verification bond
+          ],
+          network,
+          onFinish: (data: any) => {
+            console.log('Verification submission transaction broadcast:', data.txId);
+          },
+          onCancel: () => {
+            console.log('Verification submission cancelled');
+          },
+        };
+
+        await openContractCall(txOptions);
+
+        // Return success with pending transaction
+        const application: VerificationApplication = {
+          id: `verification-${Date.now()}`,
+          applicant: userAddress,
+          name: params.name,
+          bio: params.bio,
+          portfolioUrl: params.portfolioUrl,
+          previousWorks: params.previousWorks,
+          socialMedia: params.socialMedia,
+          bondAmount: params.bondAmount,
+          documents: params.documents,
+          status: 'pending',
+          submittedAt: Date.now(),
+        };
+
+        return {
+          success: true,
+          data: application,
+          transactionId: 'pending',
+        };
+      } catch (txError) {
+        console.error('Verification submission transaction error:', txError);
+        return {
+          success: false,
+          error: 'Verification submission transaction failed or was cancelled',
+        };
+      }
 
     } catch (error) {
       console.error('Error submitting verification:', error);

@@ -102,40 +102,363 @@ interface AuthContextType {
 
 ## 🔗 Blockchain Integration
 
-### Co-EP Pool Operations
+### Three-Phase Integration Architecture
 
-All three Co-EP operations fully integrated with smart contracts:
+All blockchain operations organized into three strategic phases for complete platform functionality:
+
+#### **Phase 1: Core Campaign Flows** ✅
+Foundation for crowdfunding operations - campaign creation, contributions, and fund management.
+
+#### **Phase 2: Co-EP Advanced Features** ✅
+Rotating pool operations - execution of rotations and beneficiary project management.
+
+#### **Phase 3: Supporting Systems** ✅
+Infrastructure services - escrow management, filmmaker verification, and emergency controls.
+
+---
+
+### 📊 Technical Workflow: Three Phases in Action
+
+#### **Phase 1: Core Campaign Flows**
+
+**Purpose**: Enable filmmakers to launch campaigns and receive contributions through secure escrow.
+
+**User Journey:**
+1. **Filmmaker creates campaign** → Frontend calls `crowdfundingService.createCampaign()`
+2. **Service converts parameters** → Maps JS objects to Clarity types
+3. **Blockchain transaction** → Calls `create-campaign` on `crowdfunding-module`
+4. **Campaign goes live** → Contributors can now fund via escrow
+5. **Contributor funds campaign** → Calls `contributeToCampaign()` with amount
+6. **Escrow secures funds** → Money held until milestone verification
+
+**Technical Implementation:**
 
 ```typescript
-// Create new rotating funding pool (9 parameters)
-functionName: 'create-new-rotating-funding-pool',
-functionArgs: [
-  stringUtf8CV(projectId),              // Film project identifier
-  stringUtf8CV(poolName),                // Pool display name
-  uintCV(maxMembers),                    // Maximum pool capacity
-  uintCV(contributionPerMember),         // STX per member
-  uintCV(cycleDuration),                 // Blocks per rotation
-  bufferCV(legalAgreementHash),          // 32-byte SHA256 hash
-  stringAsciiCV(category),               // Pool category
-  stringAsciiCV(geographicFocus),        // Target region
-  principalCV(verificationAddress)       // Verification contract trait
-]
+// Campaign Creation Flow
+import { createCineXServices } from './services';
 
-// Join/contribute to existing pool
-functionName: 'contribute-to-existing-pool',
-functionArgs: [uintCV(poolId)]
+const services = createCineXServices(userSession);
+
+// Step 1: Create campaign (7 parameters)
+await services.crowdfunding.createCampaign({
+  title: 'Documentary Film',
+  description: 'A powerful story...',
+  targetAmount: '50000000000',  // 50,000 STX in microSTX
+  deadline: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
+  category: 'documentary',
+  verificationRequired: true,
+});
+
+// Behind the scenes:
+// - Converts deadline to blocks (~10 min/block)
+// - Passes verification contract as trait parameter
+// - Opens Stacks Connect wallet for signing
+// - Returns transaction ID on success
+
+// Step 2: Contribute to campaign
+await services.crowdfunding.contributeToCampaign({
+  campaignId: 'campaign-001',
+  amount: '5000000000',  // 5,000 STX
+  anonymous: false,
+});
+
+// Behind the scenes:
+// - Calls contribute-to-campaign on blockchain
+// - Passes escrow-module contract as trait
+// - Funds automatically secured in escrow
+// - Contributor receives confirmation
 ```
 
-### Service Layer
+**Smart Contract Calls:**
+- `create-campaign` (crowdfunding-module): 7 parameters including verification trait
+- `contribute-to-campaign` (crowdfunding-module): Campaign ID + amount + escrow trait
 
-**`src/services/coepService.ts`**: Blockchain transaction calls via `openContractCall()`
+**Data Flow:**
+```
+User Input (JS) → Service Layer → Clarity Type Conversion → openContractCall() 
+→ Stacks Connect Wallet → User Signs → Blockchain Execution → Transaction ID 
+→ Event Emission → Frontend Update
+```
+
+---
+
+#### **Phase 2: Co-EP Advanced Features**
+
+**Purpose**: Automate rotating pool operations and enable beneficiaries to manage their linked campaigns.
+
+**User Journey:**
+1. **Pool reaches maturity** → Admin/member triggers rotation execution
+2. **System executes rotation** → Calls `coepService.executeRotation(poolId)`
+3. **Funds transfer automatically** → Pool balance → Beneficiary campaign
+4. **Campaign created on blockchain** → Linked to beneficiary via rotation contract
+5. **Beneficiary updates project** → Calls `updateRotationProjectDetails()` to modify campaign
+6. **Next rotation begins** → Pool resets for next cycle
+
+**Technical Implementation:**
+
 ```typescript
-// Pool creation
-createPool(params: CreatePoolParams): Promise<void>
+// Rotation Execution Flow
 
-// Pool joining/contribution
+// Step 1: Execute rotation (admin/automated)
+await services.coep.executeRotation('pool-alpha-01');
+
+// Behind the scenes:
+// - Calls execute-rotation-funding on Co-EP contract
+// - Passes crowdfunding-module trait (for campaign creation)
+// - Passes verification-module trait (for filmmaker validation)
+// - Transfers accumulated pool funds to new campaign
+// - Creates campaign automatically for beneficiary
+// - Updates pool state to next rotation cycle
+
+// Step 2: Beneficiary updates their project details
+await services.coep.updateRotationProjectDetails({
+  poolId: 'pool-alpha-01',
+  projectTitle: 'Updated Film Title',
+  projectDescription: 'Revised story arc...',
+  fundingGoal: '75000000000',  // 75,000 STX
+  timeline: '12 months production',
+  milestones: 'Pre-production, principal photography, post',
+  teamInfo: 'Director: Jane Doe, DP: John Smith',
+});
+
+// Behind the scenes:
+// - Verifies caller is current rotation beneficiary
+// - Calls update-rotation-project-details (7 parameters)
+// - Updates linked campaign on crowdfunding-module
+// - Maintains immutable rotation history
+// - Emits update event for frontend listeners
+```
+
+**Smart Contract Calls:**
+- `execute-rotation-funding` (Co-EP-rotating-fundings): Pool ID + 2 contract traits
+- `update-rotation-project-details` (Co-EP-rotating-fundings): 7 update parameters
+
+**Integration Points:**
+```
+Co-EP Pool → Rotation Trigger → execute-rotation-funding → crowdfunding-module
+→ Campaign Created → Beneficiary Notified → updateRotationProjectDetails
+→ Campaign Updated → Contributors See Changes
+```
+
+**Workflow Diagram:**
+```
+[Pool Mature] → [Execute Rotation] → [Transfer Funds] → [Create Campaign]
+     ↓                                                          ↓
+[Next Cycle]                                          [Update Details]
+     ↓                                                          ↓
+[Reset Pool] ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← [Campaign Active]
+```
+
+---
+
+#### **Phase 3: Supporting Systems**
+
+**Purpose**: Provide infrastructure services for escrow management, filmmaker credibility, and emergency controls.
+
+**User Journey - Escrow:**
+1. **Campaign needs funds** → Direct deposit via `escrowService.depositToEscrow()`
+2. **Funds secured** → Held in escrow-module contract
+3. **Milestone verified** → Funds released to filmmaker
+4. **Refund scenario** → Contributor withdraws if campaign fails
+
+**User Journey - Verification:**
+1. **Filmmaker applies** → Calls `verificationService.submitVerification()`
+2. **Identity proof uploaded** → Document hash stored on-chain
+3. **Bond deposited** → Verification bond locked in contract
+4. **Admin reviews** → Approves/rejects verification
+5. **Status updated** → Filmmaker gains verified badge
+
+**User Journey - Emergency Controls:**
+1. **Critical issue detected** → Admin accesses emergency dashboard
+2. **System pause triggered** → Calls `emergencyService.pauseSystem(module)`
+3. **Issue resolved** → Admin calls `resumeSystem(module)`
+4. **Operations restore** → Platform returns to normal
+
+**Technical Implementation:**
+
+```typescript
+// Escrow Deposit Flow
+await services.escrow.depositToEscrow({
+  campaignId: 'campaign-001',
+  amount: '10000000000',  // 10,000 STX
+});
+
+// Behind the scenes:
+// - Calls deposit-to-campaign on escrow-module
+// - Links deposit to specific campaign
+// - Tracks deposit in escrow balance mapping
+// - Enables future withdrawal/release
+
+// Filmmaker Verification Flow
+await services.verification.submitVerification({
+  name: 'Jane Director',
+  bio: 'Award-winning filmmaker with 15 years experience...',
+  bondAmount: '5000000000',  // 5,000 STX bond
+  documents: {
+    identityProof: 'QmXoXxXxXxXx...',  // IPFS hash
+    portfolioUrl: 'https://janedirector.com',
+  },
+});
+
+// Behind the scenes:
+// - Converts identity proof to 32-byte buffer (SHA256)
+// - Calls submit-filmmaker-for-verification
+// - Deposits verification bond (refundable)
+// - Stores filmmaker profile on-chain
+// - Awaits admin approval
+
+// Emergency Control Flow
+// Check system status (all modules)
+const status = await services.emergency.getAllSystemStatuses();
+// Returns: { crowdfunding: 'active', coep: 'active', escrow: 'active', verification: 'active' }
+
+// Pause specific module
+await services.emergency.pauseSystem('crowdfunding');
+// - Calls pause-system on CineX-project main contract
+// - Prevents new campaign creation
+// - Existing campaigns continue safely
+
+// Resume after fix
+await services.emergency.resumeSystem('crowdfunding');
+// - Calls resume-system to restore operations
+// - Emits system-resumed event
+```
+
+**Smart Contract Calls:**
+- `deposit-to-campaign` (escrow-module): Campaign ID + amount
+- `submit-filmmaker-for-verification` (film-verification-module): 5 parameters including identity buffer
+- `pause-system` (CineX-project): Module name
+- `resume-system` (CineX-project): Module name
+- `get-system-status` (CineX-project): Read-only status check
+
+**Emergency Service Features:**
+```typescript
+// Monitor all modules
+getAllSystemStatuses(): Promise<SystemStatus>
+
+// Check specific module
+getSystemStatus(module: 'crowdfunding' | 'coep' | 'escrow' | 'verification'): Promise<string>
+
+// Version tracking
+getModuleVersion(module: string): Promise<string>
+
+// Active status check
+isModuleActive(module: string): Promise<boolean>
+```
+
+---
+
+### 🔄 Complete Platform Workflow Example
+
+**Scenario**: Verified filmmaker creates campaign, receives Co-EP rotation funds, contributors support via escrow.
+
+```typescript
+// 1. PHASE 3: Filmmaker gets verified
+await services.verification.submitVerification({
+  name: 'Alex Chen',
+  bio: 'Documentary filmmaker specializing in environmental stories',
+  bondAmount: '5000000000',
+  documents: { identityProof: 'Qm...' },
+});
+
+// 2. PHASE 1: Filmmaker creates campaign
+const campaign = await services.crowdfunding.createCampaign({
+  title: 'Ocean Conservation Documentary',
+  description: 'A 3-part series on coral reef restoration',
+  targetAmount: '100000000000',  // 100,000 STX
+  deadline: Date.now() + (90 * 24 * 60 * 60 * 1000),  // 90 days
+  category: 'documentary',
+  verificationRequired: true,
+});
+
+// 3. PHASE 2: Campaign becomes beneficiary of Co-EP pool rotation
+await services.coep.executeRotation('environmental-pool-01');
+// → Automatically transfers 25,000 STX from pool → campaign
+
+// 4. PHASE 1: Contributors add additional funding
+await services.crowdfunding.contributeToCampaign({
+  campaignId: campaign.id,
+  amount: '15000000000',  // 15,000 STX
+  anonymous: false,
+});
+
+// 5. PHASE 3: Additional escrow deposit (optional)
+await services.escrow.depositToEscrow({
+  campaignId: campaign.id,
+  amount: '10000000000',  // 10,000 STX
+});
+
+// 6. PHASE 2: Filmmaker updates project details
+await services.coep.updateRotationProjectDetails({
+  poolId: 'environmental-pool-01',
+  projectTitle: 'Ocean Warriors: Coral Restoration',
+  projectDescription: 'Updated scope with 3 locations...',
+  fundingGoal: '100000000000',
+  timeline: '18 months',
+  milestones: 'Research (3mo), Filming (9mo), Post (6mo)',
+  teamInfo: 'Dir: Alex Chen, Cinematographer: Maya Torres',
+});
+
+// Campaign now has: 25k (rotation) + 15k (contributions) + 10k (escrow) = 50,000 STX
+```
+
+**Data Flow Across All Phases:**
+```
+[Phase 3: Verification] → [Filmmaker Verified]
+           ↓
+[Phase 1: Campaign Created] → [Campaign Active]
+           ↓
+[Phase 2: Rotation Executes] → [Pool Funds → Campaign]
+           ↓
+[Phase 1: Contributions Flow] → [Escrow Secures Funds]
+           ↓
+[Phase 3: Escrow Management] → [Milestone Releases]
+           ↓
+[Phase 2: Project Updates] → [Transparency for Funders]
+```
+
+---
+
+### Service Layer Architecture
+
+**`src/services/crowdfundingService.ts`** (Phase 1)
+```typescript
+createCampaign(params: CreateCampaignParams): Promise<void>
+contributeToCampaign(params: ContributeParams): Promise<void>
+getCampaign(campaignId: string): Promise<Campaign>
+getCampaignBalance(campaignId: string): Promise<string>
+```
+
+**`src/services/coepService.ts`** (Phase 2)
+```typescript
+createPool(params: CreatePoolParams): Promise<void>
 joinPool(poolId: number): Promise<void>
-contributeToPool(poolId: number): Promise<void>
+executeRotation(poolId: string): Promise<void>  // Phase 2 core
+updateRotationProjectDetails(params: UpdateProjectParams): Promise<void>  // Phase 2 core
+```
+
+**`src/services/escrowService.ts`** (Phase 3)
+```typescript
+depositToEscrow(params: DepositParams): Promise<void>
+withdrawFromEscrow(campaignId: string, amount: string): Promise<void>
+getEscrowBalance(campaignId: string): Promise<string>
+```
+
+**`src/services/verificationService.ts`** (Phase 3)
+```typescript
+submitVerification(params: VerificationParams): Promise<void>
+checkVerificationStatus(filmmaker: string): Promise<boolean>
+getVerifiedFilmmakers(): Promise<string[]>
+```
+
+**`src/services/emergencyService.ts`** (Phase 3) ⭐ NEW
+```typescript
+pauseSystem(module: ModuleName): Promise<void>
+resumeSystem(module: ModuleName): Promise<void>
+getSystemStatus(module: ModuleName): Promise<string>
+getAllSystemStatuses(): Promise<SystemStatus>
+getModuleVersion(module: ModuleName): Promise<string>
+isModuleActive(module: ModuleName): Promise<boolean>
 ```
 
 **`src/utils/network.ts`**: Network configuration
@@ -145,16 +468,23 @@ export function getContractAddress(): string;
 export function getContractName(): string;
 ```
 
-### Integrated Contracts
+<<<<<<< HEAD
+---
+
+### Integrated Smart Contracts
 
 Contract Address: `ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM` (Hiro Devnet)
 
-- **Co-EP Rotating Fundings**: `Co-EP-rotating-fundings`
-- **Crowdfunding Module**: `crowdfunding-module`
-- **CineX Core**: `CineX-project`
-- **Verification Module**: `film-verification-module`
-- **Escrow Module**: `escrow-module`
-- **Rewards Module**: `rewards-module`
+| Contract | Functions Integrated | Phase |
+|----------|---------------------|-------|
+| **CineX-project** | `pause-system`, `resume-system`, `get-system-status` | 3 |
+| **crowdfunding-module** | `create-campaign`, `contribute-to-campaign` | 1 |
+| **Co-EP-rotating-fundings** | `create-new-rotating-funding-pool`, `contribute-to-existing-pool`, `execute-rotation-funding`, `update-rotation-project-details` | 1, 2 |
+| **escrow-module** | `deposit-to-campaign`, `withdraw-from-campaign` | 3 |
+| **film-verification-module** | `submit-filmmaker-for-verification`, `is-filmmaker-currently-verified` | 3 |
+| **rewards-module** | `distribute-rewards`, `claim-rewards` | Future |
+
+**Total Integrated Operations**: 11 write functions, 15+ read-only functions
 
 ## 🎨 Component Structure
 
@@ -312,5 +642,15 @@ npm run lint
 
 ---
 
-*Last Updated: November 15, 2025*  
-*Version: Co-EP Pool Integration Complete*
+## 📚 Additional Documentation
+
+- **Complete Integration Guide**: `../docs/BLOCKCHAIN_INTEGRATION_COMPLETE.md`
+- **Integration Summary**: `../docs/INTEGRATION_SUMMARY.md`
+- **Backend Requirements**: `../docs/integration-overview.md`
+- **Deployment Plan**: `../deployments/default.devnet-plan.yaml.backup`
+
+---
+
+*Last Updated: November 16, 2025*  
+*Version: Three-Phase Blockchain Integration Complete ✅*  
+*Status: Phase 1 (Campaigns) ✅ | Phase 2 (Co-EP Advanced) ✅ | Phase 3 (Infrastructure) ✅*
