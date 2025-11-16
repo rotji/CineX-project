@@ -17,16 +17,37 @@ export function getNetwork(): StacksNetwork {
   switch (networkType) {
     case 'devnet':
       // Devnet uses testnet configuration with custom API URL
-      return {
-        ...STACKS_TESTNET,
-        coreApiUrl: apiUrl || 'https://api.platform.hiro.so/v1/ext/1ec08f6d3c031b532aa987f5a0398f37/stacks-blockchain-api',
-      };
+      if (apiUrl) {
+        return {
+          ...STACKS_TESTNET,
+          client: {
+            baseUrl: apiUrl,
+          },
+        } as StacksNetwork;
+      }
+      return STACKS_TESTNET;
     
     case 'testnet':
-      return apiUrl ? { ...STACKS_TESTNET, coreApiUrl: apiUrl } : STACKS_TESTNET;
+      if (apiUrl) {
+        return {
+          ...STACKS_TESTNET,
+          client: {
+            baseUrl: apiUrl,
+          },
+        } as StacksNetwork;
+      }
+      return STACKS_TESTNET;
     
     case 'mainnet':
-      return apiUrl ? { ...STACKS_MAINNET, coreApiUrl: apiUrl } : STACKS_MAINNET;
+      if (apiUrl) {
+        return {
+          ...STACKS_MAINNET,
+          client: {
+            baseUrl: apiUrl,
+          },
+        } as StacksNetwork;
+      }
+      return STACKS_MAINNET;
     
     default:
       console.warn(`Unknown network type: ${networkType}, defaulting to testnet`);
