@@ -335,29 +335,137 @@ Developer note: keep inline styles only for dynamic values that cannot be expres
 
 ```bash
 # .env configuration
-VITE_NETWORK=testnet           # Stacks network (testnet/mainnet)
-VITE_MOCK_MODE=false          # Enable mock transaction mode
-VITE_API_URL=                 # Stacks API endpoint
-VITE_CONTRACT_ADDRESS=        # Deployed contract address
+VITE_NETWORK=devnet            # Stacks network (devnet/testnet/mainnet)
+VITE_STACKS_API_URL=https://api.platform.hiro.so/v1/ext/1ec08f6d3c031b532aa987f5a0398f37/stacks-blockchain-api
+VITE_EXPLORER_URL=https://explorer.stacks.co
+
+# Contract Addresses (Devnet)
+VITE_MAIN_HUB_CONTRACT_ADDRESS=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+VITE_MAIN_HUB_CONTRACT_NAME=CineX-project
+
+VITE_CROWDFUNDING_CONTRACT_ADDRESS=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+VITE_CROWDFUNDING_CONTRACT_NAME=crowdfunding-module
+
+VITE_ESCROW_CONTRACT_ADDRESS=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+VITE_ESCROW_CONTRACT_NAME=escrow-module
+
+VITE_REWARDS_CONTRACT_ADDRESS=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+VITE_REWARDS_CONTRACT_NAME=rewards-module
+
+VITE_CO_EP_CONTRACT_ADDRESS=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+VITE_CO_EP_CONTRACT_NAME=Co-EP-rotating-fundings
+
+VITE_VERIFICATION_CONTRACT_ADDRESS=ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+VITE_VERIFICATION_CONTRACT_NAME=film-verification-module
+
+# App Configuration
+VITE_APP_NAME=CineX
+VITE_APP_VERSION=1.0.0
+VITE_APP_URL=http://localhost:5173
+
+# Wallet Configuration
+VITE_SUPPORTED_WALLETS=hiro,leather,xverse
+VITE_WALLET_TIMEOUT=30000
+VITE_TRANSACTION_TIMEOUT=180000
+
+# Feature Flags
+VITE_FEATURE_CO_EP_POOLS=true
+VITE_FEATURE_NFT_REWARDS=true
+VITE_FEATURE_FILM_VERIFICATION=true
+VITE_FEATURE_ESCROW=true
+
+# Debug Settings
+VITE_DEBUG_MODE=true
+VITE_ENABLE_CONSOLE_LOGS=true
+VITE_TX_POLLING_INTERVAL=2000
 ```
 
 ### Network Configuration
 
+The frontend now supports devnet, testnet, and mainnet with automatic network detection:
+
 ```typescript
-// src/lib/contracts.ts
-export const NETWORKS = {
-  testnet: {
-    coreApiUrl: 'https://api.testnet.hiro.so',
-    explorerUrl: 'https://explorer.hiro.so/?chain=testnet',
-    networkId: StacksTestnet.version
-  },
-  mainnet: {
-    coreApiUrl: 'https://api.hiro.so',
-    explorerUrl: 'https://explorer.hiro.so',
-    networkId: StacksMainnet.version
+// src/utils/network.ts
+export function getNetwork(): StacksNetwork {
+  const networkType = (import.meta.env.VITE_NETWORK || 'testnet') as NetworkType;
+  const apiUrl = import.meta.env.VITE_STACKS_API_URL;
+
+  switch (networkType) {
+    case 'devnet':
+      // Devnet uses testnet configuration with Hiro devnet API
+      return {
+        ...STACKS_TESTNET,
+        coreApiUrl: apiUrl || 'https://api.platform.hiro.so/v1/ext/.../stacks-blockchain-api',
+      };
+    case 'testnet':
+      return apiUrl ? { ...STACKS_TESTNET, coreApiUrl: apiUrl } : STACKS_TESTNET;
+    case 'mainnet':
+      return apiUrl ? { ...STACKS_MAINNET, coreApiUrl: apiUrl } : STACKS_MAINNET;
   }
-};
+}
 ```
+
+### Backend Integration (November 15, 2025)
+
+**🎉 Frontend-Backend Integration Complete**
+
+The frontend is now fully integrated with deployed smart contracts on Hiro's devnet:
+
+#### Integration Architecture
+- **Direct Blockchain Communication**: Frontend calls smart contracts directly using Stacks.js
+- **No Backend Middleware**: Simplified architecture with wallet-based transactions
+- **Devnet Deployment**: All contracts deployed on Hiro's managed devnet infrastructure
+
+#### Integrated Contracts
+- **Co-EP Rotating Fundings**: `ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.Co-EP-rotating-fundings`
+- **Crowdfunding Module**: `ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.crowdfunding-module`
+- **CineX Core**: `ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.CineX-project`
+- **Verification Module**: `ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.film-verification-module`
+- **Escrow Module**: `ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.escrow-module`
+
+#### Real Contract Functions Implemented
+
+**Co-EP Pool Operations:**
+```typescript
+// Join/contribute to existing pool
+await openContractCall({
+  contractAddress: 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM',
+  contractName: 'Co-EP-rotating-fundings',
+  functionName: 'contribute-to-existing-pool',
+  functionArgs: [uintCV(poolId)],
+  network: getNetwork(),
+});
+```
+
+#### Service Layer Updates
+- **`coepService.ts`**: Now calls real blockchain transactions via `openContractCall()`
+- **Network Utilities**: `src/utils/network.ts` handles devnet/testnet/mainnet configuration
+- **Wallet Integration**: Stacks Connect opens wallet for transaction signing
+
+#### Testing the Integration
+```bash
+# Start dev server
+npm run dev
+
+# Connect Stacks wallet (Hiro/Xverse)
+# Navigate to Co-EP Pools
+# Try joining a pool - wallet will prompt for transaction signing
+# Transaction broadcasts to devnet for confirmation
+```
+
+#### Integration Status
+- ✅ Network configuration with devnet support
+- ✅ Contract address management via environment variables
+- ✅ Real blockchain transactions for pool joining/contributing
+- ✅ Wallet-based transaction signing
+- ✅ Transaction callback handling (onFinish/onCancel)
+- ✅ Build successful with zero TypeScript errors
+
+**Next Steps:**
+- Add read-only functions to fetch pool data from blockchain
+- Implement transaction status tracking
+- Add error handling for failed transactions
+- Create admin functions for pool management
 
 ## 🧪 Testing Strategy
 
