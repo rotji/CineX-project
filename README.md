@@ -11,7 +11,15 @@
 ## 🚀 Quick Links
 
 - **[Frontend README](./frontend-integration/README.md)** - Complete frontend documentation with setup instructions
+- **[Backend README](./BACKEND_README.md)** - Smart contracts architecture and integration guide
 - **[Frontend Developer Guide](./frontend-integration/docs/FRONTEND_GETTING_STARTED.md)** - Quick start guide for new developers
+
+## 📚 Additional Documentation
+
+- **[Complete Integration Guide](./docs/BLOCKCHAIN_INTEGRATION_COMPLETE.md)** - End-to-end blockchain integration documentation
+- **[Integration Summary](./docs/INTEGRATION_SUMMARY.md)** - Quick overview of frontend-backend integration
+- **[Backend Requirements](./docs/integration-overview.md)** - Smart contract requirements and specifications
+- **[Deployment Plan](./deployments/default.devnet-plan.yaml.backup)** - Devnet deployment configuration
 
 ## Smart Contract Modules
 

@@ -355,7 +355,7 @@ await services.verification.submitVerification({
 // Behind the scenes:
 // - Converts identity proof to 32-byte buffer (SHA256)
 // - Calls submit-filmmaker-for-verification
-// - Deposits verification bond (refundable)
+// - Deposits verification bond
 // - Stores filmmaker profile on-chain
 // - Awaits admin approval
 
