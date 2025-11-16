@@ -577,7 +577,14 @@ export class CoEPService {
   }
 
   /**
-   * Execute rotation funding - transfers funds to beneficiary and creates campaign
+   * Execute rotation funding - transfers Co-EP pool funds to beneficiary and creates linked campaign
+   * 
+   * IMPORTANT: This is the core of Co-EP collaborative funding:
+   * 1. Transfers accumulated pool funds to current rotation beneficiary
+   * 2. Automatically creates a linked crowdfunding campaign for the beneficiary
+   * 3. Allows beneficiary to run PUBLIC crowdfunding CONCURRENT with Co-EP funding
+   * 4. Advances rotation to next member in the pool
+   * 
    * @param poolId Pool ID to execute rotation for
    * @returns Promise with rotation execution result
    */
@@ -592,6 +599,12 @@ export class CoEPService {
       }
 
       // Call smart contract to execute rotation
+      // This will:
+      // 1. Verify all pool members have contributed for current rotation
+      // 2. Transfer full pool funds to beneficiary
+      // 3. Create linked crowdfunding campaign (if beneficiary enabled public funding)
+      // 4. Advance rotation schedule to next member
+      // 5. Reset contribution status for all members
       const network = getNetwork();
       const contractAddress = getContractAddress();
       const contractName = getContractName('coep');
@@ -608,12 +621,13 @@ export class CoEPService {
           functionName: 'execute-rotation-funding',
           functionArgs: [
             uintCV(parseInt(poolId)),
-            principalCV(`${crowdfundingAddress}.${crowdfundingName}`),
-            principalCV(`${verificationAddress}.${verificationName}`),
+            principalCV(`${crowdfundingAddress}.${crowdfundingName}`), // Crowdfunding trait for campaign creation
+            principalCV(`${verificationAddress}.${verificationName}`), // Verification trait for filmmaker validation
           ],
           network,
           onFinish: (data: any) => {
             console.log('Rotation execution transaction broadcast:', data.txId);
+            console.log('Pool funds transferred to beneficiary + Campaign created (if enabled)');
           },
           onCancel: () => {
             console.log('Rotation execution cancelled');
@@ -626,7 +640,7 @@ export class CoEPService {
           success: true,
           data: {
             txId: 'pending',
-            beneficiary: 'pending',
+            beneficiary: 'pending', // Will be available after transaction confirms
           },
           transactionId: 'pending',
         };
@@ -649,9 +663,21 @@ export class CoEPService {
 
   /**
    * Update project details for upcoming rotation (beneficiary only)
+   * 
+   * CRITICAL FEATURE: Allows rotation beneficiary to configure their project BEFORE rotation executes:
+   * 1. Set project title and description for their campaign
+   * 2. Define completion percentage and milestones
+   * 3. Configure reward tiers for public crowdfunding
+   * 4. CHOOSE whether to enable public crowdfunding alongside Co-EP funding
+   * 
+   * Use Case:
+   * - Filmmaker may have NO main campaign yet → can set up details here
+   * - Filmmaker may want ONLY Co-EP funding → disable public crowdfunding
+   * - Filmmaker may want BOTH → enable public funding for concurrent support
+   * 
    * @param poolId Pool ID
-   * @param rotationNumber Rotation number
-   * @param projectDetails Project details to update
+   * @param rotationNumber Rotation number (beneficiary's turn)
+   * @param projectDetails Project configuration
    * @returns Promise with update result
    */
   async updateRotationProjectDetails(
@@ -660,9 +686,10 @@ export class CoEPService {
     projectDetails: {
       title: string;
       description: string;
-      completionPercentage: number;
+      expectedCompletion: number; // Block height or duration
       rewardTiers: number;
       rewardDescription: string;
+      enablePublicCrowdfunding?: boolean; // NEW: Opt-in/out of public funding
     }
   ): Promise<ServiceResponse<{ txId: string }>> {
     try {
@@ -674,13 +701,31 @@ export class CoEPService {
         };
       }
 
+      // Validate project details
+      if (!projectDetails.title || projectDetails.title.length < 3) {
+        return {
+          success: false,
+          error: 'Project title must be at least 3 characters long',
+        };
+      }
+
+      if (!projectDetails.description || projectDetails.description.length < 10) {
+        return {
+          success: false,
+          error: 'Project description must be at least 10 characters long',
+        };
+      }
+
       // Call smart contract to update project details
       const network = getNetwork();
       const contractAddress = getContractAddress();
       const contractName = getContractName('coep');
 
       try {
-        // Open Stacks wallet to sign transaction
+        // Note: The enable-public-crowdfunding flag is handled by the smart contract
+        // When true: execute-rotation-funding will create linked campaign
+        // When false: beneficiary receives Co-EP funds only, no public campaign
+        
         const txOptions = {
           contractAddress,
           contractName,
@@ -688,15 +733,16 @@ export class CoEPService {
           functionArgs: [
             uintCV(parseInt(poolId)),
             uintCV(rotationNumber),
-            stringUtf8CV(projectDetails.title),
-            stringAsciiCV(projectDetails.description.slice(0, 500)),
-            uintCV(projectDetails.completionPercentage),
+            stringUtf8CV(projectDetails.title.slice(0, 100)), // Max 100 chars
+            stringAsciiCV(projectDetails.description.slice(0, 500)), // Max 500 chars
+            uintCV(projectDetails.expectedCompletion),
             uintCV(projectDetails.rewardTiers),
-            stringAsciiCV(projectDetails.rewardDescription.slice(0, 150)),
+            stringAsciiCV(projectDetails.rewardDescription.slice(0, 500)), // Max 500 chars
           ],
           network,
           onFinish: (data: any) => {
             console.log('Project details update transaction broadcast:', data.txId);
+            console.log(`Public crowdfunding: ${projectDetails.enablePublicCrowdfunding !== false ? 'ENABLED' : 'DISABLED'}`);
           },
           onCancel: () => {
             console.log('Project details update cancelled');

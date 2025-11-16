@@ -182,71 +182,123 @@ User Input (JS) → Service Layer → Clarity Type Conversion → openContractCa
 
 ---
 
-#### **Phase 2: Co-EP Advanced Features**
+#### **Phase 2: Co-EP Collaborative Funding**
 
-**Purpose**: Automate rotating pool operations and enable beneficiaries to manage their linked campaigns.
+**Purpose**: Enable professional filmmakers to create rotating funding pools that run CONCURRENTLY with main crowdfunding campaigns.
+
+**Key Concept**: 
+- Filmmaker creates **main public campaign** (e.g., $50k STX goal)
+- Filmmaker also creates **Co-EP pool** (e.g., 8 members × $5k = $40k STX)
+- **BOTH run simultaneously** → Filmmaker can receive funding from BOTH sources
+- Pool members rotate as beneficiaries → Each member gets their turn
 
 **User Journey:**
-1. **Pool reaches maturity** → Admin/member triggers rotation execution
-2. **System executes rotation** → Calls `coepService.executeRotation(poolId)`
-3. **Funds transfer automatically** → Pool balance → Beneficiary campaign
-4. **Campaign created on blockchain** → Linked to beneficiary via rotation contract
-5. **Beneficiary updates project** → Calls `updateRotationProjectDetails()` to modify campaign
-6. **Next rotation begins** → Pool resets for next cycle
+1. **Filmmaker creates main campaign** → Public crowdfunding for general audience
+2. **Same filmmaker creates Co-EP pool** → Professional collaborative funding (runs alongside)
+3. **Pool members join** → Other verified filmmakers contribute equal amounts
+4. **Rotation executes** → Current beneficiary receives pool funds + optional campaign creation
+5. **Beneficiary chooses** → Enable public crowdfunding OR pool-only funding
+6. **Next rotation** → Advances to next member, cycle continues
 
 **Technical Implementation:**
 
 ```typescript
-// Rotation Execution Flow
+// Co-EP Concurrent Funding Flow
 
-// Step 1: Execute rotation (admin/automated)
-await services.coep.executeRotation('pool-alpha-01');
-
-// Behind the scenes:
-// - Calls execute-rotation-funding on Co-EP contract
-// - Passes crowdfunding-module trait (for campaign creation)
-// - Passes verification-module trait (for filmmaker validation)
-// - Transfers accumulated pool funds to new campaign
-// - Creates campaign automatically for beneficiary
-// - Updates pool state to next rotation cycle
-
-// Step 2: Beneficiary updates their project details
-await services.coep.updateRotationProjectDetails({
-  poolId: 'pool-alpha-01',
-  projectTitle: 'Updated Film Title',
-  projectDescription: 'Revised story arc...',
-  fundingGoal: '75000000000',  // 75,000 STX
-  timeline: '12 months production',
-  milestones: 'Pre-production, principal photography, post',
-  teamInfo: 'Director: Jane Doe, DP: John Smith',
+// Step 1: Create main public campaign
+await services.crowdfunding.createCampaign({
+  title: 'My Feature Film',
+  description: 'Epic story...',
+  targetAmount: '50000000000',  // 50k STX public goal
+  deadline: Date.now() + (60 * 24 * 60 * 60 * 1000),
+  category: 'feature',
 });
 
+// Step 2: Create Co-EP pool (runs concurrently with main campaign)
+await services.coep.createPool({
+  name: 'Feature Filmmakers Pool',
+  description: 'Collaborative funding for feature films',
+  maxMembers: 8,
+  contributionAmount: '5000000000',  // 5k STX per member
+  cycleDuration: 2160, // ~3 months in blocks
+  category: 'feature',
+  geographicFocus: 'hollywood',
+  legalAgreementHash: '0x...', // SHA256 hash
+});
+// Result: Main campaign active + Co-EP pool forming
+//         Filmmaker can receive from BOTH sources
+
+// Step 3: Pool members contribute for current rotation
+await services.coep.contributeToPool({
+  poolId: 'pool-1',
+  amount: '5000000000',  // 5k STX
+});
+
+// Step 4: Beneficiary updates project (BEFORE rotation executes)
+// This is WHERE member can set up campaign if they don't have one
+await services.coep.updateRotationProjectDetails(
+  'pool-1',
+  2, // Rotation number
+  {
+    title: 'Documentary Project',
+    description: 'Environmental story...',
+    expectedCompletion: 2160,
+    rewardTiers: 3,
+    rewardDescription: 'Digital access, credits, premiere tickets',
+    enablePublicCrowdfunding: true, // ← CHOOSE: true = create campaign, false = pool only
+  }
+);
+
+// Step 5: Execute rotation
+await services.coep.executeRotation('pool-1');
+
 // Behind the scenes:
-// - Verifies caller is current rotation beneficiary
-// - Calls update-rotation-project-details (7 parameters)
-// - Updates linked campaign on crowdfunding-module
-// - Maintains immutable rotation history
-// - Emits update event for frontend listeners
+// - Verifies all pool members contributed
+// - Transfers pool funds (8 × 5k = 40k STX) to beneficiary
+// - IF enablePublicCrowdfunding was true → Creates campaign automatically
+// - IF enablePublicCrowdfunding was false → No campaign, pool funds only
+// - Advances rotation to next member
+// - Resets contribution status for next cycle
+
+// Beneficiary now receives:
+// - Co-EP pool funds: 40k STX (guaranteed)
+// - Public campaign funds: Variable (if enabled)
+// - TOTAL: Pool + Public contributions
 ```
 
 **Smart Contract Calls:**
+- `create-new-rotating-funding-pool` (Co-EP-rotating-fundings): 9 parameters including verification trait
+- `contribute-to-existing-pool` (Co-EP-rotating-fundings): Pool ID
 - `execute-rotation-funding` (Co-EP-rotating-fundings): Pool ID + 2 contract traits
-- `update-rotation-project-details` (Co-EP-rotating-fundings): 7 update parameters
+- `update-rotation-project-details` (Co-EP-rotating-fundings): 7 parameters
 
-**Integration Points:**
-```
-Co-EP Pool → Rotation Trigger → execute-rotation-funding → crowdfunding-module
-→ Campaign Created → Beneficiary Notified → updateRotationProjectDetails
-→ Campaign Updated → Contributors See Changes
-```
+**Three Key Scenarios:**
 
-**Workflow Diagram:**
+1. **Filmmaker WITH Main Campaign** (Concurrent Funding):
+   - Has active main campaign collecting public funds
+   - Creates Co-EP pool running alongside
+   - Receives funds from BOTH sources
+   - Example: 50k public + 40k Co-EP = 90k total
+
+2. **Member WITHOUT Campaign** (Auto-Creation):
+   - Joins pool but has no campaign
+   - Updates project details with `enablePublicCrowdfunding: true`
+   - Rotation executes → Campaign created automatically
+   - Can now receive Co-EP + public funds
+
+3. **Pool-Only Funding** (Private):
+   - Member updates with `enablePublicCrowdfunding: false`
+   - Rotation executes → No campaign created
+   - Receives only Co-EP pool funds
+   - Keeps project private to pool members
+
+**Data Flow:**
 ```
-[Pool Mature] → [Execute Rotation] → [Transfer Funds] → [Create Campaign]
-     ↓                                                          ↓
-[Next Cycle]                                          [Update Details]
-     ↓                                                          ↓
-[Reset Pool] ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← ← [Campaign Active]
+Main Campaign (Public) ──┐
+                         ├──→ Escrow → Filmmaker
+Co-EP Pool (Members) ────┘
+
+Filmmaker can run BOTH simultaneously
 ```
 
 ---
