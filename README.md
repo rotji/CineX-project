@@ -87,7 +87,7 @@ Overall, CineX has also achieved:
 | **Integration Tests** | 40+ Co-EP tests | ✅ |
 
 **All contracts, fully tested and validated for DeGrants Milestone 1 can be viewed here 👇🏾
-[Detailed results →](./docs/Test-report-for-CineX.png)**
+[Detailed results →](./docs/Test report for CineX.png)**
 
 ### **🎯 Live Platform Features:**
 - User authentication & wallet connection
