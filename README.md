@@ -86,9 +86,6 @@ Overall, CineX has also achieved:
 | **Core Modules** | 7 contracts | ✅ |
 | **Integration Tests** | 40+ Co-EP tests | ✅ |
 
-**All contracts, fully tested and validated for DeGrants Milestone 1 can be viewed here 👇🏾
-[Detailed results →](./docs/Test report for CineX.png)**
-
 ### **🎯 Live Platform Features:**
 - User authentication & wallet connection
 - Film project creation and management
