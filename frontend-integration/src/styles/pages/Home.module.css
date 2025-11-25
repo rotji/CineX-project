@@ -1,76 +1,90 @@
+/* Mobile-First Cinematic Design for Filmmakers */
+.home {
+  width: 100%;
+  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+  min-height: 100vh;
+}
+
+/* Hero Section - Dark Cinematic */
+.hero {
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  text-align: center;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 191, 0, 0.1);
+}
+
 .heroLogoWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 1.2rem;
-}
-.heroLogo {
-  width: 120px;
-  height: 120px;
-  display: block;
-}
-.ctaLarge {
-  font-size: 1.3rem;
-  padding: 1.1rem 2.5rem;
-  border-radius: 12px;
-  font-weight: 700;
-  margin-bottom: 1.2rem;
-  box-shadow: 0 6px 24px rgba(255,191,0,0.15);
-}
-.home {
-  width: 100%;
+  margin-bottom: 1.5rem;
 }
 
-.hero {
-  padding: 2.2rem 0.7rem;
-  background-color: #1a1a1a;
-  text-align: center;
-  color: #fff;
+.heroLogo {
+  width: 100px;
+  height: 100px;
+  filter: drop-shadow(0 4px 12px rgba(255, 191, 0, 0.3));
 }
 
 .hero h1 {
-  font-size: 2.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
   font-weight: 700;
   letter-spacing: -0.5px;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .subtitle {
   font-size: 1rem;
-  margin-bottom: 1.2rem;
-  color: #a0a0a0;
-  max-width: 95vw;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  color: #b8b8b8;
+  max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  padding: 0 1rem;
 }
 
 .ctaButtons {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 1rem;
   flex-wrap: wrap;
+  margin-bottom: 1rem;
 }
 
 .ctaPrimary,
 .ctaSecondary {
   display: inline-block;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.98rem;
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
   font-weight: 600;
   text-decoration: none;
-  border-radius: 7px;
-  transition: all 0.3s;
+  border-radius: 8px;
+  transition: all 0.3s ease;
   border: 2px solid transparent;
+  text-align: center;
 }
 
 .ctaPrimary {
-  background-color: #FFBF00;
-  color: #121212;
+  background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
+  color: #000000;
+  box-shadow: 0 4px 16px rgba(255, 191, 0, 0.3);
 }
 
 .ctaPrimary:hover {
-  background-color: #ffd700;
-  transform: translateY(-3px);
+  background: linear-gradient(135deg, #FFD700 0%, #FFB700 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 191, 0, 0.5);
+}
+
+.ctaLarge {
+  font-size: 1.125rem;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-weight: 700;
 }
 
 .ctaSecondary {
@@ -80,102 +94,211 @@
 }
 
 .ctaSecondary:hover {
-  background-color: #FFBF00;
-  color: #121212;
-  transform: translateY(-3px);
+  background-color: rgba(255, 191, 0, 0.1);
+  border-color: #FFD700;
+  color: #FFD700;
+  transform: translateY(-2px);
 }
 
-.featured {
-  padding: 1.5rem 0.7rem;
-  background-color: #f0f2f5;
-}
-
-.featured h2 {
-  text-align: center;
-  font-size: 1.3rem;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-.projectGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  margin-top: 0.7rem;
-  max-width: 98vw;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.projectCard {
-  background-color: #fff;
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-/* Overview Section Styles */
+/* Content Sections - Reduced White Space */
 .overview {
-  background-color: #ffffff;
-  padding: 1.2rem 0.7rem;
+  background: linear-gradient(180deg, #1a1a1a 0%, #151515 100%);
+  padding: 2.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 191, 0, 0.08);
 }
 
 .overviewContent {
   max-width: 800px;
   margin: 0 auto;
   text-align: center;
+  color: #e0e0e0;
 }
 
 .overviewContent h2 {
-  font-size: 1.3rem;
-  margin-bottom: 0.7rem;
-  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #FFBF00;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .overviewContent p {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #666;
-@media (max-width: 600px) {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #c0c0c0;
+  margin-bottom: 1rem;
+}
+
+.overviewContent ol {
+  text-align: left;
+  padding-left: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.overviewContent ol li {
+  margin-bottom: 1rem;
+  color: #d0d0d0;
+  line-height: 1.6;
+}
+
+.overviewContent ol li strong {
+  color: #FFBF00;
+}
+
+/* Featured Section - Dark Gray */
+.featured {
+  padding: 2.5rem 1rem;
+  background: linear-gradient(180deg, #151515 0%, #1a1a1a 100%);
+  border-bottom: 1px solid rgba(255, 191, 0, 0.08);
+}
+
+.featured h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+  color: #FFBF00;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.featured h2:first-child {
+  margin-top: 0;
+}
+
+/* Tablet Responsive (768px+) */
+@media (min-width: 768px) {
   .hero {
-    padding: 1.1rem 0.3rem;
+    padding: 3rem 2rem;
   }
+
+  .heroLogo {
+    width: 120px;
+    height: 120px;
+  }
+
   .hero h1 {
-    font-size: 1.2rem;
-    margin-bottom: 0.3rem;
+    font-size: 2.5rem;
   }
+
   .subtitle {
-    font-size: 0.9rem;
-    margin-bottom: 0.7rem;
+    font-size: 1.125rem;
   }
-  .ctaPrimary, .ctaSecondary {
-    padding: 0.4rem 0.7rem;
-    font-size: 0.85rem;
-    border-radius: 5px;
+
+  .ctaLarge {
+    font-size: 1.25rem;
+    padding: 1.125rem 2.5rem;
   }
+
+  .overview,
   .featured {
-    padding: 0.7rem 0.2rem;
+    padding: 3rem 2rem;
   }
+
+  .overviewContent h2,
   .featured h2 {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.875rem;
   }
-  .projectGrid {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-    max-width: 100vw;
-  }
-  .overview {
-    padding: 0.5rem 0.1rem;
-  }
-  .overviewContent h2 {
-    font-size: 1rem;
-    margin-bottom: 0.3rem;
-  }
+
   .overviewContent p {
-    font-size: 0.85rem;
-    line-height: 1.3;
+    font-size: 1.0625rem;
   }
 }
+
+/* Desktop Responsive (1024px+) */
+@media (min-width: 1024px) {
+  .hero {
+    padding: 4rem 2rem;
+  }
+
+  .heroLogo {
+    width: 140px;
+    height: 140px;
+  }
+
+  .hero h1 {
+    font-size: 3rem;
+  }
+
+  .subtitle {
+    font-size: 1.25rem;
+    max-width: 700px;
+  }
+
+  .overview,
+  .featured {
+    padding: 4rem 2rem;
+  }
+
+  .overviewContent h2,
+  .featured h2 {
+    font-size: 2.25rem;
+  }
+}
+
+/* Small Mobile Optimization (< 480px) */
+@media (max-width: 480px) {
+  .hero {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .heroLogo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .hero h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.9375rem;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .ctaButtons {
+    gap: 0.75rem;
+    flex-direction: column;
+    padding: 0 1rem;
+  }
+
+  .ctaPrimary,
+  .ctaSecondary {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .ctaLarge {
+    font-size: 1rem;
+    padding: 0.875rem 1.75rem;
+  }
+
+  .overview,
+  .featured {
+    padding: 2rem 0.75rem;
+  }
+
+  .overviewContent h2,
+  .featured h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .overviewContent p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .overviewContent ol {
+    padding-left: 1.25rem;
+    margin-top: 1rem;
+  }
+
+  .overviewContent ol li {
+    font-size: 0.9375rem;
+    margin-bottom: 0.875rem;
+  }
 }

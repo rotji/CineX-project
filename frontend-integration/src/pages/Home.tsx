@@ -2,7 +2,6 @@ import React from 'react';
 import handsLogo from '../assets/hands-together-logo.svg';
 import { Link } from 'react-router-dom';
 import styles from '../styles/pages/Home.module.css';
-import Testimonials from '../components/Home/Testimonials';
 
 const Home: React.FC = () => {
   return (
@@ -85,8 +84,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
-
-      <Testimonials />
     </div>
   );
 };
