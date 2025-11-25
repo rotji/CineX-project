@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from '../../styles/Layout/HamburgerMenu.module.css';
 import { Link } from 'react-router-dom';
-import { FaHome, FaUsers, FaMoon, FaBell, FaGamepad, FaWindowRestore } from 'react-icons/fa';
+import { FaHome, FaUsers, FaMoon, FaBell } from 'react-icons/fa';
 
 const HamburgerMenu: React.FC<{ open: boolean; onClose: () => void; darkMode: boolean; toggleDarkMode: () => void }> = ({ open, onClose, darkMode, toggleDarkMode }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -14,11 +14,9 @@ const HamburgerMenu: React.FC<{ open: boolean; onClose: () => void; darkMode: bo
         <button className={styles.closeBtn} onClick={onClose}>&times;</button>
         <ul className={styles.menuList}>
           <li><Link to="/" onClick={onClose}><FaHome /> Home</Link></li>
-          <li><Link to="/coep-pools" onClick={onClose}><FaUsers /> Co-EP Pools</Link></li>
           <li><Link to="/pool-create" onClick={onClose}><FaUsers /> Create Pool</Link></li>
+          <li><Link to="/coep-pools" onClick={onClose}><FaUsers /> Browse Pools</Link></li>
           <li><Link to="/waitlist" onClick={onClose}><FaUsers /> Waitlist</Link></li>
-          <li><Link to="/transaction-demo" onClick={onClose} className={styles.demoLink}><FaGamepad /> Demo</Link></li>
-          <li><Link to="/enhanced-demo" onClick={onClose} className={styles.modalLink}><FaWindowRestore /> Modals</Link></li>
           <li><button className={styles.menuBtn} onClick={toggleDarkMode}><FaMoon /> {darkMode ? 'Light Mode' : 'Dark Mode'}</button></li>
           <li>
             <button className={styles.menuBtn} onClick={() => setShowNotifications(!showNotifications)}><FaBell /> Notifications</button>

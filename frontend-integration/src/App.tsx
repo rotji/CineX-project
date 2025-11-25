@@ -22,8 +22,9 @@ function App() {
           <Route path="/pool-detail/:poolId" element={<PoolDetail />} />
           <Route path="/pool-create" element={<PoolCreate />} />
           <Route path="/coep-pools" element={<CoEPPools />} />
-          <Route path="/transaction-demo" element={<TransactionDemo />} />
-          <Route path="/enhanced-demo" element={<EnhancedTransactionDemo />} />
+          {/* Developer testing routes - not shown in navigation */}
+          <Route path="/dev/transaction-demo" element={<TransactionDemo />} />
+          <Route path="/dev/modal-demo" element={<EnhancedTransactionDemo />} />
         </Routes>
       </main>
       <Footer />
