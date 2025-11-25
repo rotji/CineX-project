@@ -1,14 +1,10 @@
-import React, { useState } from 'react';
-import { CreateCampaignModal } from '../components/Campaign';
+import React from 'react';
 import handsLogo from '../assets/hands-together-logo.svg';
 import { Link } from 'react-router-dom';
 import styles from '../styles/pages/Home.module.css';
-import ProjectCard from '../components/projects/ProjectCard';
-import { placeholderProjects } from '../data/projects';
 import Testimonials from '../components/Home/Testimonials';
 
 const Home: React.FC = () => {
-  const [showCreateModal, setShowCreateModal] = useState(false);
   return (
     <div className={styles.home}>
       <section className={styles.hero}>
@@ -16,19 +12,16 @@ const Home: React.FC = () => {
           <img src={handsLogo} alt="Hands coming together" className={styles.heroLogo} />
         </div>
 
-        <h1>Welcome to Crowdfunding Platform for Creatives</h1>
-        <p className={styles.subtitle}>A platform where people in the creative and entertainment industry raise funds for their projects.</p>
+        <h1>Welcome to CineX - Crowdfunding Platform for Creatives</h1>
+        <p className={styles.subtitle}>A blockchain-powered platform where creatives collaborate through Co-EP rotating funding pools.</p>
         <div className={styles.ctaButtons}>
-          <button
-            className={styles.ctaPrimary + ' ' + styles.ctaLarge}
-            onClick={() => setShowCreateModal(true)}
-          >
-            Create a Campaign
-          </button>
+          <Link to="/pool-create" className={styles.ctaPrimary + ' ' + styles.ctaLarge}>
+            Create a Co-EP Pool
+          </Link>
         </div>
         <div className={styles.ctaButtons}>
-          <Link to="/campaigns" className={styles.ctaSecondary}>
-            Explore Campaigns
+          <Link to="/coep-pools" className={styles.ctaSecondary}>
+            Explore Co-EP Pools
           </Link>
         </div>
       </section>
@@ -37,21 +30,23 @@ const Home: React.FC = () => {
         <div className={styles.overviewContent}>
           <h2>What is CineX?</h2>
           <p>
-            CineX is a revolutionary platform that connects creatives and entertainment professionals with supporters, leveraging the power of blockchain technology to create a transparent, efficient, and community-driven crowdfunding ecosystem. Whether you're a creator with a vision or a supporter looking to back the next big idea, CineX empowers you to be part of the creative journey.
+            CineX is a revolutionary platform that connects creatives and entertainment professionals through collaborative funding pools, leveraging the power of blockchain technology to create a transparent, efficient, and community-driven ecosystem. Our Co-EP (Cooperative Esusu Pool) system enables filmmakers to support each other through rotating funding cycles, inspired by the Nigerian Esusu cooperative model.
           </p>
         </div>
       </section>
 
       <section className={styles.featured}>
-        <h2>Featured Campaigns</h2>
-        <div className={styles.projectGrid}>
-          {placeholderProjects.slice(0, 3).map(project => (
-            <ProjectCard project={project} key={project.id} />
-          ))}
+        <h2>How Co-EP Works</h2>
+        <div className={styles.overviewContent}>
+          <ol>
+            <li><strong>Create or Join a Pool:</strong> Filmmakers come together to form a cooperative funding pool</li>
+            <li><strong>Contribute Regularly:</strong> Each member commits to contributing a set amount per rotation cycle</li>
+            <li><strong>Rotating Funding:</strong> Members take turns receiving the pooled funds for their projects</li>
+            <li><strong>Transparent Verification:</strong> All transactions are recorded on the Stacks blockchain</li>
+          </ol>
         </div>
       </section>
       <Testimonials />
-      <CreateCampaignModal open={showCreateModal} onClose={() => setShowCreateModal(false)} />
     </div>
   );
 };
