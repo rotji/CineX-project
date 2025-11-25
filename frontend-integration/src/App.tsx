@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Waitlist from './pages/Waitlist';
 import PoolDetail from './pages/PoolDetail';
 import PoolCreate from './pages/PoolCreate';
+import CampaignCreate from './pages/CampaignCreate';
 import { TransactionDemo } from './lib/TransactionDemo';
 import { EnhancedTransactionDemo } from './lib/EnhancedTransactionDemo';
 import './App.css';
@@ -19,11 +20,13 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/waitlist" element={<Waitlist />} />
+          <Route path="/campaign-create" element={<CampaignCreate />} />
           <Route path="/pool-detail/:poolId" element={<PoolDetail />} />
           <Route path="/pool-create" element={<PoolCreate />} />
           <Route path="/coep-pools" element={<CoEPPools />} />
-          <Route path="/transaction-demo" element={<TransactionDemo />} />
-          <Route path="/enhanced-demo" element={<EnhancedTransactionDemo />} />
+          {/* Developer testing routes - not shown in navigation */}
+          <Route path="/dev/transaction-demo" element={<TransactionDemo />} />
+          <Route path="/dev/modal-demo" element={<EnhancedTransactionDemo />} />
         </Routes>
       </main>
       <Footer />
