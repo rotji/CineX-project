@@ -1,361 +1,492 @@
-/* Mobile-First Dark Theme for Co-EP Pools Browsing */
-.coepPools {
+/* Main Container */
+.poolsPage {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
   min-height: 100vh;
-  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
-  padding: 1.5rem 1rem;
 }
 
+/* Header Section */
 .header {
   text-align: center;
-  margin-bottom: 2.5rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid rgba(255, 191, 0, 0.1);
+  margin-bottom: 3rem;
 }
 
 .header h1 {
-  font-size: 1.875rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #FFBF00;
+  color: #2c3e50;
   margin-bottom: 1rem;
-  text-shadow: 0 2px 10px rgba(255, 191, 0, 0.4);
 }
 
 .subtitle {
-  font-size: 1rem;
-  color: #b8b8b8;
-  line-height: 1.6;
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.connectWallet {
-  background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-  padding: 3rem 1.5rem;
-  border-radius: 12px;
-  text-align: center;
-  border: 1px solid rgba(255, 191, 0, 0.2);
+  font-size: 1.2rem;
+  color: #7f8c8d;
   max-width: 600px;
-  margin: 2rem auto;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
-.connectMessage {
-  font-size: 1.125rem;
-  color: #d0d0d0;
-  margin-bottom: 1.5rem;
-}
-
+/* Controls Section */
 .controls {
-  margin-bottom: 2rem;
-}
-
-.searchBar {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  background: #0f0f0f;
-  border: 1px solid rgba(255, 191, 0, 0.2);
-  border-radius: 10px;
-  color: #ffffff;
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
-}
-
-.searchBar:focus {
-  outline: none;
-  border-color: #FFBF00;
-  box-shadow: 0 0 0 3px rgba(255, 191, 0, 0.1);
-}
-
-.searchBar::placeholder {
-  color: #666666;
-}
-
-.filterButtons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.searchContainer {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7f8c8d;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 2px solid #ecf0f1;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #3498db;
 }
 
 .filterButton {
-  padding: 0.75rem 1.25rem;
-  background: #1a1a1a;
-  color: #c0c0c0;
-  border: 1px solid rgba(255, 191, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #ecf0f1;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9375rem;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
-.filterButton:hover {
-  background: #252525;
-  border-color: rgba(255, 191, 0, 0.4);
-  color: #FFBF00;
-}
-
+.filterButton:hover,
 .filterButton.active {
-  background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
-  color: #000000;
-  border-color: #FFBF00;
-  box-shadow: 0 4px 12px rgba(255, 191, 0, 0.3);
+  background: #3498db;
+  color: white;
 }
 
-.loadingState,
-.errorState {
+.resultsSummary {
+  color: #7f8c8d;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Filter Panel */
+.filterPanel {
+  background: white;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border-top: 3px solid #3498db;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 180px;
+}
+
+.filterGroup label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.filterSelect {
+  padding: 0.75rem;
+  border: 2px solid #ecf0f1;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.clearFiltersButton {
+  padding: 0.75rem 1.5rem;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.clearFiltersButton:hover {
+  background: #c0392b;
+}
+
+/* Loading, Error, and Empty States */
+.loading {
   text-align: center;
-  padding: 3rem 1rem;
-}
-
-.loadingState p,
-.errorState p {
-  font-size: 1.125rem;
-  color: #a0a0a0;
-  margin-bottom: 1rem;
+  padding: 4rem 2rem;
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 191, 0, 0.2);
-  border-top-color: #FFBF00;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 1rem;
+  border: 4px solid #ecf0f1;
+  border-top: 4px solid #3498db;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #e74c3c;
 }
 
 .retryButton {
-  padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, #FFBF00 0%, #FFA500 100%);
-  color: #000000;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #3498db;
+  color: white;
   border: none;
   border-radius: 8px;
-  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(255, 191, 0, 0.3);
-}
-
-.retryButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(255, 191, 0, 0.5);
+  font-weight: 600;
 }
 
 .emptyState {
   text-align: center;
-  padding: 3rem 1rem;
-  background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 191, 0, 0.15);
+  padding: 4rem 2rem;
+  color: #7f8c8d;
 }
 
-.emptyState p {
-  font-size: 1.125rem;
-  color: #a0a0a0;
-  margin-bottom: 1.5rem;
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  color: #bdc3c7;
 }
 
+.emptyState h3 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+/* Pools Grid */
 .poolsGrid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
 }
 
+/* Pool Card */
 .poolCard {
-  background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-  border: 1px solid rgba(255, 191, 0, 0.15);
-  border-radius: 12px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   overflow: hidden;
-}
-
-.poolCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #FFBF00 0%, #FFA500 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: all 0.3s ease;
+  border: 1px solid #ecf0f1;
 }
 
 .poolCard:hover {
-  border-color: rgba(255, 191, 0, 0.4);
-  box-shadow: 0 8px 24px rgba(255, 191, 0, 0.2);
   transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
 }
 
-.poolCard:hover::before {
-  opacity: 1;
-}
-
-.poolHeader {
+.cardHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  gap: 1rem;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #ecf0f1;
 }
 
-.poolTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #FFBF00;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+.categoryBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
 }
 
 .statusBadge {
-  padding: 0.375rem 0.875rem;
-  border-radius: 20px;
-  font-size: 0.8125rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
-  white-space: nowrap;
+  letter-spacing: 0.5px;
 }
 
-.statusBadge.active {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+.statusForming {
+  background: #fff3cd;
+  color: #856404;
 }
 
-.statusBadge.closed {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+.statusActive {
+  background: #d1ecf1;
+  color: #0c5460;
 }
 
-.statusBadge.funded {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+.statusCompleted {
+  background: #d4edda;
+  color: #155724;
+}
+
+.statusPaused {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.cardBody {
+  padding: 1.5rem;
+}
+
+.poolName {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.8rem;
+  line-height: 1.3;
 }
 
 .poolDescription {
-  font-size: 0.9375rem;
-  color: #b8b8b8;
-  line-height: 1.6;
+  color: #7f8c8d;
+  line-height: 1.5;
   margin-bottom: 1.5rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-size: 0.95rem;
 }
 
 .poolStats {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .statItem {
-  background: #0f0f0f;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 191, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.3rem;
+}
+
+.statIcon {
+  color: #3498db;
+  font-size: 1.2rem;
 }
 
 .statLabel {
-  font-size: 0.8125rem;
-  color: #888888;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  font-weight: 500;
 }
 
 .statValue {
-  font-size: 1.125rem;
   font-weight: 700;
-  color: #FFBF00;
+  color: #2c3e50;
+  font-size: 0.9rem;
 }
 
-.progressSection {
-  margin-top: 1.5rem;
+.contributionAmount {
+  text-align: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.contributionAmount strong {
+  display: block;
+  font-size: 1.4rem;
+  color: #27ae60;
+  font-weight: 800;
+}
+
+.contributionLabel {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin-top: 0.3rem;
+}
+
+.progressContainer {
+  margin-bottom: 1.5rem;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.progressLabel span:first-child {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.progressLabel span:last-child {
+  color: #3498db;
+  font-weight: 700;
 }
 
 .progressBar {
-  width: 100%;
-  height: 10px;
-  background: #0f0f0f;
-  border-radius: 10px;
+  height: 8px;
+  background: #ecf0f1;
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 0.75rem;
-  border: 1px solid rgba(255, 191, 0, 0.2);
 }
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(90deg, #FFBF00 0%, #FFA500 100%);
-  transition: width 0.5s ease;
-  box-shadow: 0 0 10px rgba(255, 191, 0, 0.5);
+  background: linear-gradient(90deg, #3498db, #2ecc71);
+  transition: width 0.3s ease;
 }
 
-.progressText {
-  font-size: 0.875rem;
-  color: #a0a0a0;
-  text-align: right;
-}
-
-.poolFooter {
+.cardFooter {
   display: flex;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid #ecf0f1;
+}
+
+.actionButton {
+  flex: 1;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.actionButton.primary {
+  background: #3498db;
+  color: white;
+}
+
+.actionButton.primary:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.actionButton.secondary {
+  background: #ecf0f1;
+  color: #2c3e50;
+}
+
+.actionButton.secondary:hover {
+  background: #bdc3c7;
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.detailsButton {
+  padding: 0.8rem 1.5rem;
+  background: transparent;
+  color: #3498db;
+  border: 2px solid #3498db;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.detailsButton:hover {
+  background: #3498db;
+  color: white;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 191, 0, 0.1);
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.memberCount {
-  font-size: 0.9375rem;
-  color: #c0c0c0;
-}
-
-.viewButton {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, rgba(255, 191, 0, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%);
-  color: #FFBF00;
-  border: 1px solid rgba(255, 191, 0, 0.3);
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.viewButton:hover {
-  background: linear-gradient(135deg, rgba(255, 191, 0, 0.25) 0%, rgba(255, 165, 0, 0.25) 100%);
-  border-color: #FFBF00;
-  box-shadow: 0 4px 12px rgba(255, 191, 0, 0.3);
-}
-
-.pagination {
+.paginationInfo {
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 2rem;
+  color: #7f8c8d;
+}
+
+.pageSizeSelect {
+  padding: 0.5rem;
+  border: 1px solid #ecf0f1;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .paginationButton {
-  padding: 0.75rem 1.5rem;
-  background: #1a1a1a;
-  color: #c0c0c0;
-  border: 1px solid rgba(255, 191, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: #ecf0f1;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
@@ -363,71 +494,107 @@
 }
 
 .paginationButton:hover:not(:disabled) {
-  background: #252525;
-  border-color: rgba(255, 191, 0, 0.4);
-  color: #FFBF00;
+  background: #3498db;
+  color: white;
 }
 
 .paginationButton:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.pageInfo {
-  font-size: 1rem;
-  color: #a0a0a0;
-  font-weight: 600;
+.pageNumbers {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0 0.5rem;
 }
 
-/* Tablet Responsive */
-@media (min-width: 768px) {
-  .coepPools {
-    padding: 2rem 1.5rem;
-  }
+.pageNumber {
+  padding: 0.6rem 0.8rem;
+  background: #ecf0f1;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 40px;
+}
 
-  .header h1 {
-    font-size: 2.5rem;
-  }
+.pageNumber:hover {
+  background: #bdc3c7;
+}
 
-  .subtitle {
-    font-size: 1.125rem;
-  }
+.pageNumber.active {
+  background: #3498db;
+  color: white;
+}
 
-  .filterButtons {
+/* Social Trust Section (kept from original) */
+.socialTrust {
+  margin-top: 4rem;
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.socialTrust h2 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.socialTrust ul {
+  list-style: none;
+  padding: 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.socialTrust li {
+  padding: 0.5rem 0;
+  color: #7f8c8d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .poolsPage {
+    padding: 1rem;
+  }
+  
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .searchContainer {
+    min-width: unset;
+  }
+  
+  .filterRow {
+    flex-direction: column;
     gap: 1rem;
   }
-
+  
+  .filterGroup {
+    min-width: unset;
+  }
+  
   .poolsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
-
-  .poolStats {
-    grid-template-columns: repeat(2, 1fr);
+  
+  .pagination {
+    flex-direction: column;
+    gap: 1.5rem;
   }
-
-  .poolFooter {
-    flex-direction: row;
+  
+  .paginationControls {
+    flex-wrap: wrap;
+    justify-content: center;
   }
-}
-
-/* Desktop Responsive */
-@media (min-width: 1024px) {
-  .coepPools {
-    padding: 3rem 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
+  
   .header h1 {
-    font-size: 3rem;
-  }
-
-  .poolsGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .poolCard {
-    padding: 2rem;
+    font-size: 2rem;
   }
 }
