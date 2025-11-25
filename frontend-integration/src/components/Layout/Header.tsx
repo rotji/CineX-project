@@ -48,12 +48,10 @@ const Header: React.FC = () => {
       </div>
       <nav className={styles.nav}>
         <Link to="/" className={styles.navLink}>Home</Link>
-        <Link to="/campaigns" className={styles.navLink}>Campaigns</Link>
+        <Link to="/coep-pools" className={styles.navLink}>Co-EP Pools</Link>
         <Link to="/waitlist" className={styles.navLink}>Waitlist</Link>
         <Link to="/transaction-demo" className={`${styles.navLink} ${styles.demoLink}`}>Demo</Link>
         <Link to="/enhanced-demo" className={`${styles.navLink} ${styles.modalLink}`}>Modals</Link>
-        <Link to="/register" className={styles.navLink}>Sign Up</Link>
-        <Link to="/login" className={styles.navLink}>Login</Link>
       </nav>
       <div className={styles.hamburgerMenuWrapper}>
         <button className={styles.hamburger} onClick={toggleMenu} aria-label="Open menu">
