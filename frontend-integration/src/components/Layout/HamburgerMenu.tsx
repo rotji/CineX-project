@@ -14,6 +14,7 @@ const HamburgerMenu: React.FC<{ open: boolean; onClose: () => void; darkMode: bo
         <button className={styles.closeBtn} onClick={onClose}>&times;</button>
         <ul className={styles.menuList}>
           <li><Link to="/" onClick={onClose}><FaHome /> Home</Link></li>
+          <li><Link to="/campaign-create" onClick={onClose}><FaUsers /> Create Campaign</Link></li>
           <li><Link to="/pool-create" onClick={onClose}><FaUsers /> Create Pool</Link></li>
           <li><Link to="/coep-pools" onClick={onClose}><FaUsers /> Browse Pools</Link></li>
           <li><Link to="/waitlist" onClick={onClose}><FaUsers /> Waitlist</Link></li>
