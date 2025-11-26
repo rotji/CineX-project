@@ -1,3 +1,38 @@
+/* Classic Black/White Action Buttons */
+.addButton, .removeButton, .submitButton {
+  display: inline-block;
+  background: #fff;
+  color: #181c32;
+  border: 2px solid #181c32;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.08rem;
+  font-weight: 800;
+  cursor: pointer;
+  margin: 0.3rem 0.5rem 0.3rem 0;
+  transition: background 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.addButton:hover, .removeButton:hover, .submitButton:hover {
+  background: #181c32;
+  color: #fff;
+  border-color: #181c32;
+}
+
+.addButton:active, .removeButton:active, .submitButton:active {
+  background: #222;
+  color: #fff;
+  border-color: #222;
+}
+
+.addButton:disabled, .removeButton:disabled, .submitButton:disabled {
+  background: #eee;
+  color: #aaa;
+  border-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
 /* CampaignCreate Hero Section & Form Styles */
 .campaignHero {
   display: flex;

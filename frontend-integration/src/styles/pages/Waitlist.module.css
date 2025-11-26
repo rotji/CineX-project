@@ -1,3 +1,18 @@
+.questionText {
+  color: #181c32;
+  font-weight: 800;
+  font-size: 1.08em;
+  margin-left: 0.2em;
+  letter-spacing: -0.5px;
+}
+.questionNumber {
+  font-weight: 900;
+  color: #181c32;
+  font-size: 1.15em;
+  margin-right: 0.5em;
+  letter-spacing: -1px;
+  vertical-align: middle;
+}
 
 /* Waitlist.module.css - Clean, white space, card-based design */
 .waitlist {
