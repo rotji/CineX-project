@@ -23,7 +23,7 @@ const steps = [
   'Review & Create',
 ];
 
-const PoolCreate: React.FC = () => {
+function PoolCreate() {
   const { userData, userSession } = useAuth();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
@@ -111,27 +111,113 @@ const PoolCreate: React.FC = () => {
       }
       if (!form.contribution.trim()) {
         errs.push('Contribution per member is required.');
-      } else {
-        const contributionNum = parseFloat(form.contribution.replace(/[^0-9.]/g, ''));
-        if (isNaN(contributionNum) || contributionNum <= 0) {
-          errs.push('Contribution amount must be a positive number.');
-        }
-      }
-      if (!form.maxMembers.trim()) {
-        errs.push('Max members is required.');
-      } else {
-        const maxMembersNum = parseInt(form.maxMembers);
-        if (isNaN(maxMembersNum) || maxMembersNum < 3 || maxMembersNum > 20) {
-          errs.push('Max members must be between 3 and 20.');
-        }
-      }
-      if (!form.cycleDuration.trim()) {
-        errs.push('Cycle duration is required.');
-      } else {
-        const cycleDurationNum = parseInt(form.cycleDuration);
-        if (isNaN(cycleDurationNum) || cycleDurationNum < 30 || cycleDurationNum > 365) {
-          errs.push('Cycle duration must be between 30 and 365 days.');
-        }
+      return (
+        <div className={styles.poolCreateCard}>
+          <div className={styles.header}>Create a Funding Pool</div>
+          <div className={styles.stepper}>
+            {steps.map((label, idx) => (
+              <div
+                key={label}
+                className={`${styles.step} ${step === idx ? styles.active : ''}`}
+                onClick={() => setStep(idx)}
+              >
+                {label}
+              </div>
+            ))}
+          </div>
+          <form className={styles.formGrid}>
+            <div>
+              <label htmlFor="name">Pool Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="e.g. Hollywood Independent Filmmakers"
+                value={form.name}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="description">Pool Description</label>
+              <textarea
+                id="description"
+                name="description"
+                placeholder="Describe your pool's purpose, goals, and what kind of projects it will support..."
+                value={form.description}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="contribution">Contribution per Member (STX)</label>
+              <input
+                type="number"
+                id="contribution"
+                name="contribution"
+                placeholder="e.g. 10000"
+                value={form.contribution}
+                onChange={handleChange}
+              />
+              <div className={styles.formHint}>Amount each member contributes per rotation cycle</div>
+            </div>
+            <div>
+              <label htmlFor="maxMembers">Max Members</label>
+              <input
+                type="number"
+                id="maxMembers"
+                name="maxMembers"
+                placeholder="e.g. 8"
+                value={form.maxMembers}
+                onChange={handleChange}
+              />
+              <div className={styles.formHint}>Between 3-20 members</div>
+            </div>
+            <div>
+              <label htmlFor="cycleDuration">Cycle Duration (days)</label>
+              <input
+                type="number"
+                id="cycleDuration"
+                name="cycleDuration"
+                placeholder="e.g. 90"
+                value={form.cycleDuration}
+                onChange={handleChange}
+              />
+              <div className={styles.formHint}>30-365 days per rotation</div>
+            </div>
+            <div>
+              <label htmlFor="category">Film Category</label>
+              <select
+                id="category"
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+              >
+                <option value="feature">Feature Film</option>
+                <option value="short-film">Short Film</option>
+                <option value="documentary">Documentary</option>
+                <option value="music-video">Music Video</option>
+                <option value="web-series">Web Series</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="geographicFocus">Geographic Focus</label>
+              <select
+                id="geographicFocus"
+                name="geographicFocus"
+                value={form.geographicFocus}
+                onChange={handleChange}
+              >
+                <option value="global">Global</option>
+                <option value="hollywood">Hollywood</option>
+                <option value="bollywood">Bollywood</option>
+                <option value="nollywood">Nollywood</option>
+              </select>
+            </div>
+            <div style={{ gridColumn: 'span 2', textAlign: 'center' }}>
+              <button className={styles.nextBtn} type="submit">Next</button>
+            </div>
+          </form>
+        </div>
+      );
       }
     }
     if (step === 1) {
@@ -243,63 +329,56 @@ const PoolCreate: React.FC = () => {
     modal.openModal(confirmationData);
   };
 
+
   return (
     <div className={styles.poolCreate}>
-      <header className={styles.header}>
-        <h1>Create a Funding Pool</h1>
-        <div className={styles.progressBar}>
-          <div className={styles.progress} style={{ width: `${((step + 1) / steps.length) * 100}%` }} />
-        </div>
-        <div className={styles.steps}>
+      <div className={styles.poolCreateCard}>
+        <div className={styles.header}>Create a Funding Pool</div>
+        <div className={styles.stepper}>
           {steps.map((label, idx) => (
-            <span key={label} className={step === idx ? styles.active : ''}>{label}</span>
+            <div key={label} className={step === idx ? styles.step + ' ' + styles.active : styles.step}>{label}</div>
           ))}
         </div>
-      </header>
-      <form className={styles.form} onSubmit={handleSubmit}>
-        {errors.length > 0 && (
-          <div className={styles.errorBox}>
-            {errors.map((err, i) => <div key={i}>{err}</div>)}
-          </div>
-        )}
-        {step === 0 && (
-          <section className={styles.section}>
-            <label>Pool Name
-              <input 
-                name="name" 
-                value={form.name} 
-                onChange={handleChange} 
-                placeholder="e.g. Hollywood Independent Filmmakers Pool" 
-                required 
-              />
-            </label>
-            
-            <label>Pool Description
-              <textarea 
-                name="description" 
-                value={form.description} 
-                onChange={handleChange} 
-                placeholder="Describe your pool's purpose, goals, and what kind of projects it will support..." 
-                rows={3}
-                required 
-              />
-            </label>
-            
-            <label>Contribution per Member (STX)
-              <input 
-                name="contribution" 
-                value={form.contribution} 
-                onChange={handleChange} 
-                placeholder="e.g. 10000" 
-                type="number"
-                min="1"
-                step="0.01"
-                required 
-              />
-              <small>Amount each member contributes per rotation cycle</small>
-            </label>
-            
-            <div className={styles.formRow}>
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          {errors.length > 0 && (
+            <div className={styles.errorBox}>
+              {errors.map((err, i) => <div key={i}>{err}</div>)}
+            </div>
+          )}
+          {step === 0 && (
+            <div className={styles.formGrid}>
+              <label>Pool Name
+                <input 
+                  name="name" 
+                  value={form.name} 
+                  onChange={handleChange} 
+                  placeholder="e.g. Hollywood Independent Filmmakers Pool" 
+                  required 
+                />
+              </label>
+              <label>Pool Description
+                <textarea 
+                  name="description" 
+                  value={form.description} 
+                  onChange={handleChange} 
+                  placeholder="Describe your pool's purpose, goals, and what kind of projects it will support..." 
+                  rows={3}
+                  required 
+                />
+              </label>
+              <label>Contribution per Member (STX)
+                <input 
+                  name="contribution" 
+                  value={form.contribution} 
+                  onChange={handleChange} 
+                  placeholder="e.g. 10000" 
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  required 
+                />
+                <span className="formHint">Amount each member contributes per rotation cycle</span>
+              </label>
               <label>Max Members
                 <input 
                   name="maxMembers" 
@@ -311,9 +390,8 @@ const PoolCreate: React.FC = () => {
                   max="20"
                   required 
                 />
-                <small>Between 3-20 members</small>
+                <span className="formHint">Between 3-20 members</span>
               </label>
-              
               <label>Cycle Duration (days)
                 <input 
                   name="cycleDuration" 
@@ -325,11 +403,8 @@ const PoolCreate: React.FC = () => {
                   max="365"
                   required 
                 />
-                <small>30-365 days per rotation</small>
+                <span className="formHint">30-365 days per rotation</span>
               </label>
-            </div>
-            
-            <div className={styles.formRow}>
               <label>Film Category
                 <select name="category" value={form.category} onChange={handleChange} required>
                   <option value="feature">Feature Film</option>
@@ -339,7 +414,6 @@ const PoolCreate: React.FC = () => {
                   <option value="web-series">Web Series</option>
                 </select>
               </label>
-              
               <label>Geographic Focus
                 <select name="geographicFocus" value={form.geographicFocus} onChange={handleChange} required>
                   <option value="global">Global</option>
@@ -349,152 +423,151 @@ const PoolCreate: React.FC = () => {
                 </select>
               </label>
             </div>
-          </section>
-        )}
-        {step === 1 && (
-          <section className={styles.section}>
-            <label>Legal Agreement (PDF)
-              <input type="file" accept=".pdf" onChange={handleFile} />
-              {form.legalAgreement && (
-                <div className={styles.filePreview}>
-                  <span>{form.legalAgreement.name}</span>
-                </div>
-              )}
-            </label>
-            <textarea name="agreementText" value={form.agreementText} onChange={handleChange} placeholder="Or paste agreement text here" rows={5} />
-            {form.agreementText && (
-              <div className={styles.agreementPreview}>
-                <strong>Preview:</strong>
-                <div>{form.agreementText.slice(0, 120)}{form.agreementText.length > 120 ? '...' : ''}</div>
-              </div>
-            )}
-          </section>
-        )}
-        {step === 2 && (
-          <section className={styles.section}>
-            <label>Invite Members</label>
-            <input
-              name="invited"
-              value={form.invited}
-              onChange={handleInvite}
-              placeholder="Type name and press Enter"
-              list="user-list"
-              autoComplete="off"
-              onKeyDown={e => {
-                if (e.key === 'Enter' && form.invited.trim()) {
-                  addMember(form.invited.trim());
-                  e.preventDefault();
-                }
-              }}
-            />
-            <datalist id="user-list">
-              {userList.map(u => <option key={u.id} value={u.name} />)}
-            </datalist>
-            <div className={styles.memberChips}>
-              {form.members.map(m => (
-                <span key={m.id} className={styles.chip}>
-                  {m.name}
-                  <button type="button" className={styles.chipRemove} onClick={() => removeMember(m.id)}>&times;</button>
-                </span>
-              ))}
-            </div>
-          </section>
-        )}
-        {step === 3 && (
-          <section className={styles.section}>
-            <h2>Review Pool Details</h2>
-            <div className={styles.reviewContainer}>
-              <div className={styles.reviewCard}>
-                <h3>Basic Information</h3>
-                <ul className={styles.reviewList}>
-                  <li><strong>Pool Name:</strong> {form.name}</li>
-                  <li><strong>Description:</strong> {form.description.slice(0, 100)}{form.description.length > 100 ? '...' : ''}</li>
-                  <li><strong>Category:</strong> {form.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</li>
-                  <li><strong>Geographic Focus:</strong> {form.geographicFocus.charAt(0).toUpperCase() + form.geographicFocus.slice(1)}</li>
-                </ul>
-              </div>
-              
-              <div className={styles.reviewCard}>
-                <h3>Pool Structure</h3>
-                <ul className={styles.reviewList}>
-                  <li><strong>Max Members:</strong> {form.maxMembers}</li>
-                  <li><strong>Contribution per Member:</strong> {form.contribution} STX</li>
-                  <li><strong>Cycle Duration:</strong> {form.cycleDuration} days</li>
-                  <li><strong>Total Pool Value:</strong> {(parseFloat(form.contribution || '0') * parseInt(form.maxMembers || '0')).toLocaleString()} STX</li>
-                </ul>
-              </div>
-              
-              <div className={styles.reviewCard}>
-                <h3>Legal & Members</h3>
-                <ul className={styles.reviewList}>
-                  <li><strong>Legal Agreement:</strong> {form.legalAgreement ? form.legalAgreement.name : (form.agreementText ? 'Text provided' : 'None uploaded')}</li>
-                  <li><strong>Invited Members:</strong> {form.members.length > 0 ? form.members.map(m => m.name).join(', ') : 'None (members can join later)'}</li>
-                </ul>
-              </div>
-            </div>
-            
-            {submitError && (
-              <div className={styles.errorBox}>
-                <strong>Error:</strong> {submitError}
-              </div>
-            )}
-            
-            {!userData ? (
-              <div className={styles.warningBox}>
-                Please connect your wallet to create the pool.
-              </div>
-            ) : (
-              <button 
-                type="submit" 
-                className={styles.createBtn} 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Creating Pool...' : 'Create Pool'}
-              </button>
-            )}
-          </section>
-        )}
-        <div className={styles.navBtns}>
-          {step > 0 && <button type="button" onClick={prevStep} className={styles.navBtn}>Back</button>}
-          {step < steps.length - 1 && <button type="button" onClick={nextStep} className={styles.navBtn}>Next</button>}
-        </div>
-      </form>
-      {showToast && (
-        <div className={styles.toast}>
-          {submitSuccess ? (
-            <>
-              <strong>🎉 Pool Created Successfully!</strong>
-              <p>Your Co-EP pool "{submitSuccess.name}" is now live and ready for members to join.</p>
-              <p><strong>Pool ID:</strong> {submitSuccess.id}</p>
-            </>
-          ) : (
-            'Pool created successfully!'
           )}
-        </div>
-      )}
-
-      {/* Transaction Confirmation Modal */}
-      {modal.isOpen && modal.transactionData && (
-        <TransactionModal
-          isOpen={modal.isOpen}
-          transactionData={modal.transactionData}
-          currentTransaction={modal.currentTransaction || undefined}
-          onConfirm={modal.confirmTransaction}
-          onCancel={modal.closeModal}
-          isProcessing={modal.isProcessing}
-        />
-      )}
-
-      {/* Transaction Toast Notifications */}
-      {toasts.map(transaction => (
-        <TransactionToast
-          key={transaction.id}
-          transaction={transaction}
-          onDismiss={() => hideToast(transaction.id)}
-        />
-      ))}
+          {step === 1 && (
+            <div className={styles.formGrid}>
+              <label>Legal Agreement (PDF)
+                <input type="file" accept=".pdf" onChange={handleFile} />
+                {form.legalAgreement && (
+                  <div className={styles.filePreview}>
+                    <span>{form.legalAgreement.name}</span>
+                  </div>
+                )}
+              </label>
+              <label className={styles.formSection}>
+                <span className={styles.formSubLabel}>Or paste agreement text here</span>
+                <textarea name="agreementText" value={form.agreementText} onChange={handleChange} rows={5} />
+                {form.agreementText && (
+                  <div className={styles.agreementPreview}>
+                    <strong>Preview:</strong>
+                    <div>{form.agreementText.slice(0, 120)}{form.agreementText.length > 120 ? '...' : ''}</div>
+                  </div>
+                )}
+              </label>
+            </div>
+          )}
+          {step === 2 && (
+            <div className={styles.formGrid}>
+              <label className={styles.formSection}>Invite Members</label>
+              <input
+                name="invited"
+                value={form.invited}
+                onChange={handleInvite}
+                placeholder="Type name and press Enter"
+                list="user-list"
+                autoComplete="off"
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && form.invited.trim()) {
+                    addMember(form.invited.trim());
+                    e.preventDefault();
+                  }
+                }}
+              />
+              <datalist id="user-list">
+                {userList.map(u => <option key={u.id} value={u.name} />)}
+              </datalist>
+              <div className={styles.memberChips}>
+                {form.members.map(m => (
+                  <span key={m.id} className={styles.chip}>
+                    {m.name}
+                    <button type="button" className={styles.chipRemove} onClick={() => removeMember(m.id)}>&times;</button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {step === 3 && (
+            <div className={styles.formGrid}>
+              <div className={styles.formSection}>
+                <h2>Review Pool Details</h2>
+                <div className={styles.reviewContainer}>
+                  <div className={styles.reviewCard}>
+                    <h3>Basic Information</h3>
+                    <ul className={styles.reviewList}>
+                      <li><strong>Pool Name:</strong> {form.name}</li>
+                      <li><strong>Description:</strong> {form.description.slice(0, 100)}{form.description.length > 100 ? '...' : ''}</li>
+                      <li><strong>Category:</strong> {form.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</li>
+                      <li><strong>Geographic Focus:</strong> {form.geographicFocus.charAt(0).toUpperCase() + form.geographicFocus.slice(1)}</li>
+                    </ul>
+                  </div>
+                  <div className={styles.reviewCard}>
+                    <h3>Pool Structure</h3>
+                    <ul className={styles.reviewList}>
+                      <li><strong>Max Members:</strong> {form.maxMembers}</li>
+                      <li><strong>Contribution per Member:</strong> {form.contribution} STX</li>
+                      <li><strong>Cycle Duration:</strong> {form.cycleDuration} days</li>
+                      <li><strong>Total Pool Value:</strong> {(parseFloat(form.contribution || '0') * parseInt(form.maxMembers || '0')).toLocaleString()} STX</li>
+                    </ul>
+                  </div>
+                  <div className={styles.reviewCard}>
+                    <h3>Legal & Members</h3>
+                    <ul className={styles.reviewList}>
+                      <li><strong>Legal Agreement:</strong> {form.legalAgreement ? form.legalAgreement.name : (form.agreementText ? 'Text provided' : 'None uploaded')}</li>
+                      <li><strong>Invited Members:</strong> {form.members.length > 0 ? form.members.map(m => m.name).join(', ') : 'None (members can join later)'}</li>
+                    </ul>
+                  </div>
+                </div>
+                {submitError && (
+                  <div className={styles.errorBox}>
+                    <strong>Error:</strong> {submitError}
+                  </div>
+                )}
+                {!userData ? (
+                  <div className={styles.warningBox}>
+                    Please connect your wallet to create the pool.
+                  </div>
+                ) : (
+                  <button 
+                    type="submit" 
+                    className={styles.nextBtn}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Creating Pool...' : 'Create Pool'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          <div className={styles.navBtns}>
+            {step > 0 && <button type="button" onClick={prevStep} className={styles.nextBtn}>Back</button>}
+            {step < steps.length - 1 && <button type="button" onClick={nextStep} className={styles.nextBtn}>Next</button>}
+          </div>
+        </form>
+        {showToast && (
+          <div className={styles.toast}>
+            {submitSuccess ? (
+              <>
+                <strong>🎉 Pool Created Successfully!</strong>
+                <p>Your Co-EP pool "{submitSuccess.name}" is now live and ready for members to join.</p>
+                <p><strong>Pool ID:</strong> {submitSuccess.id}</p>
+              </>
+            ) : (
+              'Pool created successfully!'
+            )}
+          </div>
+        )}
+        {/* Transaction Confirmation Modal */}
+        {modal.isOpen && modal.transactionData && (
+          <TransactionModal
+            isOpen={modal.isOpen}
+            transactionData={modal.transactionData}
+            currentTransaction={modal.currentTransaction || undefined}
+            onConfirm={modal.confirmTransaction}
+            onCancel={modal.closeModal}
+            isProcessing={modal.isProcessing}
+          />
+        )}
+        {/* Transaction Toast Notifications */}
+        {toasts.map(transaction => (
+          <TransactionToast
+            key={transaction.id}
+            transaction={transaction}
+            onDismiss={() => hideToast(transaction.id)}
+          />
+        ))}
+      </div>
     </div>
   );
-};
+}
 
 export default PoolCreate;

@@ -1,8 +1,9 @@
-/* Mobile-First Dark Theme for Waitlist Page */
+
+/* Waitlist.module.css - Clean, white space, card-based design */
 .waitlist {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
-  padding: 1.5rem 1rem;
+  background: #fff;
+  padding: 2.5rem 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,23 +12,13 @@
 .container {
   max-width: 600px;
   width: 100%;
-  background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-  border: 1px solid rgba(255, 191, 0, 0.2);
+  background: #f9f9f9;
+  border: 1px solid #eee;
   border-radius: 16px;
-  padding: 2rem 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  padding: 2.5rem 2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
   position: relative;
   overflow: hidden;
-}
-
-.container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #FFBF00 0%, #FFA500 100%);
 }
 
 .header {

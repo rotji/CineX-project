@@ -1,28 +1,144 @@
-/* Mobile-First Dark Theme for Pool Detail Page */
+/* Fix: Add .backBtn for top Back to Pools button */
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: #181c32;
+  color: #fff;
+  border: 2px solid #181c32;
+  border-radius: 8px;
+  font-weight: 900;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  box-shadow: none;
+  outline: none;
+  transition: none;
+}
+.backBtn:hover, .backBtn:focus {
+  background: #fff;
+  color: #181c32;
+  border: 2px solid #181c32;
+  font-weight: 900;
+  outline: none;
+  box-shadow: none;
+}
+/* Fix: Add .tab and .tab.active for PoolDetail.tsx tab buttons */
+.tab {
+  display: inline-block;
+  padding: 0.7rem 1.5rem;
+  background: #181c32;
+  color: #fff;
+  border: 2px solid #181c32;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  font-weight: 900;
+  font-size: 1.08rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  top: 2px;
+  letter-spacing: -0.5px;
+  box-shadow: none;
+  outline: none;
+  transition: none;
+}
+.tab.active, .tab:focus, .tab:hover {
+  background: #fff;
+  color: #181c32;
+  border: 2px solid #181c32;
+  border-bottom: none;
+  font-weight: 900;
+  z-index: 2;
+  outline: none;
+  box-shadow: none;
+}
+
 .poolDetail {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
-  padding: 1.5rem 1rem;
+  background: #fff;
+  padding: 2rem 1rem;
 }
+
 
 .backButton {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: rgba(255, 191, 0, 0.1);
-  color: #FFBF00;
-  border: 1px solid rgba(255, 191, 0, 0.3);
+  background: #181c32;
+  color: #fff;
+  border: 2px solid #181c32;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.3s ease;
   margin-bottom: 1.5rem;
+  box-shadow: none;
+  outline: none;
+  transition: none;
 }
 
-.backButton:hover {
-  background: rgba(255, 191, 0, 0.2);
-  transform: translateX(-4px);
+
+.backButton:hover, .backButton:focus {
+  background: #fff;
+  color: #181c32;
+  border: 2px solid #181c32;
+  font-weight: 900;
+  outline: none;
+  box-shadow: none;
+}
+/* Share Button */
+.shareButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  background: linear-gradient(90deg, #FFBF00 0%, #FFA500 100%);
+  color: #181c32;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0.5rem 0;
+  box-shadow: 0 2px 8px rgba(255,191,0,0.13);
+}
+.shareButton:hover, .shareButton:focus {
+  background: linear-gradient(90deg, #FFD700 0%, #FFBF00 100%);
+  color: #181c32;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 16px rgba(255,191,0,0.18);
+}
+
+/* Tab Buttons (Overview, Members, Timeline, Statistics) */
+.tabButton {
+  display: inline-block;
+  padding: 0.7rem 1.5rem;
+  background: #181c32;
+  color: #fff;
+  border: 2px solid #181c32;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  font-weight: 900;
+  font-size: 1.08rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  top: 2px;
+  letter-spacing: -0.5px;
+  box-shadow: none;
+  outline: none;
+  transition: none;
+}
+.tabButton.active, .tabButton:focus, .tabButton:hover {
+  background: #fff;
+  color: #181c32;
+  border: 2px solid #181c32;
+  border-bottom: none;
+  font-weight: 900;
+  z-index: 2;
+  outline: none;
+  box-shadow: none;
 }
 
 .loadingState,
@@ -57,9 +173,10 @@
   margin: 0 auto;
 }
 
+
 .header {
-  background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-  border: 1px solid rgba(255, 191, 0, 0.15);
+  background: #f9f9f9;
+  border: 1px solid #eee;
   border-radius: 12px;
   padding: 2rem 1.5rem;
   margin-bottom: 2rem;
@@ -74,11 +191,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #FFBF00 0%, #FFA500 100%);
-}
-
-.titleSection {
-  margin-bottom: 1.5rem;
+  background: #0070f3;
 }
 
 .poolTitle {
@@ -153,11 +266,12 @@
 }
 
 .progressSection {
-  background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-  border: 1px solid rgba(255, 191, 0, 0.15);
+  background: #fff;
+  border: 1.5px solid #FFBF00;
   border-radius: 12px;
   padding: 2rem 1.5rem;
   margin-bottom: 2rem;
+  box-shadow: 0 2px 12px rgba(255,191,0,0.08);
 }
 
 .progressHeader {
@@ -170,7 +284,8 @@
 .progressTitle {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #e0e0e0;
+  color: #181c32;
+  letter-spacing: -0.5px;
 }
 
 .progressPercentage {
@@ -181,26 +296,28 @@
 
 .progressBar {
   width: 100%;
-  height: 14px;
-  background: #0f0f0f;
+  height: 16px;
+  background: #f3f4f8;
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255, 191, 0, 0.2);
+  border: 1.5px solid #FFBF00;
   margin-bottom: 1rem;
+  box-shadow: 0 1px 6px rgba(255,191,0,0.08);
 }
 
 .progressFill {
   height: 100%;
   background: linear-gradient(90deg, #FFBF00 0%, #FFA500 100%);
   transition: width 0.5s ease;
-  box-shadow: 0 0 15px rgba(255, 191, 0, 0.6);
+  box-shadow: 0 0 10px rgba(255,191,0,0.18);
 }
 
 .progressInfo {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9375rem;
-  color: #a0a0a0;
+  font-size: 1rem;
+  color: #181c32;
+  font-weight: 600;
 }
 
 .detailsGrid {
@@ -219,10 +336,11 @@
 
 .sectionTitle {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #FFBF00;
+  font-weight: 800;
+  color: #181c32;
   margin-bottom: 1.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.5px;
+  text-shadow: none;
 }
 
 .infoGrid {
