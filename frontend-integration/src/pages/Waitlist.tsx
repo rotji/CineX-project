@@ -173,7 +173,10 @@ const Waitlist: React.FC = () => {
           <form onSubmit={handleSubmit} className={styles.form}>
             {questions.map((q, index) => (
               <div key={q.name} className={styles.question}>
-                <label>{`${index + 1}. ${q.text}`}</label>
+                <label>
+                  <span className={styles.questionNumber}>{index + 1}.</span>
+                  <span className={styles.questionText}>{q.text}</span>
+                </label>
                 {q.options.map((option) => (
                   <div key={option}>
                     <input
