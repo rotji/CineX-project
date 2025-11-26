@@ -1,114 +1,44 @@
-/* Main Container */
-.poolsPage {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
+/* CoEPPools styles */
+
+/* CoEPPools.module.css - Modern, clean, white-space, card-based UI */
+.coepPools {
+  background: #fff;
   min-height: 100vh;
-}
-
-/* Header Section */
-.header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-.header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-}
-
-.subtitle {
-  font-size: 1.2rem;
-  color: #7f8c8d;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-/* Controls Section */
-.controls {
+  padding: 2.5rem 1rem;
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
 }
 
-.searchContainer {
-  position: relative;
-  flex: 1;
-  min-width: 300px;
+/* Button styles for visibility and accessibility */
+.filterButton,
+.clearFiltersButton,
+.retryButton,
+.paginationButton {
+  background: #FFBF00;
+  color: #aaa;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-.searchIcon {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #7f8c8d;
-  pointer-events: none;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 2px solid #ecf0f1;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: #3498db;
-}
-
-.filterButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #ecf0f1;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.filterButton:hover,
-.filterButton.active {
-  background: #3498db;
-  color: white;
-}
-
-.resultsSummary {
-  color: #7f8c8d;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-/* Filter Panel */
 .filterPanel {
-  background: white;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 1.5rem auto 1rem auto;
+  background: #fafbfc;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  border-top: 3px solid #3498db;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
 
 .filterRow {
   display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: flex-end;
   flex-wrap: wrap;
-  gap: 1.5rem;
-  align-items: end;
 }
 
 .filterGroup {
@@ -118,119 +48,220 @@
   min-width: 180px;
 }
 
-.filterGroup label {
-  font-weight: 600;
-  color: #2c3e50;
-  font-size: 0.9rem;
+@media (max-width: 900px) {
+  .filterRow {
+    gap: 1rem;
+  }
+  .filterGroup {
+    min-width: 140px;
+  }
+}
+@media (max-width: 600px) {
+  .filterPanel {
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+  }
+  .filterRow {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .filterGroup {
+    min-width: 100px;
+  }
 }
 
-.filterSelect {
-  padding: 0.75rem;
-  border: 2px solid #ecf0f1;
-  border-radius: 8px;
+.poolNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFBF00;
+  color: #222;
   font-size: 1rem;
-  background: white;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-}
-
-.filterSelect:focus {
-  outline: none;
-  border-color: #3498db;
-}
-
-.clearFiltersButton {
-  padding: 0.75rem 1.5rem;
-  background: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
-}
-
-.clearFiltersButton:hover {
-  background: #c0392b;
-}
-
-/* Loading, Error, and Empty States */
-.loading {
-  text-align: center;
-  padding: 4rem 2rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 1rem;
-  border: 4px solid #ecf0f1;
-  border-top: 4px solid #3498db;
+  font-weight: 700;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.75rem;
+  box-shadow: 0 2px 8px rgba(255,191,0,0.10);
+  border: 2px solid #fff;
+  vertical-align: middle;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.poolCard {
+  position: relative;
 }
 
-.error {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: #e74c3c;
+.poolNameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.retryButton {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: #3498db;
-  color: white;
+/* Specific styles for action buttons at card footer */
+.actionButton {
+  background: #FFBF00;
+  color: #222;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0.5rem 0.5rem 0 0;
+  box-shadow: 0 2px 8px rgba(255,191,0,0.08);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.actionButton,
+.actionButton.primary,
+.actionButton.secondary {
+  background: #FFBF00 !important;
+  color: #222 !important;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  margin: 0.5rem 0.5rem 0 0;
+  box-shadow: 0 2px 8px rgba(255,191,0,0.08);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.actionButton:hover,
+.actionButton.primary:hover,
+.actionButton.secondary:hover {
+  background: #FFD700 !important;
+  color: #222 !important;
+  box-shadow: 0 4px 16px rgba(255,191,0,0.15);
+}
+.actionButton:active,
+.actionButton.primary:active,
+.actionButton.secondary:active {
+  background: #e6ac00 !important;
+  color: #fff !important;
+}
+.actionButton:disabled,
+.actionButton.primary:disabled,
+.actionButton.secondary:disabled {
+  background: #eee !important;
+  color: #aaa !important;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Style for Learn More/detailsButton to match */
+.detailsButton {
+  background: #FFBF00;
+  color: #222;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
   font-weight: 600;
+  margin: 0.5rem 0.5rem 0 0;
+  box-shadow: 0 2px 8px rgba(255,191,0,0.08);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.detailsButton:hover {
+  background: #FFD700;
+  color: #222;
+  box-shadow: 0 4px 16px rgba(255,191,0,0.15);
+}
+.detailsButton:active {
+  background: #e6ac00;
+  color: #fff;
+}
+.detailsButton:disabled {
+  background: #eee;
+  color: #aaa;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.actionButton:hover {
+  background: #FFD700;
+  color: #222;
+  box-shadow: 0 4px 16px rgba(255,191,0,0.15);
+}
+.actionButton:active {
+  background: #e6ac00;
+  color: #fff;
+}
+.actionButton:disabled {
+  background: #eee;
+  color: #aaa;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-.emptyState {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: #7f8c8d;
+.filterPanel {
+  width: 100%;
+  max-width: 900px;
+  margin: 1.5rem auto 1rem auto;
+  background: #fafbfc;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
 
-.emptyIcon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  color: #bdc3c7;
-}
-
-.emptyState h3 {
-  margin-bottom: 1rem;
-  color: #2c3e50;
-}
-
-/* Pools Grid */
-.poolsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+.filterRow {
+  display: flex;
+  flex-direction: row;
   gap: 2rem;
-  margin-bottom: 3rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 180px;
+}
+
+@media (max-width: 900px) {
+  .filterRow {
+    gap: 1rem;
+  }
+  .filterGroup {
+    min-width: 140px;
+  }
+}
+@media (max-width: 600px) {
+  .filterPanel {
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+  }
+  .filterRow {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .filterGroup {
+    min-width: 100px;
+  }
+}
+
+.poolNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFBF00;
+  color: #222;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.75rem;
+  box-shadow: 0 2px 8px rgba(255,191,0,0.10);
+  border: 2px solid #fff;
+  vertical-align: middle;
+ 
 }
 
 /* Pool Card */
-.poolCard {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  border: 1px solid #ecf0f1;
-}
+
 
 .poolCard:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-}
+
 
 .cardHeader {
   display: flex;
@@ -488,7 +519,6 @@
   background: #ecf0f1;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
 }
@@ -597,4 +627,3 @@
   .header h1 {
     font-size: 2rem;
   }
-}

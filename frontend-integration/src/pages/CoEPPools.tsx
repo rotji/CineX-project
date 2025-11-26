@@ -282,8 +282,8 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
       {!loading && !error && filteredPools.length > 0 && (
         <>
           <div className={styles.poolsGrid}>
-            {filteredPools.map((pool) => (
-              <PoolCard key={pool.id} pool={pool} />
+            {filteredPools.map((pool, idx) => (
+              <PoolCard key={pool.id} pool={pool} number={idx + 1 + (currentPage - 1) * pageSize} />
             ))}
           </div>
 
@@ -371,9 +371,10 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
 // Pool Card Component
 interface PoolCardProps {
   pool: CoEPPool;
+  number?: number;
 }
 
-const PoolCard: React.FC<PoolCardProps> = ({ pool }) => {
+const PoolCard: React.FC<PoolCardProps> = ({ pool, number }) => {
   const navigate = useNavigate();
   
   const getCategoryIcon = (category: CoEPPool['category']) => {
@@ -431,7 +432,12 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool }) => {
 
       {/* Card Body */}
       <div className={styles.cardBody}>
-        <h3 className={styles.poolName}>{pool.name}</h3>
+        <div className={styles.poolNameRow}>
+          {number !== undefined && (
+            <span className={styles.poolNumber}>#{number}</span>
+          )}
+          <h3 className={styles.poolName}>{pool.name}</h3>
+        </div>
         <p className={styles.poolDescription}>{pool.description}</p>
 
         {/* Pool Stats */}
@@ -484,23 +490,25 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool }) => {
 
       {/* Card Footer */}
       <div className={styles.cardFooter}>
-        <button 
+        <button
           className={`${styles.actionButton} ${
             pool.status === 'forming' ? styles.primary : styles.secondary
           }`}
-          disabled={pool.status === 'completed' || pool.currentMembers >= pool.maxMembers}
+          disabled={
+            (pool.status === 'forming' && pool.currentMembers >= pool.maxMembers) ||
+            (pool.status !== 'forming' && pool.status !== 'active' && pool.status !== 'completed')
+          }
           onClick={() => navigate(`/pool-detail/${pool.id}`)}
         >
-          {pool.status === 'forming' && pool.currentMembers < pool.maxMembers 
-            ? 'Join Pool' 
-            : pool.status === 'active' 
-            ? 'View Details' 
+          {pool.status === 'forming' && pool.currentMembers < pool.maxMembers
+            ? 'Join Pool'
+            : pool.status === 'active'
+            ? 'View Details'
             : pool.status === 'completed'
             ? 'View Results'
             : 'Pool Full'}
         </button>
-        
-        <button 
+        <button
           className={styles.detailsButton}
           onClick={() => navigate(`/pool-detail/${pool.id}`)}
         >

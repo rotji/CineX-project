@@ -1,18 +1,19 @@
-/* Mobile-First Dark Theme for Pool Detail Page */
+
 .poolDetail {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
-  padding: 1.5rem 1rem;
+  background: #fff;
+  padding: 2rem 1rem;
 }
+
 
 .backButton {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: rgba(255, 191, 0, 0.1);
-  color: #FFBF00;
-  border: 1px solid rgba(255, 191, 0, 0.3);
+  background: #f5f5f5;
+  color: #0070f3;
+  border: 1px solid #b3d4fc;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
@@ -20,8 +21,10 @@
   margin-bottom: 1.5rem;
 }
 
+
 .backButton:hover {
-  background: rgba(255, 191, 0, 0.2);
+  background: #e3f0ff;
+  color: #005bb5;
   transform: translateX(-4px);
 }
 
@@ -57,9 +60,10 @@
   margin: 0 auto;
 }
 
+
 .header {
-  background: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
-  border: 1px solid rgba(255, 191, 0, 0.15);
+  background: #f9f9f9;
+  border: 1px solid #eee;
   border-radius: 12px;
   padding: 2rem 1.5rem;
   margin-bottom: 2rem;
@@ -74,11 +78,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #FFBF00 0%, #FFA500 100%);
-}
-
-.titleSection {
-  margin-bottom: 1.5rem;
+  background: #0070f3;
 }
 
 .poolTitle {
