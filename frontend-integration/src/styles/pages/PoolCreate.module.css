@@ -1,413 +1,443 @@
-/* PoolCreate styles */
-
-
-
-/* PoolCreate.module.css - Modern, clean, card-based, well-aligned multi-step form */
-.poolCreate {
-  background: #fff;
-  min-height: 100vh;
-  padding: 2.5rem 1rem;
+/* CampaignCreate Hero Section & Form Styles */
+.campaignHero {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #eee;
-  width: 100%;
+  justify-content: center;
+  min-height: 40vh;
+  padding: 0.7rem 0.5rem 1.2rem 0.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f3f4f8 100%);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  margin: 0 auto 1rem auto;
   max-width: 700px;
 }
-
-.progressBar {
-  width: 100%;
-  height: 8px;
-  background: #f1f1f1;
-  border-radius: 6px;
-  margin: 1.5rem 0 1rem 0;
-  overflow: hidden;
+.campaignIcon {
+  font-size: 2.2rem;
+  margin-bottom: 0.7rem;
 }
-.progress {
-  height: 100%;
-  background: linear-gradient(90deg, #FFBF00 0%, #FFD700 100%);
-  border-radius: 6px;
-  transition: width 0.4s cubic-bezier(.4,0,.2,1);
+.campaignTitle {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #181c32;
+  text-align: center;
+  margin-bottom: 0.7rem;
+  letter-spacing: -1px;
 }
-.steps {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 0.5rem;
-}
-.steps span {
-  font-size: 1rem;
-  color: #bbb;
+.campaignSubtitle {
+  font-size: 1.05rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  position: relative;
-  padding-bottom: 2px;
-}
-.steps .active {
   color: #222;
-  border-bottom: 2.5px solid #FFBF00;
+  text-align: center;
+  margin-bottom: 0.7rem;
 }
-
+.description {
+  font-size: 1rem;
+  color: #222;
+  text-align: center;
+  margin-bottom: 1.1rem;
+  font-weight: 400;
+  max-width: 420px;
+  line-height: 1.4;
+}
+.connectWallet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.2rem;
+}
+.connectMessage {
+  font-size: 0.98rem;
+  color: #888;
+  margin-top: 0.3rem;
+}
 .form {
-  width: 100%;
-  max-width: 540px;
-  background: #fafbfc;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-  padding: 2.5rem 2rem 2rem 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-input, textarea, select {
-  font-size: 1rem;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 8px;
   background: #fff;
-  color: #222;
-  margin-top: 0.25rem;
-  transition: border 0.2s;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 1.2rem 1.2rem 1rem 1.2rem;
+  margin: 1.2rem auto 0 auto;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
 }
-input:focus, textarea:focus, select:focus {
+.formSection {
+  margin-bottom: 1.1rem;
+}
+.sectionTitle {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #181c32;
+  margin-bottom: 0.7rem;
+}
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
+}
+.label {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #FFBF00;
+}
+.helperText {
+  font-size: 0.92rem;
+  color: #888;
+  margin-top: 0.05rem;
+}
+.input, .textarea {
+  width: 100%;
+  font-size: 0.98rem;
+  padding: 0.7rem 0.9rem;
+  border: 1.2px solid #e0e0e0;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: #222;
+  margin-top: 0.05rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.input:focus, .textarea:focus {
   outline: none;
   border-color: #FFBF00;
+  box-shadow: 0 0 0 1.5px #ffe082;
 }
-textarea {
-  resize: vertical;
+.errorMessage {
+  background: #fff3f3;
+  color: #c00;
+  border: 1.2px solid #ffb3b3;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.98rem;
 }
-
-.formRow {
+.successMessage {
+  background: #e6fff3;
+  color: #008060;
+  border: 1.2px solid #b3ffe0;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.98rem;
+}
+.poolCreate {
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #f8fafc 0%, #f3f4f8 100%);
   display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 0 2.5rem 0;
 }
-.formRow > label {
-  flex: 1 1 180px;
-  min-width: 0;
+.poolCreateCard {
+  background: #fff;
+  border-radius: 32px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.13);
+  padding: 3.5rem 3.5rem 2.5rem 3.5rem;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s;
+  position: relative;
 }
-
-small {
-  color: #888;
-  font-size: 0.92rem;
-  margin-top: 0.25rem;
-}
-
+/* Error, Warning, Toast, and Navigation */
 .errorBox {
-  background: #fff0f0;
-  color: #d32f2f;
-  border: 1px solid #f8bcbc;
+  background: #fff3f3;
+  color: #c00;
+  border: 1.5px solid #ffb3b3;
   border-radius: 8px;
   padding: 1rem 1.5rem;
-  margin-bottom: 1rem;
-  font-size: 1rem;
+  margin-bottom: 1.2rem;
+  font-size: 1.08rem;
 }
 .warningBox {
   background: #fffbe6;
-  color: #bfa100;
-  border: 1px solid #ffe58f;
+  color: #b8860b;
+  border: 1.5px solid #ffe082;
   border-radius: 8px;
   padding: 1rem 1.5rem;
-  margin-bottom: 1rem;
-  font-size: 1rem;
+  margin-bottom: 1.2rem;
+  font-size: 1.08rem;
 }
-
-.filePreview {
-  margin-top: 0.5rem;
-  font-size: 0.95rem;
-  color: #444;
-}
-.agreementPreview {
-  background: #f7f7f7;
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  margin-top: 0.5rem;
-  color: #555;
-  font-size: 0.97rem;
-}
-
-.memberChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-.chip {
-  background: #f1f1f1;
-  color: #333;
-  border-radius: 16px;
-  padding: 0.5rem 1.25rem 0.5rem 0.75rem;
-  font-size: 0.97rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border: 1px solid #e0e0e0;
-}
-.chipRemove {
-  background: none;
-  border: none;
-  color: #d32f2f;
+.toast {
+  background: #fff;
+  color: #222;
+  border-radius: 10px;
+  box-shadow: 0 2px 16px rgba(255,191,0,0.13);
+  padding: 1.2rem 2rem;
   font-size: 1.1rem;
-  cursor: pointer;
-  margin-left: 0.25rem;
+  font-weight: 700;
+  margin: 1.5rem auto 0 auto;
+  max-width: 500px;
+  text-align: center;
+  border: 1.5px solid #FFBF00;
 }
-.chipRemove:hover {
-  color: #b71c1c;
+.navBtns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  margin-top: 2.2rem;
 }
 
+/* Review Section */
 .reviewContainer {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin: 2rem 0 1.5rem 0;
 }
 .reviewCard {
-  background: #fff;
-  border: 1.5px solid #eee;
+  background: #f9fafb;
   border-radius: 12px;
-  padding: 1.5rem 1.25rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.2rem 1.5rem;
+  min-width: 220px;
+  flex: 1 1 220px;
+}
+.reviewCard h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #181c32;
+  margin-bottom: 0.7rem;
 }
 .reviewList {
   list-style: none;
   padding: 0;
-  margin: 1rem 0;
-}
-.createBtn {
-  background: #FFBF00;
-  color: #121212;
-  border: none;
-  padding: 0.7rem 1.5rem;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 1rem;
-}
-.navBtns {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1.5rem;
-}
-.navBtn {
-  background: #222222;
-  color: #222;
-  border: none;
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-/* Enhanced form styles */
-.formRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.formRow label small,
-.section label small {
-  display: block;
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 0.25rem;
-  font-weight: normal;
-}
-
-.section textarea {
-  font-family: inherit;
-  resize: vertical;
-  min-height: 80px;
-}
-
-.section select {
-  padding: 0.75rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 1rem;
-  background: white;
-  cursor: pointer;
-}
-
-.section select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Review section styles */
-.reviewContainer {
-  display: grid;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.reviewCard {
-  background: #f8fafc;
-  padding: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-}
-
-.reviewCard h3 {
-  margin: 0 0 1rem 0;
-  color: #1e293b;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.warningBox {
-  background: #fef3cd;
-  border: 1px solid #facc15;
-  color: #92400e;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  text-align: center;
-  font-weight: 500;
-}
-
-.createBtn:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.createBtn:disabled:hover {
-  background: #9ca3af;
-  transform: none;
-}
-
-@media (max-width: 600px) {
-  .poolCreate {
-    padding: 0.5rem 0.2rem;
-  }
-  .header, .form {
-    max-width: 98vw;
-    padding: 0.5rem;
-  }
-  .header h1 {
-    font-size: 1.1rem;
-  }
-  .steps {
-    font-size: 0.8rem;
-  }
-  input, textarea, select {
-    font-size: 0.9rem;
-    padding: 0.6rem;
-  }
-  .createBtn, .navBtn {
-    padding: 0.5rem 1rem;
-    font-size: 0.95rem;
-  }
-  .formRow {
-    grid-template-columns: 1fr;
-  }
-  .reviewContainer {
-    gap: 1rem;
-  }
-  .reviewCard {
-    padding: 1rem;
   margin: 0;
   color: #444;
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 .reviewList li {
   margin-bottom: 0.5rem;
 }
 
-.createBtn {
-  width: 100%;
-  background: linear-gradient(90deg, #FFBF00 0%, #FFD700 100%);
+/* Member Chips */
+.memberChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+}
+.chip {
+  background: #fffbe6;
   color: #222;
+  border-radius: 16px;
+  padding: 0.4rem 1.1rem 0.4rem 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(255,191,0,0.08);
+}
+.chipRemove {
+  background: none;
   border: none;
-  border-radius: 8px;
-  padding: 1rem 0;
-  margin-top: 1.5rem;
+  color: #c00;
+  font-size: 1.2rem;
+  margin-left: 0.5rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(255,191,0,0.08);
-  transition: background 0.2s, box-shadow 0.2s;
+  font-weight: 900;
+  transition: color 0.2s;
 }
-.createBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.createBtn:hover:not(:disabled) {
-  background: linear-gradient(90deg, #FFD700 0%, #FFBF00 100%);
-  box-shadow: 0 4px 16px rgba(255,191,0,0.15);
+.chipRemove:hover {
+  color: #ff3333;
 }
 
-.navBtns {
+/* File and Agreement Preview */
+.filePreview {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #555;
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  display: inline-block;
+}
+.agreementPreview {
+  margin-top: 0.7rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  color: #444;
+  font-size: 1rem;
+}
+.poolCreateCard {
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.13);
+  padding: 3.5rem 2.5rem 2.5rem 2.5rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 2.5rem 0;
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s;
 }
-.navBtn {
-  background: #f1f1f1;
-  color: #222;
-  font-weight: 600;
-  border: 1.5px solid #eee;
-  border-radius: 8px;
-  padding: 0.75rem 2rem;
+
+.header {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 2.2rem;
+  color: #181c32;
+  text-align: center;
+  letter-spacing: -1.2px;
+}
+
+.stepper {
+  display: flex;
+  justify-content: center;
+  gap: 2.2rem;
+  margin-bottom: 2.2rem;
+  width: 100%;
+  font-size: 1.1rem;
+}
+
+.step {
+  font-size: 1.25rem;
+  color: #888;
+  font-weight: 700;
+  opacity: 0.7;
+  transition: opacity 0.2s, color 0.2s;
+  padding-bottom: 0.3rem;
+  border-bottom: 3px solid transparent;
   cursor: pointer;
-  transition: background 0.2s, border 0.2s;
 }
-.navBtn:hover {
+
+.step.active {
+  opacity: 1;
+  color: #181c32;
+  border-bottom: 3px solid #FFBF00;
+  background: linear-gradient(90deg, #fffbe6 0%, #fff9c4 100%);
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 2px 8px rgba(255,191,0,0.08);
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  margin-bottom: 2.2rem;
+}
+
+.formGrid label {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #FFBF00;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.formGrid input,
+.formGrid textarea,
+.formGrid select {
+  width: 100%;
+  font-size: 1.08rem;
+  padding: 1.1rem 1.2rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  background: #f9fafb;
+  color: #222;
+  margin-top: 0.1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.formGrid input:focus,
+.formGrid textarea:focus,
+.formGrid select:focus {
+  outline: none;
+  border-color: #FFBF00;
+  box-shadow: 0 0 0 2px #ffe082;
+}
+
+.formGrid textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.formGrid .formHint {
+  font-size: 0.98rem;
+  color: #888;
+  margin-top: 0.2rem;
+}
+
+.formGrid .formSubLabel {
+  font-size: 0.93rem;
+  color: #555;
+  margin-bottom: 0.2rem;
+  font-weight: 500;
+}
+
+.formGrid .formSection {
+  width: 100%;
+  margin-bottom: 1.2rem;
+}
+
+.nextBtn {
   background: #FFBF00;
   color: #222;
-  border-color: #FFD700;
-}
-
-.toast {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
-  color: #222;
+  border: none;
   border-radius: 10px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-  padding: 1.5rem 2.5rem;
-  font-size: 1.1rem;
-  z-index: 1000;
-  min-width: 320px;
-  text-align: center;
+  padding: 1.1rem 2.5rem;
+  font-weight: 900;
+  font-size: 1.15rem;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 16px rgba(255,191,0,0.13);
+  letter-spacing: -0.5px;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
 }
 
-@media (max-width: 600px) {
-  .form {
-    padding: 1.25rem 0.5rem 1.5rem 0.5rem;
+.nextBtn:disabled {
+  background: #eee;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.nextBtn:hover:not(:disabled), .nextBtn:focus:not(:disabled) {
+  background: #FFD700;
+  color: #222;
+  box-shadow: 0 6px 24px rgba(255,191,0,0.18);
+  transform: translateY(-2px) scale(1.03);
+}
+
+@media (max-width: 1100px) {
+  .poolCreateCard {
+    padding: 2rem 1rem 1.5rem 1rem;
+    max-width: 99vw;
+  }
+}
+
+@media (max-width: 700px) {
+  .poolCreateCard {
+    max-width: 99vw;
+    padding: 1.2rem 0.5rem;
   }
   .header {
-    padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    padding: 0 0.5rem;
   }
-  .reviewCard {
-    padding: 1rem 0.5rem;
-
+  .stepper {
+    gap: 0.7rem;
+    font-size: 0.98rem;
+  }
+  .formGrid {
+    gap: 0.8rem;
+  }
+  .nextBtn {
+    width: 100%;
+    padding: 1.1rem 0;
+    font-size: 1.08rem;
+  }
 }
-

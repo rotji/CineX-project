@@ -143,9 +143,9 @@ const CampaignCreate: React.FC = () => {
 
   return (
     <div className={styles.poolCreate}>
-      <header className={styles.header}>
-        <h1>🎬 Create Your Campaign</h1>
-        <p className={styles.description}>
+      <header className={styles.campaignHero}>
+        <h1 className={styles.campaignTitle}>🎬 Create Your Campaign</h1>
+        <p className={styles.campaignSubtitle}>
           Launch a crowdfunding campaign for your creative project. 
           Set your funding goal and share your vision with the community.
         </p>

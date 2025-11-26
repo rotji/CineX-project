@@ -7,24 +7,16 @@ import styles from '../styles/pages/CoEPPools.module.css';
 
 // Icons for different categories and statuses
 import { 
-  FaSearch, 
-  FaFilter, 
   FaChevronLeft, 
   FaChevronRight,
-  FaFilm,
-  FaVideo,
-  FaBookOpen,
-  FaMusic,
-  FaTv,
-  FaUsers,
-  FaClock,
-  FaGlobe,
-  FaMapMarkerAlt
+  FaUsers
 } from 'react-icons/fa';
+
 
 interface CoEPPoolsProps {}
 
 const CoEPPools: React.FC<CoEPPoolsProps> = () => {
+
   // Auth context
   const { userSession } = useAuth();
   const coepService = createCoEPService(userSession);
@@ -37,8 +29,6 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-  
-  // Filter state
   const [filters, setFilters] = useState<PoolFilters>({
     category: undefined,
     geographicFocus: undefined,
@@ -46,8 +36,6 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
     hasSpace: undefined,
     search: undefined,
   });
-
-  // Pagination configuration
   const [pageSize, setPageSize] = useState(12);
 
   // Fetch pools from service
@@ -55,63 +43,55 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
     try {
       setLoading(true);
       setError(null);
-
       const pagination: PaginationParams = {
         page: currentPage,
         limit: pageSize,
         sortBy: 'createdAt',
         sortOrder: 'desc',
       };
-
       const result = await coepService.getPools(filters, pagination);
-
-      if (result.success && result.data) {
-        setPools(result.data.items);
-        setTotalPages(result.data.totalPages);
-      } else {
-        setError(result.error || 'Failed to fetch pools');
-        setPools([]);
-      }
-    } catch (err) {
-      setError('An unexpected error occurred while fetching pools');
-      setPools([]);
+      setPools(result.data?.items || []);
+      setTotalPages(result.data?.totalPages || 1);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch pools');
     } finally {
       setLoading(false);
     }
   };
 
-  // Effect to fetch pools when filters or pagination change
   useEffect(() => {
     fetchPools();
+    // eslint-disable-next-line
   }, [currentPage, pageSize, filters]);
 
-  // Filter pools by search term
+  // Filtering logic
   const filteredPools = useMemo(() => {
-    if (!searchTerm.trim()) return pools;
-    
-    const lowerSearchTerm = searchTerm.toLowerCase();
-    return pools.filter(pool => 
-      pool.name.toLowerCase().includes(lowerSearchTerm) ||
-      pool.description.toLowerCase().includes(lowerSearchTerm) ||
-      pool.creator.toLowerCase().includes(lowerSearchTerm)
-    );
-  }, [pools, searchTerm]);
+    let filtered = pools;
+    if (searchTerm) {
+      filtered = filtered.filter(pool =>
+        pool.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (filters.category) {
+      filtered = filtered.filter(pool => pool.category === filters.category);
+    }
+    if (filters.geographicFocus) {
+      filtered = filtered.filter(pool => pool.geographicFocus === filters.geographicFocus);
+    }
+    if (filters.status) {
+      filtered = filtered.filter(pool => pool.status === filters.status);
+    }
+    if (filters.hasSpace) {
+      filtered = filtered.filter(pool => pool.currentMembers < pool.maxMembers);
+    }
+    return filtered;
+  }, [pools, searchTerm, filters]);
 
-  // Handle filter changes
+  // Handlers
   const handleFilterChange = (key: keyof PoolFilters, value: any) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value === 'all' ? undefined : value
-    }));
-    setCurrentPage(1); // Reset to first page when filters change
+    setFilters(prev => ({ ...prev, [key]: value === 'all' ? undefined : value }));
+    setCurrentPage(1);
   };
-
-  // Handle search
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
-  // Clear all filters
   const clearFilters = () => {
     setFilters({
       category: undefined,
@@ -123,126 +103,85 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
     setSearchTerm('');
     setCurrentPage(1);
   };
-
-  // Pagination handlers
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
-
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
     setCurrentPage(1);
   };
 
+  // Main render
   return (
-    <div className={styles.poolsPage}>
-      {/* Header Section */}
-      <div className={styles.header}>
-        <h1>Co-EP Rotating Funding Pools</h1>
-        <p className={styles.subtitle}>
-          Collaborate with other filmmakers, build trust, and fund each other's projects through rotating savings pools.
-        </p>
-      </div>
-
-      {/* Search and Filter Section */}
-      <div className={styles.controls}>
-        {/* Search Bar */}
-        <div className={styles.searchContainer}>
-          <FaSearch className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search pools by name, creator, or description..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className={styles.searchInput}
-          />
-        </div>
-
-        {/* Filter Toggle */}
-        <button
-          className={`${styles.filterButton} ${showFilters ? styles.active : ''}`}
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <FaFilter />
-          Filters
+    <div className={styles.coepPools}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: 700, marginBottom: 24 }}>
+        <h1 style={{ fontWeight: 800, fontSize: '2.2rem', color: '#181c32', margin: 0 }}>Co-EP Rotating Funding Pools</h1>
+        <button className={styles.actionBtn} onClick={() => setShowFilters(f => !f)}>
+          {showFilters ? 'Hide Filters' : 'Show Filters'}
         </button>
-
-        {/* Results Summary */}
-        <div className={styles.resultsSummary}>
-          {loading ? (
-            'Loading pools...'
-          ) : (
-            `${filteredPools.length} pool${filteredPools.length !== 1 ? 's' : ''} found`
-          )}
-        </div>
       </div>
 
-      {/* Filter Panel */}
       {showFilters && (
-        <div className={styles.filterPanel}>
-          <div className={styles.filterRow}>
-            {/* Category Filter */}
-            <div className={styles.filterGroup}>
-              <label>Category</label>
-              <select
-                value={filters.category || 'all'}
-                onChange={(e) => handleFilterChange('category', e.target.value)}
-                className={styles.filterSelect}
-              >
-                <option value="all">All Categories</option>
-                <option value="feature">Feature Films</option>
-                <option value="short-film">Short Films</option>
-                <option value="documentary">Documentaries</option>
-                <option value="music-video">Music Videos</option>
-                <option value="web-series">Web Series</option>
-              </select>
-            </div>
-
-            {/* Geographic Focus Filter */}
-            <div className={styles.filterGroup}>
-              <label>Geographic Focus</label>
-              <select
-                value={filters.geographicFocus || 'all'}
-                onChange={(e) => handleFilterChange('geographicFocus', e.target.value)}
-                className={styles.filterSelect}
-              >
-                <option value="all">All Regions</option>
-                <option value="global">Global</option>
-                <option value="hollywood">Hollywood</option>
-                <option value="bollywood">Bollywood</option>
-                <option value="nollywood">Nollywood</option>
-              </select>
-            </div>
-
-            {/* Status Filter */}
-            <div className={styles.filterGroup}>
-              <label>Pool Status</label>
-              <select
-                value={filters.status || 'all'}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
-                className={styles.filterSelect}
-              >
-                <option value="all">All Statuses</option>
-                <option value="forming">Forming</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-                <option value="paused">Paused</option>
-              </select>
-            </div>
-
-            {/* Clear Filters Button */}
-            <button
-              onClick={clearFilters}
-              className={styles.clearFiltersButton}
-            >
-              Clear All
-            </button>
+        <div className={styles.filtersPanel} style={{ maxWidth: 700, width: '100%', marginBottom: 24 }}>
+          <div className={styles.filterGroup}>
+            <label>Search</label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className={styles.filterInput}
+              placeholder="Search by pool name..."
+            />
           </div>
+          <div className={styles.filterGroup}>
+            <label>Category</label>
+            <select
+              value={filters.category || ''}
+              onChange={e => handleFilterChange('category', e.target.value || undefined)}
+              className={styles.filterSelect}
+            >
+              <option value="">All Categories</option>
+              <option value="short-film">Short Film</option>
+              <option value="feature">Feature</option>
+              <option value="documentary">Documentary</option>
+              <option value="music-video">Music Video</option>
+              <option value="web-series">Web Series</option>
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
+            <label>Geographic Focus</label>
+            <select
+              value={filters.geographicFocus || ''}
+              onChange={e => handleFilterChange('geographicFocus', e.target.value || undefined)}
+              className={styles.filterSelect}
+            >
+              <option value="">All Regions</option>
+              <option value="bollywood">Bollywood</option>
+              <option value="hollywood">Hollywood</option>
+              <option value="nollywood">Nollywood</option>
+              <option value="global">Global</option>
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
+            <label>Pool Status</label>
+            <select
+              value={filters.status || ''}
+              onChange={e => handleFilterChange('status', e.target.value || undefined)}
+              className={styles.filterSelect}
+            >
+              <option value="">All Statuses</option>
+              <option value="forming">Forming</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="paused">Paused</option>
+            </select>
+          </div>
+          <button onClick={clearFilters} className={styles.clearFiltersButton} style={{ marginTop: 12 }}>
+            Clear All
+          </button>
         </div>
       )}
 
-      {/* Loading State */}
       {loading && (
         <div className={styles.loading}>
           <div className={styles.spinner}></div>
@@ -250,7 +189,6 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
         </div>
       )}
 
-      {/* Error State */}
       {error && (
         <div className={styles.error}>
           <p>Error: {error}</p>
@@ -260,7 +198,6 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
         </div>
       )}
 
-      {/* Empty State */}
       {!loading && !error && filteredPools.length === 0 && (
         <div className={styles.emptyState}>
           <FaUsers className={styles.emptyIcon} />
@@ -278,23 +215,20 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
         </div>
       )}
 
-      {/* Pools Grid */}
       {!loading && !error && filteredPools.length > 0 && (
         <>
           <div className={styles.poolsGrid}>
-            {filteredPools.map((pool, idx) => (
-              <PoolCard key={pool.id} pool={pool} number={idx + 1 + (currentPage - 1) * pageSize} />
+            {filteredPools.map((pool) => (
+              <PoolCard key={pool.id} pool={pool} />
             ))}
           </div>
-
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className={styles.pagination}>
               <div className={styles.paginationInfo}>
                 <span>Page {currentPage} of {totalPages}</span>
                 <select
                   value={pageSize}
-                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  onChange={e => handlePageSizeChange(Number(e.target.value))}
                   className={styles.pageSizeSelect}
                 >
                   <option value={12}>12 per page</option>
@@ -302,18 +236,14 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
                   <option value={48}>48 per page</option>
                 </select>
               </div>
-
               <div className={styles.paginationControls}>
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
                   className={styles.paginationButton}
                 >
-                  <FaChevronLeft />
-                  Previous
+                  <FaChevronLeft /> Previous
                 </button>
-
-                {/* Page Numbers */}
                 <div className={styles.pageNumbers}>
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
@@ -326,28 +256,23 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
                     } else {
                       pageNum = currentPage - 2 + i;
                     }
-
                     return (
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`${styles.pageNumber} ${
-                          currentPage === pageNum ? styles.active : ''
-                        }`}
+                        className={`${styles.pageNumber} ${currentPage === pageNum ? styles.active : ''}`}
                       >
                         {pageNum}
                       </button>
                     );
                   })}
                 </div>
-
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className={styles.paginationButton}
                 >
-                  Next
-                  <FaChevronRight />
+                  Next <FaChevronRight />
                 </button>
               </div>
             </div>
@@ -355,7 +280,6 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
         </>
       )}
 
-      {/* Social Trust Section */}
       <div className={styles.socialTrust}>
         <h2>Social Trust & Endorsements</h2>
         <p>Build your reputation by collaborating on projects and receiving endorsements from other filmmakers.</p>
@@ -366,134 +290,38 @@ const CoEPPools: React.FC<CoEPPoolsProps> = () => {
       </div>
     </div>
   );
-};
-
-// Pool Card Component
-interface PoolCardProps {
-  pool: CoEPPool;
-  number?: number;
 }
 
-const PoolCard: React.FC<PoolCardProps> = ({ pool, number }) => {
+// Pool Card Component (clean, minimal, card-based)
+interface PoolCardProps {
+  pool: CoEPPool;
+}
+
+const PoolCard: React.FC<PoolCardProps> = ({ pool }) => {
   const navigate = useNavigate();
-  
-  const getCategoryIcon = (category: CoEPPool['category']) => {
-    switch (category) {
-      case 'feature': return <FaFilm />;
-      case 'short-film': return <FaVideo />;
-      case 'documentary': return <FaBookOpen />;
-      case 'music-video': return <FaMusic />;
-      case 'web-series': return <FaTv />;
-      default: return <FaFilm />;
-    }
-  };
 
-  const getStatusClass = (status: CoEPPool['status']) => {
-    switch (status) {
-      case 'forming': return styles.statusForming;
-      case 'active': return styles.statusActive;
-      case 'completed': return styles.statusCompleted;
-      case 'paused': return styles.statusPaused;
-      default: return '';
-    }
-  };
-
-  const getGeographicIcon = (geo: CoEPPool['geographicFocus']) => {
-    return geo === 'global' ? <FaGlobe /> : <FaMapMarkerAlt />;
-  };
-
+  // Format helpers
   const formatContribution = (amount: string) => {
-    const stx = parseFloat(amount) / 1000000; // Convert microSTX to STX
+    const stx = parseFloat(amount) / 1000000;
     return `${stx.toLocaleString()} STX`;
   };
-
-  const formatGeographicFocus = (geo: CoEPPool['geographicFocus']) => {
-    return geo.charAt(0).toUpperCase() + geo.slice(1);
-  };
-
-  const formatCategory = (category: CoEPPool['category']) => {
-    return category.split('-').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  };
+  const formatGeographicFocus = (geo: CoEPPool['geographicFocus']) => geo.charAt(0).toUpperCase() + geo.slice(1);
+  const formatCategory = (category: CoEPPool['category']) => category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
   return (
     <div className={styles.poolCard}>
-      {/* Card Header */}
-      <div className={styles.cardHeader}>
-        <div className={styles.categoryBadge}>
-          {getCategoryIcon(pool.category)}
-          <span>{formatCategory(pool.category)}</span>
-        </div>
-        <div className={`${styles.statusBadge} ${getStatusClass(pool.status)}`}>
-          {pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}
-        </div>
+      <div className={styles.poolCardTitle}>{pool.name}</div>
+      <div className={styles.poolCardDetails}>
+        <div><span className="label">Category:</span> <span className="value">{formatCategory(pool.category)}</span></div>
+        <div><span className="label">Status:</span> <span className="value">{pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}</span></div>
+        <div><span className="label">Members:</span> <span className="value">{pool.currentMembers}/{pool.maxMembers}</span></div>
+        <div><span className="label">Rotation:</span> <span className="value">{pool.currentRotation}/{pool.totalRotations}</span></div>
+        <div><span className="label">Focus:</span> <span className="value">{formatGeographicFocus(pool.geographicFocus)}</span></div>
+        <div><span className="label">Contribution:</span> <span className="value">{formatContribution(pool.contributionAmount)} / rotation</span></div>
       </div>
-
-      {/* Card Body */}
-      <div className={styles.cardBody}>
-        <div className={styles.poolNameRow}>
-          {number !== undefined && (
-            <span className={styles.poolNumber}>#{number}</span>
-          )}
-          <h3 className={styles.poolName}>{pool.name}</h3>
-        </div>
-        <p className={styles.poolDescription}>{pool.description}</p>
-
-        {/* Pool Stats */}
-        <div className={styles.poolStats}>
-          <div className={styles.statItem}>
-            <FaUsers className={styles.statIcon} />
-            <span className={styles.statLabel}>Members</span>
-            <span className={styles.statValue}>
-              {pool.currentMembers}/{pool.maxMembers}
-            </span>
-          </div>
-
-          <div className={styles.statItem}>
-            <FaClock className={styles.statIcon} />
-            <span className={styles.statLabel}>Rotation</span>
-            <span className={styles.statValue}>
-              {pool.currentRotation}/{pool.totalRotations}
-            </span>
-          </div>
-
-          <div className={styles.statItem}>
-            {getGeographicIcon(pool.geographicFocus)}
-            <span className={styles.statLabel}>Focus</span>
-            <span className={styles.statValue}>
-              {formatGeographicFocus(pool.geographicFocus)}
-            </span>
-          </div>
-        </div>
-
-        {/* Contribution Amount */}
-        <div className={styles.contributionAmount}>
-          <strong>{formatContribution(pool.contributionAmount)}</strong>
-          <span className={styles.contributionLabel}>per rotation</span>
-        </div>
-
-        {/* Progress Bar */}
-        <div className={styles.progressContainer}>
-          <div className={styles.progressLabel}>
-            <span>Pool Progress</span>
-            <span>{Math.round((pool.currentMembers / pool.maxMembers) * 100)}%</span>
-          </div>
-          <div className={styles.progressBar}>
-            <div 
-              className={styles.progressFill}
-              style={{ width: `${(pool.currentMembers / pool.maxMembers) * 100}%` }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Card Footer */}
-      <div className={styles.cardFooter}>
+      <div className={styles.poolCardActions}>
         <button
-          className={`${styles.actionButton} ${
-            pool.status === 'forming' ? styles.primary : styles.secondary
-          }`}
+          className={styles.actionBtn}
           disabled={
             (pool.status === 'forming' && pool.currentMembers >= pool.maxMembers) ||
             (pool.status !== 'forming' && pool.status !== 'active' && pool.status !== 'completed')
@@ -509,7 +337,7 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, number }) => {
             : 'Pool Full'}
         </button>
         <button
-          className={styles.detailsButton}
+          className={styles.actionBtn}
           onClick={() => navigate(`/pool-detail/${pool.id}`)}
         >
           Learn More
@@ -518,5 +346,9 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, number }) => {
     </div>
   );
 };
+
+
+
+
 
 export default CoEPPools;

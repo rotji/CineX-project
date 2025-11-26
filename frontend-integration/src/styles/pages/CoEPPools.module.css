@@ -1,629 +1,296 @@
-/* CoEPPools styles */
-
-/* CoEPPools.module.css - Modern, clean, white-space, card-based UI */
-.coepPools {
+/* Filters Panel */
+.filtersPanel {
   background: #fff;
-  min-height: 100vh;
-  padding: 2.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #eee;
-}
-
-/* Button styles for visibility and accessibility */
-.filterButton,
-.clearFiltersButton,
-.retryButton,
-.paginationButton {
-  background: #FFBF00;
-  color: #aaa;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.filterPanel {
-  width: 100%;
-  max-width: 900px;
-  margin: 1.5rem auto 1rem auto;
-  background: #fafbfc;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-}
-
-.filterRow {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 180px;
-}
-
-@media (max-width: 900px) {
-  .filterRow {
-    gap: 1rem;
-  }
-  .filterGroup {
-    min-width: 140px;
-  }
-}
-@media (max-width: 600px) {
-  .filterPanel {
-    padding: 1rem 0.5rem 0.5rem 0.5rem;
-  }
-  .filterRow {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .filterGroup {
-    min-width: 100px;
-  }
-}
-
-.poolNumber {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #FFBF00;
-  color: #222;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 50%;
-  width: 2rem;
-  height: 2rem;
-  margin-right: 0.75rem;
-  box-shadow: 0 2px 8px rgba(255,191,0,0.10);
-  border: 2px solid #fff;
-  vertical-align: middle;
-}
-
-.poolCard {
-  position: relative;
-}
-
-.poolNameRow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-/* Specific styles for action buttons at card footer */
-.actionButton {
-  background: #FFBF00;
-  color: #222;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0.5rem 0.5rem 0 0;
-  box-shadow: 0 2px 8px rgba(255,191,0,0.08);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-}
-
-.actionButton,
-.actionButton.primary,
-.actionButton.secondary {
-  background: #FFBF00 !important;
-  color: #222 !important;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  margin: 0.5rem 0.5rem 0 0;
-  box-shadow: 0 2px 8px rgba(255,191,0,0.08);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-}
-.actionButton:hover,
-.actionButton.primary:hover,
-.actionButton.secondary:hover {
-  background: #FFD700 !important;
-  color: #222 !important;
-  box-shadow: 0 4px 16px rgba(255,191,0,0.15);
-}
-.actionButton:active,
-.actionButton.primary:active,
-.actionButton.secondary:active {
-  background: #e6ac00 !important;
-  color: #fff !important;
-}
-.actionButton:disabled,
-.actionButton.primary:disabled,
-.actionButton.secondary:disabled {
-  background: #eee !important;
-  color: #aaa !important;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* Style for Learn More/detailsButton to match */
-.detailsButton {
-  background: #FFBF00;
-  color: #222;
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0.5rem 0.5rem 0 0;
-  box-shadow: 0 2px 8px rgba(255,191,0,0.08);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-}
-.detailsButton:hover {
-  background: #FFD700;
-  color: #222;
-  box-shadow: 0 4px 16px rgba(255,191,0,0.15);
-}
-.detailsButton:active {
-  background: #e6ac00;
-  color: #fff;
-}
-.detailsButton:disabled {
-  background: #eee;
-  color: #aaa;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-.actionButton:hover {
-  background: #FFD700;
-  color: #222;
-  box-shadow: 0 4px 16px rgba(255,191,0,0.15);
-}
-.actionButton:active {
-  background: #e6ac00;
-  color: #fff;
-}
-.actionButton:disabled {
-  background: #eee;
-  color: #aaa;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.filterPanel {
-  width: 100%;
-  max-width: 900px;
-  margin: 1.5rem auto 1rem auto;
-  background: #fafbfc;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-}
-
-.filterRow {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-
-.filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 180px;
-}
-
-@media (max-width: 900px) {
-  .filterRow {
-    gap: 1rem;
-  }
-  .filterGroup {
-    min-width: 140px;
-  }
-}
-@media (max-width: 600px) {
-  .filterPanel {
-    padding: 1rem 0.5rem 0.5rem 0.5rem;
-  }
-  .filterRow {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .filterGroup {
-    min-width: 100px;
-  }
-}
-
-.poolNumber {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #FFBF00;
-  color: #222;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 50%;
-  width: 2rem;
-  height: 2rem;
-  margin-right: 0.75rem;
-  box-shadow: 0 2px 8px rgba(255,191,0,0.10);
-  border: 2px solid #fff;
-  vertical-align: middle;
- 
-}
-
-/* Pool Card */
-
-
-.poolCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-
-
-.cardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #ecf0f1;
-}
-
-.categoryBadge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #f8f9fa;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.statusBadge {
-  padding: 0.4rem 0.8rem;
   border-radius: 16px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 2rem 2.5rem 1.5rem 2.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem 2.5rem;
+  width: 100%;
+  max-width: 700px;
 }
-
-.statusForming {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.statusActive {
-  background: #d1ecf1;
-  color: #0c5460;
-}
-
-.statusCompleted {
-  background: #d4edda;
-  color: #155724;
-}
-
-.statusPaused {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.cardBody {
-  padding: 1.5rem;
-}
-
-.poolName {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 0.8rem;
-  line-height: 1.3;
-}
-
-.poolDescription {
-  color: #7f8c8d;
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
-  font-size: 0.95rem;
-}
-
-.poolStats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.statItem {
+.filterGroup {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.3rem;
+  min-width: 180px;
+  flex: 1 1 180px;
 }
-
-.statIcon {
-  color: #3498db;
-  font-size: 1.2rem;
+.filterInput, .filterSelect {
+  margin-top: 0.5rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  font-size: 1rem;
+  background: #f8fafc;
+  color: #222;
+  outline: none;
+  transition: border 0.2s;
 }
-
-.statLabel {
-  font-size: 0.8rem;
-  color: #7f8c8d;
-  font-weight: 500;
+.filterInput:focus, .filterSelect:focus {
+  border: 1.5px solid #FFBF00;
 }
-
-.statValue {
-  font-weight: 700;
-  color: #2c3e50;
-  font-size: 0.9rem;
-}
-
-.contributionAmount {
-  text-align: center;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-}
-
-.contributionAmount strong {
-  display: block;
-  font-size: 1.4rem;
-  color: #27ae60;
-  font-weight: 800;
-}
-
-.contributionLabel {
-  font-size: 0.85rem;
-  color: #7f8c8d;
-  margin-top: 0.3rem;
-}
-
-.progressContainer {
-  margin-bottom: 1.5rem;
-}
-
-.progressLabel {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.progressLabel span:first-child {
-  color: #2c3e50;
-  font-weight: 600;
-}
-
-.progressLabel span:last-child {
-  color: #3498db;
-  font-weight: 700;
-}
-
-.progressBar {
-  height: 8px;
-  background: #ecf0f1;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  background: linear-gradient(90deg, #3498db, #2ecc71);
-  transition: width 0.3s ease;
-}
-
-.cardFooter {
-  display: flex;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  border-top: 1px solid #ecf0f1;
-}
-
-.actionButton {
-  flex: 1;
-  padding: 0.8rem 1.5rem;
+.clearFiltersButton {
+  background: #eee;
+  color: #222;
   border: none;
   border-radius: 8px;
-  font-weight: 600;
+  padding: 0.7rem 2rem;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
+  margin-top: 1.2rem;
+  transition: background 0.2s;
+}
+.clearFiltersButton:hover {
+  background: #FFD700;
+  color: #222;
 }
 
-.actionButton.primary {
-  background: #3498db;
-  color: white;
+.poolsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2.2rem;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto 2.5rem auto;
 }
 
-.actionButton.primary:hover:not(:disabled) {
-  background: #2980b9;
+.emptyState, .error, .loading {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: center;
 }
-
-.actionButton.secondary {
-  background: #ecf0f1;
-  color: #2c3e50;
+.emptyIcon {
+  font-size: 2.5rem;
+  color: #FFBF00;
+  margin-bottom: 1rem;
 }
-
-.actionButton.secondary:hover {
-  background: #bdc3c7;
-}
-
-.actionButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.detailsButton {
-  padding: 0.8rem 1.5rem;
-  background: transparent;
-  color: #3498db;
-  border: 2px solid #3498db;
+.retryButton {
+  background: #FFBF00;
+  color: #222;
+  border: none;
   border-radius: 8px;
-  font-weight: 600;
+  padding: 0.7rem 2rem;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
+  margin-top: 1.2rem;
+  transition: background 0.2s;
+}
+.retryButton:hover {
+  background: #FFD700;
+}
+.loading .spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #FFBF00;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem auto;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.detailsButton:hover {
-  background: #3498db;
-  color: white;
-}
-
-/* Pagination */
 .pagination {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
   gap: 1rem;
-  padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin: 1.5rem 0 0 0;
 }
-
 .paginationInfo {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  color: #7f8c8d;
+  gap: 1.2rem;
+  font-size: 1.08rem;
 }
-
 .pageSizeSelect {
-  padding: 0.5rem;
-  border: 1px solid #ecf0f1;
-  border-radius: 6px;
-  background: white;
-  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  font-size: 1rem;
+  background: #f8fafc;
+  color: #222;
+  outline: none;
+  transition: border 0.2s;
 }
-
 .paginationControls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1.2rem;
 }
-
 .paginationButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: #ecf0f1;
-  border: none;
+  background: #fff;
+  color: #222;
+  border: 1.5px solid #FFBF00;
   border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  padding: 0.5rem 1.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
-
-.paginationButton:hover:not(:disabled) {
-  background: #3498db;
-  color: white;
-}
-
 .paginationButton:disabled {
-  opacity: 0.5;
+  background: #eee;
+  color: #aaa;
+  border-color: #eee;
   cursor: not-allowed;
 }
-
+.paginationButton:hover:not(:disabled), .paginationButton:focus:not(:disabled) {
+  background: #FFBF00;
+  color: #222;
+}
 .pageNumbers {
   display: flex;
-  gap: 0.25rem;
-  margin: 0 0.5rem;
+  gap: 0.5rem;
 }
-
 .pageNumber {
-  padding: 0.6rem 0.8rem;
-  background: #ecf0f1;
-  border: none;
+  background: #fff;
+  color: #222;
+  border: 1.5px solid #e0e0e0;
   border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  min-width: 40px;
+  transition: background 0.2s, color 0.2s, border 0.2s;
 }
-
-.pageNumber:hover {
-  background: #bdc3c7;
+.pageNumber.active, .pageNumber:focus {
+  background: #FFBF00;
+  color: #222;
+  border-color: #FFBF00;
 }
-
-.pageNumber.active {
-  background: #3498db;
-  color: white;
-}
-
-/* Social Trust Section (kept from original) */
 .socialTrust {
-  margin-top: 4rem;
-  background: #f8f9fa;
+  background: #fff;
   border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 2rem 2.5rem 1.5rem 2.5rem;
+  margin: 2.5rem auto 0 auto;
+  max-width: 700px;
+  text-align: left;
 }
-
 .socialTrust h2 {
-  margin-bottom: 1rem;
-  color: #2c3e50;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #181c32;
+  margin-bottom: 0.7rem;
 }
-
 .socialTrust ul {
-  list-style: none;
-  padding: 0;
-  max-width: 600px;
-  margin: 0 auto;
+  margin: 0.7rem 0 0 1.2rem;
+  color: #555;
+  font-size: 1.05rem;
 }
 
-.socialTrust li {
-  padding: 0.5rem 0;
-  color: #7f8c8d;
+.coepPools {
+  background: linear-gradient(135deg, #f8fafc 0%, #f3f4f8 100%);
+  min-height: 100vh;
+  padding: 3.5rem 0 2.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .poolsPage {
-    padding: 1rem;
+
+.poolCard {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  border: none;
+  margin-bottom: 2.2rem;
+  padding: 2.2rem 2.5rem 2rem 2.5rem;
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+.poolCard:hover {
+  box-shadow: 0 12px 40px rgba(255,191,0,0.13), 0 2px 8px rgba(0,0,0,0.10);
+}
+
+
+.poolCardTitle {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #181c32;
+  margin-bottom: 0.7rem;
+}
+
+.poolCardDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem 2.2rem;
+  font-size: 1.08rem;
+  color: #222;
+}
+
+.poolCardDetails .label {
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.2rem;
+}
+
+.poolCardDetails .value {
+  color: #555;
+  font-weight: 500;
+}
+
+.poolCardActions {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+}
+
+.actionBtn {
+  background: #FFBF00;
+  color: #222;
+  border: none;
+  border-radius: 8px;
+  padding: 0.85rem 2.2rem;
+  font-weight: 700;
+  font-size: 1.08rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255,191,0,0.10);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.actionBtn:disabled {
+  background: #eee;
+  color: #aaa;
+  cursor: not-allowed;
+}
+.actionBtn:hover:not(:disabled), .actionBtn:focus:not(:disabled) {
+  background: #FFD700;
+  color: #222;
+  box-shadow: 0 4px 16px rgba(255,191,0,0.15);
+  transform: translateY(-2px) scale(1.03);
+}
+
+@media (max-width: 900px) {
+  .poolCard {
+    max-width: 99vw;
+    padding: 1.2rem 0.5rem;
   }
-  
-  .controls {
-    flex-direction: column;
-    align-items: stretch;
+  .poolCardTitle {
+    font-size: 1.3rem;
+    padding: 0 0.5rem;
   }
-  
-  .searchContainer {
-    min-width: unset;
-  }
-  
-  .filterRow {
-    flex-direction: column;
+  .poolCardDetails {
+    grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
-  .filterGroup {
-    min-width: unset;
+  .actionBtn {
+    width: 100%;
+    padding: 1rem 0;
+    font-size: 1rem;
   }
-  
-  .poolsGrid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  
-  .pagination {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  
-  .paginationControls {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .header h1 {
-    font-size: 2rem;
-  }
+}
