@@ -172,37 +172,40 @@ const Waitlist: React.FC = () => {
         ) : (
           <form onSubmit={handleSubmit} className={styles.form}>
             {questions.map((q, index) => (
-              <div key={q.name} className={styles.question}>
-                <label>
+              <div key={q.name} className={styles.questionBlock}>
+                <div className={styles.questionLabelRow}>
                   <span className={styles.questionNumber}>{index + 1}.</span>
                   <span className={styles.questionText}>{q.text}</span>
-                </label>
-                {q.options.map((option) => (
-                  <div key={option}>
+                </div>
+                <div className={styles.optionsBlock}>
+                  {q.options.map((option) => (
+                    <label key={option} className={styles.optionRow}>
+                      <input
+                        type={q.type}
+                        id={q.name + '-' + option}
+                        name={q.name}
+                        value={option}
+                        checked={
+                          q.type === 'checkbox'
+                            ? formData.confidence.includes(option)
+                            : (formData[q.name as keyof WaitlistFormData] === option)
+                        }
+                        onChange={handleChange}
+                        className={styles.optionInput}
+                      />
+                      <span className={styles.optionText}>{option}</span>
+                    </label>
+                  ))}
+                  {q.otherName && (formData[q.name as keyof WaitlistFormData] === 'Other') && (
                     <input
-                      type={q.type}
-                      id={option}
-                      name={q.name}
-                      value={option}
-                      checked={
-                        q.type === 'checkbox'
-                          ? formData.confidence.includes(option)
-                          : (formData[q.name as keyof WaitlistFormData] === option)
-                      }
+                      type="text"
+                      name={q.otherName}
+                      placeholder="Please specify"
                       onChange={handleChange}
+                      className={styles.otherInput}
                     />
-                    <label htmlFor={option}>{option}</label>
-                  </div>
-                ))}
-                {q.otherName && (formData[q.name as keyof WaitlistFormData] === 'Other') && (
-                  <input
-                    type="text"
-                    name={q.otherName}
-                    placeholder="Please specify"
-                    onChange={handleChange}
-                    className={styles.otherInput}
-                  />
-                )}
+                  )}
+                </div>
               </div>
             ))}
             <p className={styles.disclaimer}>

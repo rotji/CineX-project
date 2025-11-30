@@ -44,7 +44,7 @@ const Header: React.FC = () => {
       <div className={styles.logo}>
         <img src={handsLogo} alt="Hands together logo" className={styles.logoIcon} />
         <Link to="/" className={styles.logoTitle}>CineX</Link>
-        <span className={styles.tagline}>Crowdfunding for Creatives</span>
+        {/* Tagline removed as requested */}
       </div>
       <nav className={styles.nav}>
         <Link to="/" className={styles.navLink}>Home</Link>

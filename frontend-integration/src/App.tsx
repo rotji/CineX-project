@@ -1,4 +1,6 @@
 import CoEPPools from './pages/CoEPPools';
+import EndorsementSystem from './pages/EndorsementSystem';
+import AdminControls from './pages/AdminControls';
 // import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/Layout/Header';
@@ -27,6 +29,8 @@ function App() {
           {/* Developer testing routes - not shown in navigation */}
           <Route path="/dev/transaction-demo" element={<TransactionDemo />} />
           <Route path="/dev/modal-demo" element={<EnhancedTransactionDemo />} />
+          <Route path="/endorsement" element={<EndorsementSystem />} />
+          <Route path="/admin" element={<AdminControls />} />
         </Routes>
       </main>
       <Footer />
