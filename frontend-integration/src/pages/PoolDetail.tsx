@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { CoEPPool, PoolMember, PoolRotation } from '../types';
 import { createCoEPService } from '../services/coepService';
+import { createVerificationService } from '../services/verificationService';
 import { useAuth } from '../auth/StacksAuthContext';
 import { 
   TransactionModal, 
@@ -60,6 +61,7 @@ const PoolDetail: React.FC = () => {
   const navigate = useNavigate();
   const { userSession, userData } = useAuth();
   const coepService = createCoEPService(userSession);
+  const verificationService = createVerificationService(userSession);
 
   // Helper to get current user's STX address
   const getCurrentAddress = () => {
@@ -73,6 +75,8 @@ const PoolDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'timeline' | 'statistics'>('overview');
+  const [creatorVerified, setCreatorVerified] = useState<boolean | null>(null);
+  const [creatorProfile, setCreatorProfile] = useState<any>(null);
 
   // Transaction modal
   const transactionModal = useTransactionModal();
@@ -121,6 +125,27 @@ const PoolDetail: React.FC = () => {
     fetchPoolData();
   }, [poolId]);
 
+  // Check creator verification status after pool details are loaded
+  useEffect(() => {
+    if (pool && pool.creator) {
+      (async () => {
+        try {
+          const profileResult = await verificationService.getFilmmakerProfile(pool.creator);
+          if (profileResult.success && profileResult.data) {
+            setCreatorVerified(true);
+            setCreatorProfile(profileResult.data);
+          } else {
+            setCreatorVerified(false);
+            setCreatorProfile(null);
+          }
+        } catch (e) {
+          setCreatorVerified(false);
+          setCreatorProfile(null);
+        }
+      })();
+    }
+  }, [pool]);
+
   // Helper functions
   const getCategoryIcon = (category: CoEPPool['category']) => {
     switch (category) {
@@ -153,7 +178,8 @@ const PoolDetail: React.FC = () => {
     if (!pool || !currentAddress) return false;
     return pool.status === 'forming' && 
            pool.currentMembers < pool.maxMembers && 
-           !members.some(member => member.address === currentAddress);
+           !members.some(member => member.address === currentAddress) &&
+           creatorVerified === true; // Only allow joining if creator is verified
   };
 
   const isPoolMember = () => {
@@ -260,10 +286,10 @@ const PoolDetail: React.FC = () => {
         </button>
       </div>
 
-      {/* Pool Header */}
+      {/* Modernized Pool Header with horizontal cards */}
       <div className={styles.poolHeader}>
-        <div className={styles.headerMain}>
-          <div className={styles.titleSection}>
+        <div className={styles.headerMainModern}>
+          <div className={styles.titleSectionModern}>
             <div className={styles.categoryBadge}>
               {getCategoryIcon(pool.category)}
               <span>{formatCategory(pool.category)}</span>
@@ -272,62 +298,67 @@ const PoolDetail: React.FC = () => {
             <div className={`${styles.statusBadge} ${getStatusClass(pool.status)}`}>
               {pool.status.charAt(0).toUpperCase() + pool.status.slice(1)}
             </div>
-          </div>
-          
-          <div className={styles.poolStats}>
-            <div className={styles.statCard}>
-              <FaUsers className={styles.statIcon} />
-              <div className={styles.statInfo}>
-                <span className={styles.statValue}>{pool.currentMembers}/{pool.maxMembers}</span>
-                <span className={styles.statLabel}>Members</span>
-              </div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <FaCoins className={styles.statIcon} />
-              <div className={styles.statInfo}>
-                <span className={styles.statValue}>{formatContribution(pool.contributionAmount)}</span>
-                <span className={styles.statLabel}>Per Rotation</span>
-              </div>
-            </div>
-            
-            <div className={styles.statCard}>
-              <FaClock className={styles.statIcon} />
-              <div className={styles.statInfo}>
-                <span className={styles.statValue}>{pool.currentRotation}/{pool.totalRotations}</span>
-                <span className={styles.statLabel}>Rotation</span>
-              </div>
-            </div>
-            
-            <div className={styles.statCard}>
-              {pool.geographicFocus === 'global' ? <FaGlobe className={styles.statIcon} /> : <FaMapMarkerAlt className={styles.statIcon} />}
-              <div className={styles.statInfo}>
-                <span className={styles.statValue}>{formatGeographicFocus(pool.geographicFocus)}</span>
-                <span className={styles.statLabel}>Focus</span>
-              </div>
+            <div style={{marginTop: 8}}>
+              {creatorVerified === true && creatorProfile && (
+                <span style={{color: 'green', fontWeight: 600}}>
+                  <FaUserCheck style={{marginRight: 4}} /> Verified Creator
+                </span>
+              )}
+              {creatorVerified === false && (
+                <span style={{color: 'red', fontWeight: 600}}>
+                  <FaExclamationCircle style={{marginRight: 4}} /> Creator Not Verified
+                </span>
+              )}
             </div>
           </div>
-        </div>
-
-        <div className={styles.headerActions}>
-          {canJoinPool() && (
-            <button onClick={handleJoinPool} className={styles.joinButton}>
-              <FaHandshake />
-              Join Pool
+          <div className={styles.statsRowModern}>
+            <div className={styles.statCardModern}>
+              <FaUsers className={styles.statIconModern} />
+              <div>
+                <div className={styles.statValueModern}>{pool.currentMembers}/{pool.maxMembers}</div>
+                <div className={styles.statLabelModern}>Members</div>
+              </div>
+            </div>
+            <div className={styles.statCardModern}>
+              <FaCoins className={styles.statIconModern} />
+              <div>
+                <div className={styles.statValueModern}>{formatContribution(pool.contributionAmount)}</div>
+                <div className={styles.statLabelModern}>Per Rotation</div>
+              </div>
+            </div>
+            <div className={styles.statCardModern}>
+              <FaClock className={styles.statIconModern} />
+              <div>
+                <div className={styles.statValueModern}>{pool.currentRotation}/{pool.totalRotations}</div>
+                <div className={styles.statLabelModern}>Rotation</div>
+              </div>
+            </div>
+            <div className={styles.statCardModern}>
+              {pool.geographicFocus === 'global' ? <FaGlobe className={styles.statIconModern} /> : <FaMapMarkerAlt className={styles.statIconModern} />}
+              <div>
+                <div className={styles.statValueModern}>{formatGeographicFocus(pool.geographicFocus)}</div>
+                <div className={styles.statLabelModern}>Focus</div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.headerActionsModern}>
+            {canJoinPool() && (
+              <button onClick={handleJoinPool} className={styles.joinButton}>
+                <FaHandshake />
+                Join Pool
+              </button>
+            )}
+            {isPoolMember() && (
+              <div className={styles.memberBadge}>
+                <FaUserCheck />
+                Pool Member
+              </div>
+            )}
+            <button className={styles.shareButton}>
+              <FaCopy />
+              Share Pool
             </button>
-          )}
-          
-          {isPoolMember() && (
-            <div className={styles.memberBadge}>
-              <FaUserCheck />
-              Pool Member
-            </div>
-          )}
-          
-          <button className={styles.shareButton}>
-            <FaCopy />
-            Share Pool
-          </button>
+          </div>
         </div>
       </div>
 

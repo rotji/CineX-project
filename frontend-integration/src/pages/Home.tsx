@@ -42,48 +42,46 @@ const Home: React.FC = () => {
       </section>
 
       <section className={styles.featured}>
-        <h2>🎬 Option 1: Solo Campaign</h2>
-        <div className={styles.overviewContent}>
-          <p><strong>Perfect for independent creators with a specific project.</strong></p>
-          <ol>
-            <li><strong>Create Your Campaign:</strong> Set your funding goal, deadline, and project details</li>
-            <li><strong>Share Widely:</strong> Promote to your audience and the CineX community</li>
-            <li><strong>Receive Contributions:</strong> Backers support your project directly</li>
-            <li><strong>Launch Your Project:</strong> Once funded, bring your vision to life</li>
-          </ol>
-        </div>
-
-        <h2>🤝 Option 2: Co-EP Pool (Collaborative)</h2>
-        <div className={styles.overviewContent}>
-          <p><strong>Perfect for creators who want to support each other.</strong></p>
-          <ol>
-            <li>
-              <strong>Create or Join a Pool:</strong> Form a group with fellow filmmakers. 
-              Set the bond amount and member limit.
-            </li>
-            <li>
-              <strong>Contribute Together:</strong> Each member commits to contribute a set amount each rotation cycle. 
-              Your contributions are secured on the blockchain.
-            </li>
-            <li>
-              <strong>Take Turns Getting Funded:</strong> Members rotate to receive the pooled funds for their projects. 
-              Everyone gets their turn!
-            </li>
-          </ol>
+        <div className={styles.cardRow}>
+          <div className={styles.fundingCard}>
+            <h2>🎬 Option 1: Solo Campaign</h2>
+            <div className={styles.cardContent}>
+              <p><strong>Perfect for independent creators with a specific project.</strong></p>
+              <ol className={styles.verticalList}>
+                <li><strong>Create Your Campaign:</strong> Set your funding goal, deadline, and project details</li>
+                <li><strong>Share Widely:</strong> Promote to your audience and the CineX community</li>
+                <li><strong>Receive Contributions:</strong> Backers support your project directly</li>
+                <li><strong>Launch Your Project:</strong> Once funded, bring your vision to life</li>
+              </ol>
+            </div>
+          </div>
+          <div className={styles.fundingCard}>
+            <h2>🤝 Option 2: Co-EP Pool (Collaborative)</h2>
+            <div className={styles.cardContent}>
+              <p><strong>Perfect for creators who want to support each other.</strong></p>
+              <ol className={styles.verticalList}>
+                <li><strong>Create or Join a Pool:</strong> Form a group with fellow filmmakers. Set the bond amount and member limit.</li>
+                <li><strong>Contribute Together:</strong> Each member commits to contribute a set amount each rotation cycle. Your contributions are secured on the blockchain.</li>
+                <li><strong>Take Turns Getting Funded:</strong> Members rotate to receive the pooled funds for their projects. Everyone gets their turn!</li>
+              </ol>
+            </div>
+          </div>
         </div>
       </section>
 
       <section className={styles.overview}>
         <div className={styles.overviewContent}>
           <h2>Why Choose CineX?</h2>
-          <div style={{ marginTop: '1.5rem' }}>
-            <p><strong>🔒 Transparent & Secure:</strong> All transactions recorded on blockchain</p>
-            <p><strong>🤝 Community-Driven:</strong> Filmmakers supporting filmmakers</p>
-            <p><strong>⚡ Fair Rotation:</strong> Everyone gets equal opportunity</p>
-            <p><strong>📊 Track Everything:</strong> See pool status and member contributions in real-time</p>
-          </div>
+          <ul className={styles.whyPointsList}>
+            <li className={styles.whyPoint}><span className={styles.whyIcon}>🔒</span><span className={styles.whyText}><strong>Transparent & Secure:</strong> All transactions recorded on blockchain</span></li>
+            <li className={styles.whyPoint}><span className={styles.whyIcon}>🤝</span><span className={styles.whyText}><strong>Community-Driven:</strong> Filmmakers supporting filmmakers</span></li>
+            <li className={styles.whyPoint}><span className={styles.whyIcon}>⚡</span><span className={styles.whyText}><strong>Fair Rotation:</strong> Everyone gets equal opportunity</span></li>
+            <li className={styles.whyPoint}><span className={styles.whyIcon}>📊</span><span className={styles.whyText}><strong>Track Everything:</strong> See pool status and member contributions in real-time</span></li>
+          </ul>
         </div>
       </section>
+
+      {/* Collage removed for clean, white homepage */}
     </div>
   );
 };

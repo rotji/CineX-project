@@ -1,3 +1,46 @@
+/* Professional waitlist form alignment */
+.questionBlock {
+  margin-bottom: 0.4rem;
+}
+
+.questionLabelRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-bottom: 0.05rem;
+  line-height: 1.05;
+}
+
+.optionsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  margin-left: 2.2em;
+}
+
+.optionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3em;
+  font-size: 1.01em;
+  color: #222;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1.05;
+}
+
+.optionInput {
+  margin-top: 0.1em;
+  accent-color: #FFBF00;
+}
+
+.optionText {
+  display: block;
+  margin: 0;
+  padding: 0;
+  line-height: 1.05;
+}
 .questionText {
   color: #181c32;
   font-weight: 800;
