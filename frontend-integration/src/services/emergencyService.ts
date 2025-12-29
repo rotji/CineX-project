@@ -2,7 +2,7 @@
 // Handles system pause/resume, emergency controls, and system status monitoring
 
 import { 
-  boolCV,
+  // boolCV,
   fetchCallReadOnlyFunction,
   cvToValue,
 } from '@stacks/transactions';
@@ -60,7 +60,7 @@ export class EmergencyService {
    * @param reason Reason for pausing the system
    * @returns Promise with pause result
    */
-  async pauseSystem(reason: string): Promise<ServiceResponse<{ txId: string }>> {
+  async pauseSystem(): Promise<ServiceResponse<{ txId: string }>> {
     try {
       // Validate user is authenticated
       if (!this.userSession.isUserSignedIn()) {
@@ -81,7 +81,7 @@ export class EmergencyService {
 
       // Call smart contract to pause system
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('crowdfunding');
       const contractName = getContractName('crowdfunding');
 
       try {
@@ -149,7 +149,7 @@ export class EmergencyService {
 
       // Call smart contract to resume system
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('crowdfunding');
       const contractName = getContractName('crowdfunding');
 
       try {
@@ -200,7 +200,7 @@ export class EmergencyService {
   async getSystemStatus(module: 'crowdfunding' | 'coep' | 'escrow' | 'verification'): Promise<ServiceResponse<SystemStatus>> {
     try {
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress(module);
       const contractName = getContractName(module);
       
       // For read-only calls, we need a sender address
@@ -259,7 +259,7 @@ export class EmergencyService {
   async getModuleVersion(module: 'crowdfunding' | 'coep' | 'escrow' | 'verification'): Promise<ServiceResponse<number>> {
     try {
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress(module);
       const contractName = getContractName(module);
       
       const senderAddress = this.userSession.isUserSignedIn()
@@ -307,7 +307,7 @@ export class EmergencyService {
   async isModuleActive(module: 'crowdfunding' | 'coep' | 'escrow' | 'verification'): Promise<ServiceResponse<boolean>> {
     try {
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress(module);
       const contractName = getContractName(module);
       
       const senderAddress = this.userSession.isUserSignedIn()
