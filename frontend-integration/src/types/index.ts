@@ -220,6 +220,9 @@ export interface CreateCampaignParams {
   description: string;
   targetAmount: string;
   deadline: number;
+  duration: string;
+  rewardTiers: string;
+  rewardDescription: string;
   category: Campaign['category'];
   mediaUrls?: string[];
   tags?: string[];
