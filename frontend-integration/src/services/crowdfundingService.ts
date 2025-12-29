@@ -5,8 +5,8 @@ import {
   uintCV,
   stringAsciiCV,
   principalCV,
-  fetchCallReadOnlyFunction,
-  cvToValue,
+  // fetchCallReadOnlyFunction,
+  // cvToValue,
 } from '@stacks/transactions';
 import { openContractCall } from '@stacks/connect';
 import { 
@@ -72,19 +72,17 @@ export class CrowdfundingService {
 
       // Call smart contract to create campaign
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('crowdfunding');
       const contractName = getContractName('crowdfunding');
-      const verificationAddress = getContractAddress();
+      const verificationAddress = getContractAddress('verification');
       const verificationName = getContractName('verification');
 
       try {
-        // Calculate duration in blocks (assuming 10 min per block)
-        const durationMs = params.deadline - Date.now();
-        const durationBlocks = Math.floor(durationMs / (10 * 60 * 1000));
-        
+        // Calculate duration in blocks (user input in days, 10 min per block)
+        const durationBlocks = Math.floor((parseInt(params.duration) * 24 * 60) / 10);
         // Generate campaign ID (will be incremented on-chain)
         const nextCampaignId = Date.now();
-
+        let txId: string | undefined = undefined;
         // Open Stacks wallet to sign transaction
         const txOptions = {
           contractAddress,
@@ -95,21 +93,25 @@ export class CrowdfundingService {
             uintCV(nextCampaignId),
             uintCV(parseInt(params.targetAmount)), // Funding goal in microSTX
             uintCV(durationBlocks), // Duration in blocks
-            uintCV(3), // Default 3 reward tiers
-            stringAsciiCV('Standard rewards for backers'.slice(0, 150)), // Max 150 chars
+            uintCV(parseInt(params.rewardTiers)),
+            stringAsciiCV(params.rewardDescription.slice(0, 150)), // Max 150 chars
             principalCV(`${verificationAddress}.${verificationName}`), // Verification contract trait
           ],
           network,
           onFinish: (data: any) => {
             console.log('Campaign creation transaction broadcast:', data.txId);
+            txId = data.txId;
           },
           onCancel: () => {
             console.log('Campaign creation cancelled');
           },
         };
-
         await openContractCall(txOptions);
-
+        if (txId) {
+          console.log('Broadcasted txId:', txId);
+        } else {
+          console.log('No txId: Transaction was likely cancelled.');
+        }
         // Return success with pending transaction
         const newCampaign: Campaign = {
           id: nextCampaignId.toString(),
@@ -126,11 +128,10 @@ export class CrowdfundingService {
           mediaUrls: params.mediaUrls || [],
           tags: params.tags || [],
         };
-
         return {
           success: true,
           data: newCampaign,
-          transactionId: 'pending',
+          transactionId: txId,
         };
       } catch (txError) {
         console.error('Campaign creation transaction error:', txError);
@@ -175,9 +176,9 @@ export class CrowdfundingService {
 
       // Call smart contract to contribute to campaign
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('crowdfunding');
       const contractName = getContractName('crowdfunding');
-      const escrowAddress = getContractAddress();
+      const escrowAddress = getContractAddress('escrow');
       const escrowName = getContractName('escrow');
       const userAddress = this.userSession.loadUserData().profile.stxAddress.mainnet;
 
