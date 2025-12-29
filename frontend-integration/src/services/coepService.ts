@@ -74,9 +74,9 @@ export class CoEPService {
 
       // Call smart contract to create pool
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('coep');
       const contractName = getContractName('coep');
-      const verificationAddress = getContractAddress(); // Same address for all contracts
+      const verificationAddress = getContractAddress('verification');
       const verificationName = getContractName('verification');
 
       try {
@@ -194,7 +194,7 @@ export class CoEPService {
 
       // Call smart contract to join pool
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('coep');
       const contractName = getContractName('coep');
       const userAddress = this.userSession.loadUserData().profile.stxAddress.mainnet;
 
@@ -295,7 +295,7 @@ export class CoEPService {
 
       // Call smart contract to contribute to pool
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('coep');
       const contractName = getContractName('coep');
 
       try {
@@ -606,11 +606,11 @@ export class CoEPService {
       // 4. Advance rotation schedule to next member
       // 5. Reset contribution status for all members
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('coep');
       const contractName = getContractName('coep');
-      const crowdfundingAddress = getContractAddress();
+      const crowdfundingAddress = getContractAddress('crowdfunding');
       const crowdfundingName = getContractName('crowdfunding');
-      const verificationAddress = getContractAddress();
+      const verificationAddress = getContractAddress('verification');
       const verificationName = getContractName('verification');
 
       try {
@@ -718,7 +718,7 @@ export class CoEPService {
 
       // Call smart contract to update project details
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('coep');
       const contractName = getContractName('coep');
 
       try {
