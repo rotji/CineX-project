@@ -58,13 +58,24 @@ export function getNetwork(): StacksNetwork {
 /**
  * Get contract deployment address from environment
  */
-export function getContractAddress(): string {
-  const address = import.meta.env.VITE_CO_EP_CONTRACT_ADDRESS;
-  
+
+export function getContractAddress(contractType: 'coep' | 'crowdfunding' | 'core' | 'verification' | 'escrow'): string {
+  const envMap = {
+    coep: 'VITE_CO_EP_CONTRACT_ADDRESS',
+    crowdfunding: 'VITE_CROWDFUNDING_CONTRACT_ADDRESS',
+    core: 'VITE_MAIN_HUB_CONTRACT_ADDRESS',
+    verification: 'VITE_VERIFICATION_CONTRACT_ADDRESS',
+    escrow: 'VITE_ESCROW_CONTRACT_ADDRESS',
+  };
+  const envKey = envMap[contractType];
+  const address = import.meta.env[envKey];
   if (!address) {
-    throw new Error('VITE_CO_EP_CONTRACT_ADDRESS not configured in environment');
+    throw new Error(`${envKey} not configured in environment`);
   }
-  
+  if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+    // eslint-disable-next-line no-console
+    console.log(`[DEBUG] getContractAddress(${contractType}) = ${address}`);
+  }
   return address;
 }
 
@@ -79,14 +90,15 @@ export function getContractName(contractType: 'coep' | 'crowdfunding' | 'core' |
     verification: 'VITE_VERIFICATION_CONTRACT_NAME',
     escrow: 'VITE_ESCROW_CONTRACT_NAME',
   };
-  
   const envKey = envMap[contractType];
   const contractName = import.meta.env[envKey];
-  
   if (!contractName) {
     throw new Error(`${envKey} not configured in environment`);
   }
-  
+  if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+    // eslint-disable-next-line no-console
+    console.log(`[DEBUG] getContractName(${contractType}) = ${contractName}`);
+  }
   return contractName;
 }
 
@@ -94,8 +106,12 @@ export function getContractName(contractType: 'coep' | 'crowdfunding' | 'core' |
  * Build full contract identifier (address.contract-name)
  */
 export function getContractIdentifier(contractType: 'coep' | 'crowdfunding' | 'core' | 'verification' | 'escrow'): string {
-  const address = getContractAddress();
+  const address = getContractAddress(contractType);
   const name = getContractName(contractType);
+  if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+    // eslint-disable-next-line no-console
+    console.log(`[DEBUG] getContractIdentifier(${contractType}) = ${address}.${name}`);
+  }
   return `${address}.${name}`;
 }
 

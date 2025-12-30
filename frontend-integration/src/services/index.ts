@@ -74,8 +74,8 @@ export function createCineXServices(userSession: any) {
  */
 export const ServiceConfig = {
   // API endpoints (when we integrate with real backend)
-  API_BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:3001',
-  STACKS_API_URL: process.env.REACT_APP_STACKS_API_URL || 'https://stacks-node-api.testnet.stacks.co',
+  API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  STACKS_API_URL: import.meta.env.VITE_STACKS_API_URL || 'https://stacks-node-api.testnet.stacks.co',
   
   // Default pagination limits
   DEFAULT_PAGE_SIZE: 10,

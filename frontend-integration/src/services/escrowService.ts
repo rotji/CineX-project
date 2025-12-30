@@ -3,8 +3,7 @@
 
 import { 
   uintCV,
-  principalCV,
-  fetchCallReadOnlyFunction,
+  // ...existing code...
 } from '@stacks/transactions';
 import { openContractCall } from '@stacks/connect';
 import { 
@@ -83,7 +82,7 @@ export class EscrowService {
 
       // Call smart contract to deposit to escrow
       const network = getNetwork();
-      const contractAddress = getContractAddress();
+      const contractAddress = getContractAddress('escrow');
       const contractName = getContractName('escrow');
       const userAddress = this.userSession.loadUserData().profile.stxAddress.mainnet;
 
