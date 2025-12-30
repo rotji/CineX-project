@@ -52,6 +52,10 @@ const Header: React.FC = () => {
         <Link to="/pool-create" className={styles.navLink}>Create Pool</Link>
         <Link to="/coep-pools" className={styles.navLink}>Browse Pools</Link>
         <Link to="/waitlist" className={styles.navLink}>Waitlist</Link>
+        {/* Dashboards */}
+        <Link to="/dashboard/public" className={styles.navLink}>Public Dashboard</Link>
+        <Link to="/dashboard/filmmaker" className={styles.navLink}>Filmmaker Dashboard</Link>
+        <Link to="/dashboard/endorser" className={styles.navLink}>Endorser Dashboard</Link>
       </nav>
       <div className={styles.hamburgerMenuWrapper}>
         <button className={styles.hamburger} onClick={toggleMenu} aria-label="Open menu">

@@ -11,10 +11,14 @@ const CampaignCreate: React.FC = () => {
     description: '',
     targetAmount: '',
     category: 'feature' as CategoryType,
+    duration: '', // in days
+    rewardTiers: '',
+    rewardDescription: '',
     deadline: '',
     mediaUrls: [''],
     tags: [''],
   });
+  const [txId, setTxId] = useState<string | null>(null);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,16 +88,19 @@ const CampaignCreate: React.FC = () => {
         title: formData.title,
         description: formData.description,
         targetAmount: formData.targetAmount,
-        category: formData.category as any, // Allow any category type
+        category: formData.category as any,
         deadline: deadlineTimestamp,
+        duration: formData.duration,
+        rewardTiers: formData.rewardTiers,
+        rewardDescription: formData.rewardDescription,
         mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
         tags: tags.length > 0 ? tags : undefined,
       });
 
       if (result.success) {
         setSuccess(true);
+        setTxId(result.transactionId ?? null);
         console.log('Campaign created successfully:', result.data);
-        
         // Reset form after 2 seconds
         setTimeout(() => {
           setFormData({
@@ -101,6 +108,9 @@ const CampaignCreate: React.FC = () => {
             description: '',
             targetAmount: '',
             category: 'feature' as CategoryType,
+            duration: '',
+            rewardTiers: '',
+            rewardDescription: '',
             deadline: '',
             mediaUrls: [''],
             tags: [''],
@@ -167,11 +177,70 @@ const CampaignCreate: React.FC = () => {
           
           {success && (
             <div className={styles.successMessage}>
-              ✅ Campaign created successfully! Check your wallet for transaction confirmation.
+              ✅ Campaign created successfully! Check your wallet for transaction confirmation.<br />
+              {txId && (
+                <>
+                  <br />
+                  <span style={{ fontWeight: 'bold' }}>TxID:</span> <span style={{ fontFamily: 'monospace' }}>{txId}</span>
+                  <br />
+                  <a href={`https://explorer.stacks.co/txid/${txId}?chain=devnet`} target="_blank" rel="noopener noreferrer">View on Stacks Explorer</a>
+                  <button style={{ marginLeft: 8 }} type="button" onClick={() => {navigator.clipboard.writeText(txId)}}>Copy TxID</button>
+                </>
+              )}
             </div>
           )}
 
           <div className={styles.formSection}>
+                        <div className={styles.formGroup}>
+                          <label className={styles.label}>
+                            Campaign Duration (days) *
+                            <span className={styles.helperText}>How long should your campaign run? (minimum 1 day)</span>
+                          </label>
+                          <input
+                            type="number"
+                            name="duration"
+                            value={formData.duration}
+                            onChange={handleInputChange}
+                            className={styles.input}
+                            required
+                            min="1"
+                            placeholder="e.g., 30"
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label className={styles.label}>
+                            Reward Tiers *
+                            <span className={styles.helperText}>How many reward tiers will you offer?</span>
+                          </label>
+                          <input
+                            type="number"
+                            name="rewardTiers"
+                            value={formData.rewardTiers}
+                            onChange={handleInputChange}
+                            className={styles.input}
+                            required
+                            min="1"
+                            placeholder="e.g., 3"
+                          />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                          <label className={styles.label}>
+                            Reward Description *
+                            <span className={styles.helperText}>Describe the rewards for your backers (max 150 characters)</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="rewardDescription"
+                            value={formData.rewardDescription}
+                            onChange={handleInputChange}
+                            className={styles.input}
+                            required
+                            maxLength={150}
+                            placeholder="e.g., Digital poster, special thanks, etc."
+                          />
+                        </div>
             <h2 className={styles.sectionTitle}>Campaign Details</h2>
             
             <div className={styles.formGroup}>
@@ -242,7 +311,7 @@ const CampaignCreate: React.FC = () => {
                   onChange={handleInputChange}
                   className={styles.input}
                   required
-                  min="100"
+                  min="0.000001"
                   step="0.000001"
                   placeholder="e.g., 50000"
                 />

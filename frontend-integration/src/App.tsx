@@ -10,9 +10,20 @@ import Waitlist from './pages/Waitlist';
 import PoolDetail from './pages/PoolDetail';
 import PoolCreate from './pages/PoolCreate';
 import CampaignCreate from './pages/CampaignCreate';
-import { TransactionDemo } from './lib/TransactionDemo';
-import { EnhancedTransactionDemo } from './lib/EnhancedTransactionDemo';
+// Demo components (only loaded in development)
+const isDev = import.meta.env.MODE === 'development';
+let TransactionDemo: React.FC | undefined;
+let EnhancedTransactionDemo: React.FC | undefined;
+if (isDev) {
+  TransactionDemo = require('./lib/TransactionDemo').TransactionDemo;
+  EnhancedTransactionDemo = require('./lib/EnhancedTransactionDemo').EnhancedTransactionDemo;
+}
 import './App.css';
+// Removed dashboard imports
+import FilmmakerCampaigns from './pages/FilmmakerCampaigns';
+import FilmmakerPools from './pages/FilmmakerPools';
+import PublicCampaigns from './pages/PublicCampaigns';
+import PublicPools from './pages/PublicPools';
 
 function App() {
   return (
@@ -26,9 +37,20 @@ function App() {
           <Route path="/pool-detail/:poolId" element={<PoolDetail />} />
           <Route path="/pool-create" element={<PoolCreate />} />
           <Route path="/coep-pools" element={<CoEPPools />} />
-          {/* Developer testing routes - not shown in navigation */}
-          <Route path="/dev/transaction-demo" element={<TransactionDemo />} />
-          <Route path="/dev/modal-demo" element={<EnhancedTransactionDemo />} />
+          {/* Dashboards */}
+          {/* Removed dashboard routes for deleted components */}
+          {/* Dashboard subpages */}
+          <Route path="/filmmaker/campaigns" element={<FilmmakerCampaigns />} />
+          <Route path="/filmmaker/pools" element={<FilmmakerPools />} />
+          <Route path="/public/campaigns" element={<PublicCampaigns />} />
+          <Route path="/public/pools" element={<PublicPools />} />
+          {/* Developer testing routes - only enabled in development mode */}
+          {isDev && TransactionDemo && (
+            <Route path="/dev/transaction-demo" element={<TransactionDemo />} />
+          )}
+          {isDev && EnhancedTransactionDemo && (
+            <Route path="/dev/modal-demo" element={<EnhancedTransactionDemo />} />
+          )}
           <Route path="/endorsement" element={<EndorsementSystem />} />
           <Route path="/admin" element={<AdminControls />} />
         </Routes>
