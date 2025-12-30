@@ -32,6 +32,11 @@
   transition: color 0.3s, background 0.3s;
 }
 
+.smallNavLink {
+  font-size: 25%;
+  padding: 0.1em 0.2em;
+}
+
 .navLink:hover {
   color: #121212;
   background: #FFBF00;
